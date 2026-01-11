@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "quill",
+  "theme": "palm",
   "name": "CUCU API Docs",
   "colors": {
     "primary": "#6366F1",
