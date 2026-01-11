@@ -1,12 +1,22 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "theme": "quill",
+  "name": "CUCU API Docs",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#6366F1",
+    "light": "#8B5CF6",
+    "dark": "#4F46E5",
+    "background": {
+      "dark": "#0F172A",
+      "light": "#FFFFFF"
+    }
   },
+  "css": "/custom.css",
+  "scripts": [
+    {
+      "src": "/floating-cart.js"
+    }
+  ],
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
@@ -191,12 +201,17 @@
     "dark": "/logo/dark.svg"
   },
   "navbar": {
-    
     "primary": {
       "type": "button",
-      "label": "Get Satrted",
-      "href": "https://app.cucu.bo"
-    }
+      "label": "Comprar Ahora",
+      "href": "https://app.cucu.bo/checkout?plan=senior&billing=monthly"
+    },
+    "links": [
+      {
+        "label": "Ver Precios",
+        "href": "https://cucu.bo/pricing"
+      }
+    ]
   },
   "footer": {
     "socials": {
