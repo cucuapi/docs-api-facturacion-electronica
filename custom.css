@@ -1,0 +1,490 @@
+/* CUCU API Documentation - Custom Theme */
+
+/* ========================
+   CSS Variables
+   ======================== */
+:root {
+  --cucu-indigo: #6366F1;
+  --cucu-purple: #8B5CF6;
+  --cucu-dark: #4F46E5;
+  --cucu-bg-dark: #0F172A;
+  --cucu-bg-card: #1E293B;
+  --cucu-border: #334155;
+  --cucu-text-muted: #94A3B8;
+  --cucu-green: #10B981;
+  --cucu-amber: #F59E0B;
+  --cucu-red: #EF4444;
+}
+
+/* ========================
+   Compact ParamField (Mintlify API parameters)
+   ======================== */
+/* Reduce vertical spacing between parameter fields globally.
+   Mintlify renders each ParamField as a tall block with lots of margin.
+   These rules compact them for a denser, developer-friendly layout. */
+
+/* Target Mintlify's parameter field containers */
+[class*="paramField"],
+[class*="ParamField"],
+[class*="param-field"],
+[class*="parameter"],
+[class*="Parameter"] {
+  margin-top: 2px !important;
+  margin-bottom: 2px !important;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+
+/* Reduce spacing in parameter lists (the parent container) */
+[class*="paramField"] + [class*="paramField"],
+[class*="ParamField"] + [class*="ParamField"],
+[class*="param-field"] + [class*="param-field"] {
+  margin-top: 0 !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+/* Compact expandable/collapsible sections */
+[class*="Expandable"],
+[class*="expandable"] {
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
+}
+
+/* Reduce heading margin inside API sections */
+[class*="api"] h3,
+[class*="Api"] h3,
+[class*="endpoint"] h3 {
+  margin-top: 20px !important;
+  margin-bottom: 8px !important;
+}
+
+/* Tighter paragraph spacing in param descriptions */
+[class*="paramField"] p,
+[class*="ParamField"] p,
+[class*="param-field"] p {
+  margin: 2px 0 !important;
+  line-height: 1.4 !important;
+}
+
+/* General MDX content: reduce gap between h2/h3 and following content */
+.prose h2 + *,
+.prose h3 + *,
+article h2 + *,
+article h3 + * {
+  margin-top: 8px !important;
+}
+
+/* Reduce overall vertical rhythm in API reference pages */
+.prose > * + *,
+article > * + * {
+  margin-top: 12px;
+}
+
+/* ========================
+   HTTP Method Badges
+   ======================== */
+.api-method-badge-post {
+  background: linear-gradient(135deg, var(--cucu-indigo), var(--cucu-purple));
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.api-method-badge-get {
+  background: linear-gradient(135deg, #06B6D4, #0EA5E9);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.api-method-badge-put {
+  background: linear-gradient(135deg, var(--cucu-amber), #D97706);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.api-method-badge-patch {
+  background: linear-gradient(135deg, #F59E0B, #EAB308);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.api-method-badge-delete {
+  background: linear-gradient(135deg, var(--cucu-red), #DC2626);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* ========================
+   Dark Mode Code Blocks
+   ======================== */
+[data-theme="dark"] pre {
+  background: var(--cucu-bg-dark) !important;
+  border: 1px solid var(--cucu-border);
+  border-radius: 8px;
+}
+
+/* ========================
+   Gradient Cards (CTAs)
+   ======================== */
+.gradient-card {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+[data-theme="dark"] .gradient-card {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1));
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+/* ========================
+   MCP Section Highlight
+   ======================== */
+.cucu-mcp-highlight {
+  position: relative;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 16px 0;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(139, 92, 246, 0.04));
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.cucu-mcp-highlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--cucu-indigo), var(--cucu-purple), #06B6D4, var(--cucu-indigo));
+  background-size: 300% 300%;
+  animation: mcpGradientShift 6s ease infinite;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+[data-theme="dark"] .cucu-mcp-highlight {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.06));
+}
+
+@keyframes mcpGradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ========================
+   Plan Popular Badge
+   ======================== */
+.plan-popular {
+  position: relative;
+  border: 2px solid var(--cucu-indigo) !important;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.15);
+}
+
+.plan-popular::after {
+  content: 'Mas Popular';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--cucu-indigo), var(--cucu-purple));
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 14px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .plan-popular {
+  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.25);
+}
+
+/* ========================
+   Owl GIF Container
+   ======================== */
+.cucu-owl-container {
+  display: inline-block;
+  position: relative;
+}
+
+.cucu-owl-container img {
+  transition: transform 0.3s ease;
+}
+
+.cucu-owl-container:hover img {
+  transform: scale(1.08) rotate(-3deg);
+}
+
+.cucu-owl-container::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 8px;
+  background: radial-gradient(ellipse, rgba(99, 102, 241, 0.2), transparent);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cucu-owl-container:hover::after {
+  opacity: 1;
+}
+
+/* ========================
+   Feature Grid (Introduction)
+   ======================== */
+.cucu-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.cucu-feature-grid > div {
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.03), rgba(139, 92, 246, 0.03));
+  transition: all 0.2s ease;
+}
+
+.cucu-feature-grid > div:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.1);
+}
+
+[data-theme="dark"] .cucu-feature-grid > div {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.06), rgba(139, 92, 246, 0.04));
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+[data-theme="dark"] .cucu-feature-grid > div:hover {
+  border-color: rgba(99, 102, 241, 0.45);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+}
+
+.cucu-feature-grid > div h4,
+.cucu-feature-grid > div h3 {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.cucu-feature-grid > div p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--cucu-text-muted);
+  line-height: 1.5;
+}
+
+/* ========================
+   Animations
+   ======================== */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 4px 24px rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 32px rgba(99, 102, 241, 0.7);
+  }
+}
+
+/* ========================
+   Scrollbar
+   ======================== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--cucu-indigo), var(--cucu-purple));
+  border-radius: 3px;
+}
+
+/* ========================
+   Tables — Developer Reference
+   ======================== */
+/* More breathing room in tables (sector field reference, etc.) */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 16px 0 24px;
+}
+
+table th {
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+table td {
+  padding: 10px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  vertical-align: top;
+}
+
+/* Field name column — monospace, no wrap */
+table td:first-child {
+  white-space: nowrap;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', ui-monospace, monospace;
+  font-size: 13px;
+}
+
+/* Tipo column — compact */
+table td:nth-child(2) {
+  white-space: nowrap;
+  color: var(--cucu-text-muted);
+  font-size: 13px;
+}
+
+/* Req column — center, color */
+table td:nth-child(3) {
+  white-space: nowrap;
+  text-align: center;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Alternating row bg for readability */
+[data-theme="dark"] table tbody tr:nth-child(even) {
+  background: rgba(30, 41, 59, 0.3);
+}
+
+table tbody tr:nth-child(even) {
+  background: rgba(241, 245, 249, 0.5);
+}
+
+/* Subtle row hover */
+table tbody tr:hover {
+  background: rgba(99, 102, 241, 0.06);
+}
+
+[data-theme="dark"] table tbody tr:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+/* ========================
+   Navigation Tabs
+   ======================== */
+/* Tab items - gradient underline on active/hover */
+a.nav-tabs-item,
+[class*="nav-tabs"] a {
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+  transition: color 0.2s ease !important;
+}
+
+[data-theme="dark"] a.nav-tabs-item,
+[data-theme="dark"] [class*="nav-tabs"] a {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] a.nav-tabs-item:hover,
+[data-theme="dark"] [class*="nav-tabs"] a:hover {
+  color: #e2e8f0 !important;
+}
+
+/* Active tab - indigo accent */
+a.nav-tabs-item[aria-current="page"],
+a.nav-tabs-item[data-active="true"],
+[class*="nav-tabs"] a[aria-current="page"] {
+  color: var(--cucu-indigo) !important;
+}
+
+[data-theme="dark"] a.nav-tabs-item[aria-current="page"],
+[data-theme="dark"] a.nav-tabs-item[data-active="true"],
+[data-theme="dark"] [class*="nav-tabs"] a[aria-current="page"] {
+  color: #a5b4fc !important;
+}
+
+/* Active tab underline - gradient instead of gray */
+a.nav-tabs-item[aria-current="page"] > div,
+a.nav-tabs-item[data-active="true"] > div {
+  background: linear-gradient(90deg, var(--cucu-indigo), var(--cucu-purple)) !important;
+  height: 2px !important;
+}
+
+/* Hover underline - subtle indigo */
+a.nav-tabs-item:hover > div,
+[class*="nav-tabs"] a:hover > div {
+  background: rgba(99, 102, 241, 0.4) !important;
+  height: 2px !important;
+}
+
+/* ========================
+   Mobile Responsive
+   ======================== */
+@media (max-width: 768px) {
+  .cucu-feature-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .cucu-mcp-highlight {
+    padding: 16px;
+    margin: 12px 0;
+  }
+
+  .plan-popular::after {
+    font-size: 10px;
+    padding: 2px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cucu-feature-grid > div {
+    padding: 16px;
+  }
+}

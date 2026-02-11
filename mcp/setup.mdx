@@ -1,0 +1,419 @@
+---
+title: "Configuracion MCP"
+sidebarTitle: "Configuracion"
+description: "Guia paso a paso para conectar tu editor o AI al MCP Server de CUCU en 2 minutos."
+---
+
+## Prerequisitos
+
+<Note>
+  Antes de comenzar, asegurate de tener:
+
+  - **API Key de CUCU** — Registrate en [app.cucu.bo](https://app.cucu.bo/signup) para obtener una key sandbox gratuita. Las keys sandbox comienzan con `sk_test_` y conectan al SIAT piloto (sin efecto fiscal real).
+  - **Un cliente MCP compatible** — Claude Desktop, Cursor, Windsurf, VS Code con GitHub Copilot, o Claude Code CLI.
+  - **Conexion a internet** — El MCP Server corre en la nube, no requiere instalacion local ni Docker.
+</Note>
+
+---
+
+## Configurar tu cliente
+
+Selecciona tu editor o cliente AI y sigue las instrucciones. La configuracion toma menos de 2 minutos.
+
+<Tabs>
+  <Tab title="Claude Desktop">
+    Claude Desktop tiene soporte nativo para MCP con Streamable HTTP.
+
+    <Steps>
+      <Step title="Abre la configuracion MCP">
+        Ve a **Settings** (icono de engranaje) → **Developer** → **Edit Config**.
+
+        Esto abrira el archivo `claude_desktop_config.json` en tu editor de texto.
+      </Step>
+      <Step title="Agrega el servidor CUCU">
+        Pega la siguiente configuracion en el archivo:
+
+        ```json claude_desktop_config.json
+        {
+          "mcpServers": {
+            "cucu-facturacion": {
+              "url": "https://sandbox.cucu.bo/mcp",
+              "headers": {
+                "X-API-Key": "YOUR_API_KEY"
+              }
+            }
+          }
+        }
+        ```
+
+        <Warning>
+          Reemplaza la API Key del ejemplo con **tu propia key**. La key mostrada es una demo
+          publica con funcionalidad limitada.
+        </Warning>
+      </Step>
+      <Step title="Reinicia Claude Desktop">
+        Cierra y vuelve a abrir Claude Desktop. Veras el icono de herramientas (martillo)
+        en la barra de chat indicando que el MCP Server esta conectado.
+      </Step>
+    </Steps>
+
+    <Tip>
+      En macOS el archivo de configuracion se encuentra en:
+      `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+      En Windows:
+      `%APPDATA%\Claude\claude_desktop_config.json`
+    </Tip>
+  </Tab>
+
+  <Tab title="Cursor">
+    Cursor soporta MCP Servers nativamente desde su panel de configuracion.
+
+    <Steps>
+      <Step title="Abre la configuracion MCP">
+        Ve a **Settings** (Ctrl/Cmd + ,) → busca **MCP** en la barra de busqueda → haz clic en **Add new MCP server**.
+      </Step>
+      <Step title="Configura el servidor">
+        Agrega la siguiente configuracion:
+
+        ```json .cursor/mcp.json
+        {
+          "mcpServers": {
+            "cucu-facturacion": {
+              "url": "https://sandbox.cucu.bo/mcp",
+              "headers": {
+                "X-API-Key": "YOUR_API_KEY"
+              }
+            }
+          }
+        }
+        ```
+      </Step>
+      <Step title="Verifica la conexion">
+        En el panel de MCP deberas ver **cucu-facturacion** con estado verde (connected).
+        Si aparece en rojo, revisa la seccion de troubleshooting mas abajo.
+      </Step>
+    </Steps>
+
+    <Tip>
+      Tambien puedes crear el archivo `.cursor/mcp.json` en la raiz de tu proyecto
+      para que la configuracion sea especifica de ese workspace.
+    </Tip>
+  </Tab>
+
+  <Tab title="Windsurf">
+    Windsurf usa un archivo de configuracion global para MCP Servers.
+
+    <Steps>
+      <Step title="Crea o edita el archivo de configuracion">
+        Abre o crea el archivo `~/.windsurf/mcp_config.json`:
+
+        ```json ~/.windsurf/mcp_config.json
+        {
+          "mcpServers": {
+            "cucu-facturacion": {
+              "serverUrl": "https://sandbox.cucu.bo/mcp",
+              "headers": {
+                "X-API-Key": "YOUR_API_KEY"
+              }
+            }
+          }
+        }
+        ```
+
+        <Note>
+          Windsurf usa `serverUrl` en lugar de `url`. Asegurate de usar la propiedad correcta.
+        </Note>
+      </Step>
+      <Step title="Reinicia Windsurf">
+        Cierra y vuelve a abrir Windsurf para que detecte el nuevo servidor MCP.
+      </Step>
+      <Step title="Confirma en Cascade">
+        Abre Cascade (el panel AI de Windsurf) y verifica que las herramientas de
+        CUCU aparezcan disponibles.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="VS Code">
+    VS Code soporta MCP a traves de GitHub Copilot (modo agente) y extensiones compatibles.
+
+    <Steps>
+      <Step title="Crea el archivo de configuracion">
+        En la raiz de tu proyecto, crea el archivo `.vscode/mcp.json`:
+
+        ```json .vscode/mcp.json
+        {
+          "servers": {
+            "cucu-facturacion": {
+              "type": "http",
+              "url": "https://sandbox.cucu.bo/mcp",
+              "headers": {
+                "X-API-Key": "YOUR_API_KEY"
+              }
+            }
+          }
+        }
+        ```
+
+        <Note>
+          El formato de VS Code usa `servers` (no `mcpServers`) y requiere `"type": "http"`.
+          Es ligeramente diferente a los demas clientes.
+        </Note>
+      </Step>
+      <Step title="Activa el modo agente en Copilot">
+        Abre el chat de GitHub Copilot y cambia al modo **Agent** (icono de herramientas).
+        Las herramientas MCP solo estan disponibles en modo agente, no en modo chat normal.
+      </Step>
+      <Step title="Verifica las herramientas">
+        En el modo agente, haz clic en el icono de herramientas para ver la lista.
+        Deberas ver las 12 herramientas de CUCU disponibles.
+      </Step>
+    </Steps>
+
+    <Tip>
+      Si usas VS Code Insiders, MCP tiene mejor soporte y actualizaciones mas frecuentes.
+      Puedes instalar ambas versiones en paralelo.
+    </Tip>
+  </Tab>
+
+  <Tab title="Claude Code">
+    Claude Code (CLI) soporta MCP Servers via archivo de configuracion por proyecto.
+
+    <Steps>
+      <Step title="Crea el archivo de configuracion">
+        En la raiz de tu proyecto, crea o edita `.mcp.json`:
+
+        ```json .mcp.json
+        {
+          "mcpServers": {
+            "cucu-facturacion": {
+              "type": "url",
+              "url": "https://sandbox.cucu.bo/mcp",
+              "headers": {
+                "X-API-Key": "YOUR_API_KEY"
+              }
+            }
+          }
+        }
+        ```
+      </Step>
+      <Step title="Inicia Claude Code">
+        Ejecuta `claude` en tu terminal desde el directorio del proyecto. Claude Code
+        detectara automaticamente el archivo `.mcp.json` y conectara al servidor.
+
+        ```bash
+        cd tu-proyecto
+        claude
+        ```
+      </Step>
+      <Step title="Verifica con /mcp">
+        Dentro de Claude Code, ejecuta el comando `/mcp` para ver los servidores
+        conectados y sus herramientas disponibles.
+      </Step>
+    </Steps>
+
+    <Tip>
+      Claude Code tambien soporta configuracion global en `~/.claude/mcp.json`
+      si quieres que el servidor este disponible en todos tus proyectos.
+    </Tip>
+  </Tab>
+</Tabs>
+
+---
+
+## Verificar la conexion
+
+Una vez configurado tu cliente, verifica que todo funciona correctamente:
+
+<Steps>
+  <Step title="Prueba una herramienta simple">
+    Pidele a tu AI:
+
+    ```
+    Usa la herramienta verificarFormatoNit para verificar el NIT 1023456789
+    ```
+
+    Deberas recibir una respuesta confirmando que el NIT es valido.
+  </Step>
+  <Step title="Prueba una consulta">
+    Ahora prueba una herramienta que consulta datos:
+
+    ```
+    Lista las ultimas 3 facturas emitidas
+    ```
+
+    El AI usara `listarFacturas` y te mostrara los resultados.
+  </Step>
+  <Step title="Prueba la normativa (RAG)">
+    Verifica que el asistente AI con RAG funciona:
+
+    ```
+    Que requisitos necesita una factura electronica en Bolivia?
+    ```
+
+    El AI usara `consultarNormativa` para responder con informacion de la base de conocimiento.
+  </Step>
+</Steps>
+
+---
+
+## Endpoints MCP
+
+El MCP Server expone dos protocolos de transporte. Usa el que tu cliente soporte:
+
+| Protocolo | Sandbox | Produccion | Recomendado |
+|-----------|---------|------------|-------------|
+| **Streamable HTTP** | `https://sandbox.cucu.bo/mcp` | `https://api.cucu.bo/mcp` | Si — todos los clientes modernos |
+| **Legacy SSE** | `https://sandbox.cucu.bo/mcp/sse` | `https://api.cucu.bo/mcp/sse` | Solo si tu cliente no soporta Streamable HTTP |
+
+<Note>
+  **Streamable HTTP** es el protocolo recomendado. Es mas eficiente, tiene mejor manejo de errores
+  y es soportado por Claude Desktop, Cursor, Windsurf, VS Code y Claude Code.
+  El endpoint SSE existe por compatibilidad con clientes legacy como versiones antiguas de Continue.dev.
+</Note>
+
+---
+
+## Autenticacion
+
+El MCP Server usa **exactamente la misma autenticacion** que la API REST: el header `X-API-Key`.
+
+Cada request MCP se autentica y ejecuta dentro del contexto del tenant asociado a tu API Key. Esto significa:
+
+- **Aislamiento total** — Tu AI solo puede acceder a los datos de tu tenant (empresas, sucursales, facturas)
+- **Mismos permisos** — Los permisos de la API Key aplican igual en MCP y REST
+- **Misma key** — No necesitas una key separada para MCP; la misma key funciona en ambos canales
+- **Auditoria** — Todas las operaciones MCP se registran en el log de actividad de tu tenant
+
+```
+Header requerido en cada request:
+X-API-Key: sk_test_Tu_API_Key_Aqui
+```
+
+<Warning>
+  **Nunca compartas tu API Key.** Si configuras MCP en un equipo compartido, cada desarrollador
+  debe usar su propia key. Las keys comprometidas pueden revocarse desde el dashboard en
+  [app.cucu.bo](https://app.cucu.bo).
+</Warning>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Error: Invalid API Key / 401 Unauthorized">
+    **Causa:** La API Key es invalida, esta expirada o no se esta enviando correctamente.
+
+    **Solucion:**
+    1. Verifica que la key comience con `sk_test_` (sandbox) o `sk_live_` (produccion)
+    2. Asegurate de que el header se llame exactamente `X-API-Key` (con mayusculas)
+    3. Verifica que no haya espacios en blanco al inicio o final de la key
+    4. Genera una nueva key desde [app.cucu.bo](https://app.cucu.bo) si es necesario
+  </Accordion>
+
+  <Accordion title="Error: Connection refused / ECONNREFUSED">
+    **Causa:** El cliente no puede conectarse al servidor MCP.
+
+    **Solucion:**
+    1. Verifica tu conexion a internet
+    2. Confirma que la URL sea correcta: `https://sandbox.cucu.bo/mcp` (no HTTP, no trailing slash extra)
+    3. Si usas VPN o proxy corporativo, verifica que no bloquee conexiones a `*.cucu.bo`
+    4. Prueba acceder a `https://sandbox.cucu.bo/health` desde tu navegador para confirmar que el servidor esta disponible
+  </Accordion>
+
+  <Accordion title="Error: CORS / Blocked by browser policy">
+    **Causa:** Algunos clientes MCP basados en web pueden tener restricciones CORS.
+
+    **Solucion:**
+    El MCP Server de CUCU permite CORS desde todos los origenes para clientes MCP. Si ves este error:
+    1. Asegurate de usar la URL `/mcp` y no `/api/v1/...` (son endpoints diferentes)
+    2. Actualiza tu cliente MCP a la ultima version
+    3. Si usas un cliente custom, verifica que envie los headers correctos
+  </Accordion>
+
+  <Accordion title="Error: Timeout / La herramienta tarda demasiado">
+    **Causa:** Algunas operaciones como `crearFactura` dependen del tiempo de respuesta del SIAT.
+
+    **Solucion:**
+    1. El SIAT piloto puede tardar hasta 10 segundos en horas pico — esto es normal
+    2. Si el timeout persiste, usa `verificarComunicacion` para diagnosticar el estado del SIAT
+    3. Aumenta el timeout de tu cliente MCP si es configurable (recomendado: 30 segundos)
+    4. Si el SIAT esta caido, CUCU activara contingencia automaticamente en la siguiente llamada
+  </Accordion>
+
+  <Accordion title="Las herramientas no aparecen en mi cliente">
+    **Causa:** El cliente MCP no detecto el servidor o no completo el handshake.
+
+    **Solucion:**
+    1. Reinicia tu editor completamente (no solo recargar la ventana)
+    2. Verifica que el archivo de configuracion este en la ubicacion correcta para tu cliente
+    3. Revisa que el JSON sea valido (sin comas finales, sin comillas faltantes)
+    4. En Claude Desktop, verifica el log en: `~/Library/Logs/Claude/mcp*.log` (macOS)
+    5. En Cursor, revisa el panel de MCP para ver mensajes de error
+  </Accordion>
+
+  <Accordion title="Error: Wrong URL format / serverUrl vs url">
+    **Causa:** Cada cliente MCP usa un formato de configuracion ligeramente diferente.
+
+    **Solucion:**
+    Verifica que uses la propiedad correcta para tu cliente:
+    - **Claude Desktop:** `"url"` dentro de `"mcpServers"`
+    - **Cursor:** `"url"` dentro de `"mcpServers"`
+    - **Windsurf:** `"serverUrl"` (no `"url"`) dentro de `"mcpServers"`
+    - **VS Code:** `"url"` dentro de `"servers"` con `"type": "http"`
+    - **Claude Code:** `"url"` dentro de `"mcpServers"` con `"type": "url"`
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Pasar a produccion
+
+Cuando estes listo para emitir facturas reales, solo necesitas cambiar dos cosas en tu configuracion MCP:
+
+<Steps>
+  <Step title="Cambia la URL">
+    Reemplaza `sandbox.cucu.bo` por `api.cucu.bo`:
+
+    ```diff
+    - "url": "https://sandbox.cucu.bo/mcp"
+    + "url": "https://api.cucu.bo/mcp"
+    ```
+  </Step>
+  <Step title="Cambia la API Key">
+    Reemplaza tu key sandbox (`sk_test_...`) por tu key de produccion (`sk_live_...`):
+
+    ```diff
+    - "X-API-Key": "sk_test_..."
+    + "X-API-Key": "sk_live_..."
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+  **Las facturas en produccion son fiscalmente validas.** Se registran ante el SIN y tienen
+  efecto tributario real. Asegurate de haber completado:
+
+  - Registro de tu NIT y certificado digital (.pfx) en el dashboard
+  - Sincronizacion de catalogos SIAT de produccion
+  - Configuracion de sucursal(es) y punto(s) de venta reales
+  - Pruebas exhaustivas en sandbox antes de migrar
+</Warning>
+
+<Tip>
+  Puedes tener **ambas configuraciones** en paralelo — un servidor MCP sandbox para desarrollo
+  y otro de produccion para operaciones reales. Solo nombra los servidores diferente:
+  `cucu-sandbox` y `cucu-produccion`.
+</Tip>
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Herramientas MCP" icon="wrench" href="/mcp/tools">
+    Referencia completa de las 12 herramientas: parametros, schemas y ejemplos.
+  </Card>
+  <Card title="Referencia API REST" icon="code" href="/api-reference/overview">
+    Si prefieres integracion REST tradicional, consulta la referencia completa de endpoints.
+  </Card>
+</CardGroup>

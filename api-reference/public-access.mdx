@@ -1,0 +1,102 @@
+---
+title: "Acceso Publico"
+sidebarTitle: "Acceso Publico"
+description: "Descarga publica de facturas (PDF, XML, ticket, ZIP) sin autenticacion."
+---
+
+Estos endpoints son **publicos** y no requieren API Key. El CUF (Codigo Unico de Factura) actua como token de acceso.
+
+<Note>
+  Los URLs de descarga se incluyen en la respuesta al crear una factura. Puedes compartirlos directamente con tus clientes.
+</Note>
+
+## Informacion de la factura
+
+```
+GET /api/v1/public/invoice/{cuf}
+```
+
+<ParamField path="cuf" type="string" required>Codigo Unico de Factura.</ParamField>
+
+```json
+{
+  "success": true,
+  "data": {
+    "invoiceNumber": 5,
+    "state": "VALIDATED",
+    "amountTotal": 500.00,
+    "clientBusinessName": "EMPRESA DEMO S.R.L.",
+    "emissionDate": "2026-02-11T12:00:00",
+    "downloads": {
+      "pdf": "/api/v1/public/invoice/{cuf}/pdf",
+      "ticket": "/api/v1/public/invoice/{cuf}/ticket",
+      "xml": "/api/v1/public/invoice/{cuf}/xml",
+      "zip": "/api/v1/public/invoice/{cuf}/zip"
+    }
+  }
+}
+```
+
+---
+
+## Descargar PDF (A4)
+
+```
+GET /api/v1/public/invoice/{cuf}/pdf
+```
+
+Descarga la factura en formato PDF tamano A4.
+
+<CodeGroup>
+```bash cURL
+curl -O https://sandbox.cucu.bo/api/v1/public/invoice/2872F7294502332E637FABFBC3654EA82202AD48E0969F14EBEB8AF74/pdf
+```
+
+```javascript JavaScript
+window.open('https://sandbox.cucu.bo/api/v1/public/invoice/{cuf}/pdf');
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://sandbox.cucu.bo/api/v1/public/invoice/{cuf}/pdf'
+)
+with open('factura.pdf', 'wb') as f:
+    f.write(response.content)
+```
+</CodeGroup>
+
+---
+
+## Descargar Ticket (80mm)
+
+```
+GET /api/v1/public/invoice/{cuf}/ticket
+```
+
+Descarga la factura en formato ticket para impresoras de 80mm.
+
+---
+
+## Descargar XML
+
+```
+GET /api/v1/public/invoice/{cuf}/xml
+```
+
+Descarga el XML firmado digitalmente de la factura.
+
+---
+
+## Descargar ZIP
+
+```
+GET /api/v1/public/invoice/{cuf}/zip
+```
+
+Descarga un ZIP que contiene: PDF A4 + Ticket 80mm + XML firmado.
+
+<Tip>
+  Todos los archivos incluyen el header `Cache-Control: public, max-age=31536000`. Las facturas son inmutables una vez emitidas.
+</Tip>

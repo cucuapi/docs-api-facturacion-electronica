@@ -1,0 +1,324 @@
+---
+title: "MCP Server"
+sidebarTitle: "Introduccion"
+description: "Conecta Claude, Cursor o cualquier AI directamente a facturacion electronica. El futuro de la integracion."
+---
+
+<div style={{textAlign: 'center', marginBottom: '8px'}}>
+  <img src="/logo/cucu-saluda.gif" alt="CUCU AI" style={{width: '100px', margin: '0 auto', display: 'block'}} />
+</div>
+
+<div style={{textAlign: 'center', marginBottom: '32px'}}>
+  <h1 style={{fontSize: '2.5rem', fontWeight: '900', lineHeight: '1.1', margin: '0 0 12px', letterSpacing: '-0.03em'}}>
+    <span style={{background: 'linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+      Tu AI ya sabe facturar
+    </span>
+  </h1>
+  <p style={{fontSize: '1.15rem', color: '#94a3b8', maxWidth: '600px', margin: '0 auto', lineHeight: '1.6'}}>
+    12 herramientas MCP. Lenguaje natural. Facturacion electronica completa
+    sin escribir una sola linea de codigo.
+  </p>
+</div>
+
+<div className="cucu-mcp-highlight" style={{textAlign: 'center', padding: '24px 32px', marginBottom: '32px'}}>
+  <p style={{fontSize: '1rem', fontWeight: '600', margin: '0 0 8px'}}>
+    MCP es el nuevo REST
+  </p>
+  <p style={{fontSize: '0.9rem', color: '#94a3b8', margin: '0', maxWidth: '520px', marginLeft: 'auto', marginRight: 'auto'}}>
+    Asi como las APIs REST reemplazaron a SOAP, el Model Context Protocol esta
+    reemplazando la integracion manual. Tu agente AI ejecuta las herramientas directamente.
+  </p>
+</div>
+
+---
+
+## Que es MCP?
+
+El **Model Context Protocol** es un estandar abierto creado por [Anthropic](https://anthropic.com) que permite a los modelos de AI interactuar con herramientas externas de forma segura y tipada.
+
+<Steps>
+  <Step title="Tu le pides al AI en lenguaje natural">
+    _"Emite una factura a EMPRESA TECH S.R.L. por Bs. 1,500 de consultoria"_
+  </Step>
+  <Step title="MCP traduce a la herramienta correcta">
+    El protocolo identifica `crearFactura`, construye los parametros tipados y ejecuta
+  </Step>
+  <Step title="CUCU ejecuta contra el SIAT">
+    Firma digital, validacion fiscal, generacion de PDF/XML, envio de email — todo automatico
+  </Step>
+  <Step title="El resultado vuelve al AI">
+    Te confirma: _"Factura #42 emitida. CUF: 2872F4A1... Estado: VALIDADA. PDF enviado."_
+  </Step>
+</Steps>
+
+<Note>
+  MCP funciona con **cualquier modelo**: Claude (Anthropic), GPT (OpenAI), Gemini (Google),
+  modelos locales via Ollama, y cualquier cliente compatible con Streamable HTTP.
+</Note>
+
+---
+
+## Arquitectura
+
+{/* Layer 1: Clients */}
+<div style={{background: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', padding: '16px 20px', marginBottom: '0', fontFamily: 'monospace'}}>
+  <div style={{fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1.5px', color: '#475569', marginBottom: '12px'}}>MCP Clients</div>
+  <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+    <code style={{fontSize: '12px', color: '#94a3b8', padding: '6px 12px', background: '#1e293b', borderRadius: '6px', border: '1px solid #334155'}}>Claude Desktop</code>
+    <code style={{fontSize: '12px', color: '#94a3b8', padding: '6px 12px', background: '#1e293b', borderRadius: '6px', border: '1px solid #334155'}}>Cursor</code>
+    <code style={{fontSize: '12px', color: '#94a3b8', padding: '6px 12px', background: '#1e293b', borderRadius: '6px', border: '1px solid #334155'}}>Windsurf</code>
+    <code style={{fontSize: '12px', color: '#94a3b8', padding: '6px 12px', background: '#1e293b', borderRadius: '6px', border: '1px solid #334155'}}>VS Code</code>
+    <code style={{fontSize: '12px', color: '#94a3b8', padding: '6px 12px', background: '#1e293b', borderRadius: '6px', border: '1px solid #334155'}}>Claude Code</code>
+    <code style={{fontSize: '12px', color: '#94a3b8', padding: '6px 12px', background: '#1e293b', borderRadius: '6px', border: '1px solid #334155'}}>Any MCP client</code>
+  </div>
+</div>
+
+{/* Connector */}
+<div style={{textAlign: 'center', padding: '4px 0', fontFamily: 'monospace'}}>
+  <code style={{fontSize: '11px', color: '#64748b', background: '#0f172a', padding: '4px 14px', borderRadius: '4px', border: '1px solid #1e293b'}}>POST /mcp — Streamable HTTP — Header: X-API-Key</code>
+</div>
+
+{/* Layer 2: MCP Server */}
+<div style={{background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', padding: '20px', marginBottom: '0', fontFamily: 'monospace'}}>
+  <div style={{fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1.5px', color: '#475569', marginBottom: '4px'}}>CUCU MCP Server</div>
+  <div style={{fontSize: '12px', color: '#64748b', marginBottom: '16px'}}>12 tools — Streamable HTTP + SSE fallback</div>
+  <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px'}}>
+    <div style={{background: '#1e293b', border: '1px solid #334155', borderRadius: '6px', padding: '12px'}}>
+      <div style={{fontSize: '11px', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>Facturacion (6)</div>
+      <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>crearFactura()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>listarFacturas()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>obtenerFactura()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>anularFactura()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>obtenerPdf()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>reenviarEmail()</code>
+      </div>
+    </div>
+    <div style={{background: '#1e293b', border: '1px solid #334155', borderRadius: '6px', padding: '12px'}}>
+      <div style={{fontSize: '11px', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>Utilidades SIAT (6)</div>
+      <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>verificarNit()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>consultarNit()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>sincCatalogos()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>verificarSiat()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>consultarNormativa()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>estadoSistema()</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+{/* Connector */}
+<div style={{textAlign: 'center', padding: '4px 0', fontFamily: 'monospace'}}>
+  <code style={{fontSize: '11px', color: '#64748b', background: '#0f172a', padding: '4px 14px', borderRadius: '4px', border: '1px solid #1e293b'}}>SOAP / JDBC / S3 SDK / gRPC</code>
+</div>
+
+{/* Layer 3: Infrastructure */}
+<div style={{background: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', padding: '16px 20px', fontFamily: 'monospace'}}>
+  <div style={{fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1.5px', color: '#475569', marginBottom: '12px'}}>Infrastructure</div>
+  <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px'}}>
+    <div style={{background: '#1e293b', border: '1px solid #334155', borderRadius: '6px', padding: '12px', textAlign: 'center'}}>
+      <div style={{fontSize: '12px', fontWeight: '600', color: '#e2e8f0'}}>SIAT</div>
+      <div style={{fontSize: '10px', color: '#475569', marginTop: '2px'}}>SOAP · SIN Bolivia</div>
+    </div>
+    <div style={{background: '#1e293b', border: '1px solid #334155', borderRadius: '6px', padding: '12px', textAlign: 'center'}}>
+      <div style={{fontSize: '12px', fontWeight: '600', color: '#e2e8f0'}}>PostgreSQL</div>
+      <div style={{fontSize: '10px', color: '#475569', marginTop: '2px'}}>JDBC · RDS</div>
+    </div>
+    <div style={{background: '#1e293b', border: '1px solid #334155', borderRadius: '6px', padding: '12px', textAlign: 'center'}}>
+      <div style={{fontSize: '12px', fontWeight: '600', color: '#e2e8f0'}}>S3</div>
+      <div style={{fontSize: '10px', color: '#475569', marginTop: '2px'}}>SDK · PDF/XML</div>
+    </div>
+    <div style={{background: '#1e293b', border: '1px solid #334155', borderRadius: '6px', padding: '12px', textAlign: 'center'}}>
+      <div style={{fontSize: '12px', fontWeight: '600', color: '#e2e8f0'}}>Qdrant</div>
+      <div style={{fontSize: '10px', color: '#475569', marginTop: '2px'}}>gRPC · RAG</div>
+    </div>
+  </div>
+</div>
+
+---
+
+## Las 12 herramientas
+
+### Facturacion
+
+El ciclo completo de facturacion electronica en 6 herramientas.
+
+<CardGroup cols={2}>
+  <Card title="crearFactura" icon="file-invoice">
+    Emite una factura electronica completa. Firma digital, CUF, validacion SIAT,
+    PDF/XML y email al cliente. Soporta contingencia automatica.
+  </Card>
+  <Card title="listarFacturas" icon="list">
+    Lista facturas con filtros por fecha, estado, NIT, numero.
+    Paginacion incluida. Ideal para reportes y conciliaciones.
+  </Card>
+  <Card title="obtenerFactura" icon="magnifying-glass">
+    Detalle completo de una factura: datos fiscales, CUF, estado SIAT,
+    items, montos, impuestos y metadata.
+  </Card>
+  <Card title="anularFactura" icon="ban">
+    Anula una factura ante el SIAT con motivo del catalogo SIN.
+    Registra la anulacion y notifica al cliente.
+  </Card>
+  <Card title="obtenerPdfFactura" icon="file-pdf">
+    Descarga el PDF en formato A4 o ticket 80mm. Incluye QR,
+    CUF y todos los datos normativos requeridos.
+  </Card>
+  <Card title="reenviarEmailFactura" icon="paper-plane">
+    Reenvia la factura por email al cliente o a otra direccion.
+    Util cuando no recibio el correo original.
+  </Card>
+</CardGroup>
+
+### Utilidades SIAT
+
+Herramientas de soporte para operaciones fiscales y diagnostico.
+
+<CardGroup cols={2}>
+  <Card title="verificarFormatoNit" icon="check-double">
+    Valida formato NIT segun algoritmo del SIN. Detecta errores
+    de digitacion antes de emitir factura.
+  </Card>
+  <Card title="consultarNit" icon="building-columns">
+    Consulta un NIT contra el SIAT para obtener razon social.
+    Verifica que este activo y habilitado.
+  </Card>
+  <Card title="sincronizarCatalogos" icon="arrows-rotate">
+    Sincroniza catalogos SIAT: actividades economicas, productos,
+    tipos de documento, motivos de anulacion.
+  </Card>
+  <Card title="verificarComunicacion" icon="tower-broadcast">
+    Diagnostica conectividad con el SIAT en tiempo real.
+    Detecta si debe activarse el modo contingencia.
+  </Card>
+  <Card title="consultarNormativa" icon="book-open">
+    Consulta normativa tributaria usando RAG con Qdrant.
+    Responde preguntas sobre regulaciones y requisitos fiscales.
+  </Card>
+  <Card title="obtenerEstadoSistema" icon="heart-pulse">
+    Estado del sistema: conexion SIAT, BD, servicios,
+    version de catalogos y metricas de salud.
+  </Card>
+</CardGroup>
+
+---
+
+## Ejemplo en vivo
+
+Asi se ve una sesion real usando MCP desde Claude Desktop:
+
+<Steps>
+  <Step title="Tu le pides al AI">
+    ```
+    Emite una factura a EMPRESA TECH S.R.L. con NIT 1234567
+    por Bs. 1,500 de servicio de consultoria en tecnologia
+    ```
+  </Step>
+  <Step title="El AI ejecuta crearFactura">
+    El AI identifica la herramienta correcta, construye los parametros y ejecuta:
+
+    ```json
+    {
+      "tool": "crearFactura",
+      "arguments": {
+        "nitCliente": "1234567",
+        "razonSocial": "EMPRESA TECH S.R.L.",
+        "detalle": [{
+          "descripcion": "Servicio de consultoria en tecnologia",
+          "cantidad": 1,
+          "precioUnitario": 1500.00,
+          "codigoProductoSin": 86101
+        }]
+      }
+    }
+    ```
+  </Step>
+  <Step title="Recibes la confirmacion">
+    El AI te responde en lenguaje natural:
+
+    ```
+    Factura #42 emitida exitosamente:
+
+    - CUF: 2872F4A1C0E8B3D5...
+    - Cliente: EMPRESA TECH S.R.L. (NIT 1234567)
+    - Monto: Bs. 1,500.00
+    - Estado: VALIDADA por el SIAT
+    - PDF y email enviados automaticamente
+    ```
+  </Step>
+  <Step title="Puedes seguir operando">
+    ```
+    Ahora anulala por error en los datos del cliente
+    ```
+
+    El AI ejecuta `anularFactura` con el motivo correspondiente y te confirma
+    la anulacion ante el SIAT.
+  </Step>
+</Steps>
+
+<Warning>
+  Las operaciones MCP son **reales**. Si estas en sandbox (`sk_test_`), se ejecutan contra el
+  SIAT piloto. Si usas una key de produccion (`sk_live_`), las facturas son fiscalmente validas
+  ante el SIN. Trata las herramientas MCP con el mismo cuidado que una llamada API.
+</Warning>
+
+---
+
+## Clientes compatibles
+
+| Cliente | Plataforma | Protocolo | Estado |
+|---------|-----------|-----------|--------|
+| **Claude Desktop** | macOS, Windows | Streamable HTTP | Soportado |
+| **Cursor** | macOS, Windows, Linux | Streamable HTTP | Soportado |
+| **Windsurf** | macOS, Windows, Linux | Streamable HTTP | Soportado |
+| **VS Code** (GitHub Copilot) | macOS, Windows, Linux | Streamable HTTP | Soportado |
+| **Claude Code** (CLI) | macOS, Linux | Streamable HTTP | Soportado |
+| **Continue.dev** | VS Code, JetBrains | SSE | Soportado |
+| **Clientes custom** | Cualquiera | Streamable HTTP / SSE | Soportado |
+
+<Tip>
+  Si tu cliente solo soporta SSE (legacy), usa el endpoint `/mcp/sse` en lugar de `/mcp`.
+  Ambos protocolos usan la misma autenticacion y herramientas.
+</Tip>
+
+---
+
+## Siguiente paso
+
+<CardGroup cols={2}>
+  <Card title="Configurar MCP" icon="gear" href="/mcp/setup">
+    Conecta Claude Desktop, Cursor, Windsurf, VS Code o Claude Code
+    al MCP Server. **Listo en 2 minutos.**
+  </Card>
+  <Card title="Referencia de herramientas" icon="wrench" href="/mcp/tools">
+    Documentacion detallada de las 12 herramientas: parametros,
+    schemas, codigos de error y ejemplos reales.
+  </Card>
+</CardGroup>
+
+---
+
+<div className="gradient-card" style={{marginTop: '32px', padding: '32px', textAlign: 'center', borderRadius: '16px'}}>
+  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '16px'}}>
+    <img src="/logo/cucu-fly-small.gif" alt="CUCU" style={{width: '56px'}} />
+    <h3 style={{margin: 0, fontSize: '1.4rem', fontWeight: '800'}}>
+      <span style={{background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+        Integra facturacion con AI
+      </span>
+    </h3>
+  </div>
+  <p style={{maxWidth: '500px', margin: '0 auto 20px', color: '#94a3b8', lineHeight: '1.5'}}>
+    Conecta tu editor o asistente AI al MCP Server de CUCU. Emite facturas
+    con lenguaje natural. Sin codigo, sin documentacion, sin friccion.
+  </p>
+  <a href="https://app.cucu.bo/signup" style={{
+    display: 'inline-flex', alignItems: 'center', gap: '8px',
+    padding: '12px 28px', borderRadius: '12px',
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    color: '#ffffff', fontWeight: '700', fontSize: '15px',
+    textDecoration: 'none', boxShadow: '0 4px 20px rgba(99, 102, 241, 0.35)'
+  }}>
+    Obtener API Key gratuita →
+  </a>
+</div>

@@ -1,0 +1,160 @@
+---
+title: "Contingencia"
+sidebarTitle: "Contingencia"
+description: "Gestiona eventos de contingencia cuando el SIAT no esta disponible."
+---
+
+Cuando el SIAT no responde, puedes activar un evento de contingencia para seguir emitiendo facturas offline. Las facturas emitidas en contingencia se envian al SIAT cuando el servicio se restablece.
+
+## Iniciar Evento de Contingencia
+
+<ParamField header="X-API-Key" type="string" required>Tu API Key.</ParamField>
+
+```
+POST /api/v1/events/start
+```
+
+### Request Body
+
+<ParamField body="posId" type="string" required>UUID del punto de venta.</ParamField>
+<ParamField body="branchId" type="string" required>UUID de la sucursal.</ParamField>
+<ParamField body="codigoMotivo" type="integer" required>
+  Codigo de motivo: `1` = Corte de internet, `2` = Falla SIAT, `3` = Virus informatico, `4` = Otro.
+</ParamField>
+<ParamField body="descripcion" type="string" required>Descripcion del evento.</ParamField>
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/events/start \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "posId": "660e8400-e29b-41d4-a716-446655440004",
+    "branchId": "660e8400-e29b-41d4-a716-446655440003",
+    "codigoMotivo": 2,
+    "descripcion": "SIAT no responde desde las 10:00"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/events/start', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    posId: '660e8400-e29b-41d4-a716-446655440004',
+    branchId: '660e8400-e29b-41d4-a716-446655440003',
+    codigoMotivo: 2,
+    descripcion: 'SIAT no responde desde las 10:00'
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/events/start',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'posId': '660e8400-e29b-41d4-a716-446655440004',
+        'branchId': '660e8400-e29b-41d4-a716-446655440003',
+        'codigoMotivo': 2,
+        'descripcion': 'SIAT no responde desde las 10:00'
+    }
+)
+```
+</CodeGroup>
+
+**Respuesta (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "event-uuid-123",
+    "posId": "660e8400-e29b-41d4-a716-446655440004",
+    "codigoMotivo": 2,
+    "descripcionMotivo": "Falla SIAT",
+    "fechaInicio": "2026-02-11T10:00:00",
+    "fechaFin": null,
+    "cufdEvento": "BQW5FZ...",
+    "codigoEventoSiat": 12345,
+    "finalizado": false,
+    "createdAt": "2026-02-11T10:00:00"
+  }
+}
+```
+
+---
+
+## Finalizar Evento de Contingencia
+
+```
+POST /api/v1/events/end
+```
+
+### Request Body
+
+<ParamField body="posId" type="string" required>UUID del punto de venta.</ParamField>
+<ParamField body="branchId" type="string" required>UUID de la sucursal.</ParamField>
+<ParamField body="eventoId" type="string" required>UUID del evento a finalizar.</ParamField>
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/events/end \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "posId": "660e8400-e29b-41d4-a716-446655440004",
+    "branchId": "660e8400-e29b-41d4-a716-446655440003",
+    "eventoId": "event-uuid-123"
+  }'
+```
+</CodeGroup>
+
+---
+
+## Consultar Eventos
+
+```
+POST /api/v1/events
+```
+
+### Request Body
+
+<ParamField body="posId" type="string" required>UUID del punto de venta.</ParamField>
+<ParamField body="branchId" type="string" required>UUID de la sucursal.</ParamField>
+<ParamField body="fechaEvento" type="string" required>Fecha a consultar (formato `YYYY-MM-DD`).</ParamField>
+
+---
+
+## Evento Activo
+
+```
+GET /api/v1/events/active/{posId}
+```
+
+Obtiene el evento de contingencia activo (no finalizado) para un punto de venta.
+
+---
+
+## Verificar Conexion SIAT
+
+```
+GET /api/v1/events/check-connection
+```
+
+Verifica si el SIAT esta respondiendo. Util para decidir si iniciar contingencia.
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```

@@ -1,0 +1,145 @@
+---
+title: "Telecomunicaciones"
+sidebarTitle: "Telecom"
+description: "Factura para empresas de telecomunicaciones. Sector 18."
+---
+
+Para empresas de telefonia fija, movil, internet y servicios de telecomunicaciones.
+
+## Datos del sector
+
+| Campo | Valor |
+|-------|-------|
+| `codigoDocumentoSector` | `18` |
+| `invoiceType` electronica | `ELECTRONIC_TELECOM` |
+| `invoiceType` computarizada | `COMPUTERIZED_TELECOM` |
+| WSDL SIAT | `ServicioFacturacionTelecomunicaciones` |
+
+## Campos adicionales
+
+### Detalle
+
+| Campo | Tipo | Req | Descripcion |
+|-------|------|-----|-------------|
+| `details[].serialNumber` | string | No | Numero de serie del equipo vendido |
+| `details[].imeiNumber` | string | No | Numero IMEI del dispositivo movil |
+
+## Ejemplo
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "invoiceType": "ELECTRONIC_TELECOM",
+    "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
+    "clientDocumentType": 5,
+    "clientDocumentNumber": "99001",
+    "clientBusinessName": "EMPRESA CONECTADA S.R.L.",
+    "paymentMethodCode": 1,
+    "details": [
+      {
+        "activityEconomic": "642000",
+        "codeProductSin": "84111",
+        "description": "Plan corporativo 100GB - Marzo 2026",
+        "quantity": 1,
+        "unitMeasure": 58,
+        "priceUnit": 350.00
+      },
+      {
+        "activityEconomic": "642000",
+        "codeProductSin": "45231",
+        "description": "Smartphone Samsung Galaxy S26",
+        "quantity": 1,
+        "unitMeasure": 1,
+        "priceUnit": 4500.00,
+        "serialNumber": "SN-2026-0001234",
+        "imeiNumber": "353456789012345"
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    invoiceType: 'ELECTRONIC_TELECOM',
+    pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
+    clientDocumentType: 5,
+    clientDocumentNumber: '99001',
+    clientBusinessName: 'EMPRESA CONECTADA S.R.L.',
+    paymentMethodCode: 1,
+    details: [
+      {
+        activityEconomic: '642000',
+        codeProductSin: '84111',
+        description: 'Plan corporativo 100GB - Marzo 2026',
+        quantity: 1,
+        unitMeasure: 58,
+        priceUnit: 350.00
+      },
+      {
+        activityEconomic: '642000',
+        codeProductSin: '45231',
+        description: 'Smartphone Samsung Galaxy S26',
+        quantity: 1,
+        unitMeasure: 1,
+        priceUnit: 4500.00,
+        serialNumber: 'SN-2026-0001234',
+        imeiNumber: '353456789012345'
+      }
+    ]
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'invoiceType': 'ELECTRONIC_TELECOM',
+        'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
+        'clientDocumentType': 5,
+        'clientDocumentNumber': '99001',
+        'clientBusinessName': 'EMPRESA CONECTADA S.R.L.',
+        'paymentMethodCode': 1,
+        'details': [
+            {
+                'activityEconomic': '642000',
+                'codeProductSin': '84111',
+                'description': 'Plan corporativo 100GB - Marzo 2026',
+                'quantity': 1,
+                'unitMeasure': 58,
+                'priceUnit': 350.00
+            },
+            {
+                'activityEconomic': '642000',
+                'codeProductSin': '45231',
+                'description': 'Smartphone Samsung Galaxy S26',
+                'quantity': 1,
+                'unitMeasure': 1,
+                'priceUnit': 4500.00,
+                'serialNumber': 'SN-2026-0001234',
+                'imeiNumber': '353456789012345'
+            }
+        ]
+    }
+)
+```
+</CodeGroup>
+
+<Info>
+  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+</Info>

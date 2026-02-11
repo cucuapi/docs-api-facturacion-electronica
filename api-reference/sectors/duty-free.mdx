@@ -1,0 +1,109 @@
+---
+title: "Tasa Cero"
+sidebarTitle: "Tasa Cero"
+description: "Factura con tasa IVA cero para sectores exentos. Sector 5."
+---
+
+Para operaciones con tasa IVA cero: exportacion de servicios, diplomticos, organismos internacionales y otros casos especificos definidos por el SIN.
+
+## Datos del sector
+
+| Campo | Valor |
+|-------|-------|
+| `codigoDocumentoSector` | `5` |
+| `invoiceType` | `ELECTRONIC_DUTY_FREE` |
+| WSDL SIAT | `ServicioFacturacionCompraVenta` |
+
+## Campos adicionales
+
+Este sector no requiere campos adicionales mas alla de los [campos estandar](/api-reference/create-invoice#request-body).
+
+<Warning>
+  El tipo de documento del cliente (`clientDocumentType`) para tasa cero debe ser `5` (NIT) y el numero de documento NO puede ser `0`. Use un numero valido como `99001`.
+</Warning>
+
+## Ejemplo
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "invoiceType": "ELECTRONIC_DUTY_FREE",
+    "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
+    "clientDocumentType": 5,
+    "clientDocumentNumber": "99001",
+    "clientBusinessName": "ORGANIZACION INTERNACIONAL",
+    "paymentMethodCode": 1,
+    "details": [
+      {
+        "activityEconomic": "620100",
+        "codeProductSin": "83141",
+        "description": "Consultoria internacional - tasa cero",
+        "quantity": 1,
+        "unitMeasure": 58,
+        "priceUnit": 3000.00
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    invoiceType: 'ELECTRONIC_DUTY_FREE',
+    pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
+    clientDocumentType: 5,
+    clientDocumentNumber: '99001',
+    clientBusinessName: 'ORGANIZACION INTERNACIONAL',
+    paymentMethodCode: 1,
+    details: [{
+      activityEconomic: '620100',
+      codeProductSin: '83141',
+      description: 'Consultoria internacional - tasa cero',
+      quantity: 1,
+      unitMeasure: 58,
+      priceUnit: 3000.00
+    }]
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'invoiceType': 'ELECTRONIC_DUTY_FREE',
+        'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
+        'clientDocumentType': 5,
+        'clientDocumentNumber': '99001',
+        'clientBusinessName': 'ORGANIZACION INTERNACIONAL',
+        'paymentMethodCode': 1,
+        'details': [{
+            'activityEconomic': '620100',
+            'codeProductSin': '83141',
+            'description': 'Consultoria internacional - tasa cero',
+            'quantity': 1,
+            'unitMeasure': 58,
+            'priceUnit': 3000.00
+        }]
+    }
+)
+```
+</CodeGroup>
+
+<Info>
+  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+</Info>

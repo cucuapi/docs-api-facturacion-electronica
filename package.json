@@ -1,0 +1,17 @@
+{
+  "name": "cucu-api-docs",
+  "version": "2.0.0",
+  "description": "CUCU API - Documentacion de Facturacion Electronica Bolivia",
+  "private": true,
+  "scripts": {
+    "dev": "mintlify dev",
+    "build": "mintlify build",
+    "lint": "mintlify broken-links"
+  },
+  "devDependencies": {
+    "mintlify": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

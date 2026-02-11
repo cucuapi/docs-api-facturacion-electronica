@@ -1,0 +1,108 @@
+---
+title: "Compra Venta"
+sidebarTitle: "Compra Venta"
+description: "Factura estandar de compra-venta. Sector 1."
+---
+
+El documento sector mas comun. Cubre la venta de bienes y servicios generales.
+
+## Datos del sector
+
+| Campo | Valor |
+|-------|-------|
+| `codigoDocumentoSector` | `1` |
+| `invoiceType` electronica | `ELECTRONIC_SALE` |
+| `invoiceType` computarizada | `COMPUTERIZED_SALE` |
+| WSDL SIAT | `ServicioFacturacionCompraVenta` |
+
+## Campos adicionales
+
+Este sector no requiere campos adicionales mas alla de los [campos estandar](/api-reference/create-invoice#request-body).
+
+Los campos `serialNumber` e `imeiNumber` en los items del detalle son opcionales y se usan cuando se facturan equipos con numero de serie o IMEI.
+
+## Ejemplo
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "invoiceType": "ELECTRONIC_SALE",
+    "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
+    "clientDocumentType": 5,
+    "clientDocumentNumber": "99001",
+    "clientBusinessName": "EMPRESA DEMO S.R.L.",
+    "paymentMethodCode": 1,
+    "details": [
+      {
+        "activityEconomic": "620100",
+        "codeProductSin": "83141",
+        "description": "Servicio de desarrollo de software",
+        "quantity": 1,
+        "unitMeasure": 58,
+        "priceUnit": 500.00
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    invoiceType: 'ELECTRONIC_SALE',
+    pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
+    clientDocumentType: 5,
+    clientDocumentNumber: '99001',
+    clientBusinessName: 'EMPRESA DEMO S.R.L.',
+    paymentMethodCode: 1,
+    details: [{
+      activityEconomic: '620100',
+      codeProductSin: '83141',
+      description: 'Servicio de desarrollo de software',
+      quantity: 1,
+      unitMeasure: 58,
+      priceUnit: 500.00
+    }]
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'invoiceType': 'ELECTRONIC_SALE',
+        'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
+        'clientDocumentType': 5,
+        'clientDocumentNumber': '99001',
+        'clientBusinessName': 'EMPRESA DEMO S.R.L.',
+        'paymentMethodCode': 1,
+        'details': [{
+            'activityEconomic': '620100',
+            'codeProductSin': '83141',
+            'description': 'Servicio de desarrollo de software',
+            'quantity': 1,
+            'unitMeasure': 58,
+            'priceUnit': 500.00
+        }]
+    }
+)
+```
+</CodeGroup>
+
+<Info>
+  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+</Info>

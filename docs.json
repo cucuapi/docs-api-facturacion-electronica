@@ -1,0 +1,189 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "palm",
+  "name": "CUCU API",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg",
+    "href": "https://cucu.bo"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#6366F1",
+    "light": "#8B5CF6",
+    "dark": "#4F46E5"
+  },
+  "topbarLinks": [
+    {
+      "name": "Ver Precios",
+      "url": "/pricing"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Empezar Gratis",
+    "url": "https://app.cucu.bo/signup",
+    "style": "roundedRectangle"
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Empezar",
+        "pages": [
+          "introduction",
+          "quickstart",
+          "authentication",
+          "environments",
+          "errors"
+        ]
+      },
+      {
+        "group": "Planes",
+        "pages": [
+          "pricing"
+        ]
+      }
+    ],
+    "tabs": [
+      {
+        "tab": "API Reference",
+        "icon": "square-terminal",
+        "groups": [
+          {
+            "group": "General",
+            "pages": [
+              "api-reference/overview"
+            ]
+          },
+          {
+            "group": "Facturas",
+            "icon": "file-invoice",
+            "pages": [
+              "api-reference/create-invoice",
+              "api-reference/list-invoices",
+              "api-reference/get-invoice",
+              "api-reference/cancel-invoice",
+              "api-reference/invoice-status",
+              "api-reference/resend-email"
+            ]
+          },
+          {
+            "group": "Documentos Sector",
+            "icon": "file-lines",
+            "pages": [
+              "api-reference/sectors/sale",
+              "api-reference/sectors/note-credit-debit",
+              "api-reference/sectors/export",
+              "api-reference/sectors/free-zone",
+              "api-reference/sectors/duty-free",
+              "api-reference/sectors/education",
+              "api-reference/sectors/health-service",
+              "api-reference/sectors/basic-service",
+              "api-reference/sectors/airline",
+              "api-reference/sectors/hotel",
+              "api-reference/sectors/hospital",
+              "api-reference/sectors/games-luck",
+              "api-reference/sectors/telecom",
+              "api-reference/sectors/financial",
+              "api-reference/sectors/insurance"
+            ]
+          },
+          {
+            "group": "Contingencia",
+            "icon": "triangle-exclamation",
+            "pages": [
+              "api-reference/events"
+            ]
+          },
+          {
+            "group": "Codigos SIAT",
+            "icon": "barcode",
+            "pages": [
+              "api-reference/codes"
+            ]
+          },
+          {
+            "group": "Catalogos",
+            "icon": "book",
+            "pages": [
+              "api-reference/catalogs"
+            ]
+          },
+          {
+            "group": "Acceso Publico",
+            "icon": "globe",
+            "pages": [
+              "api-reference/public-access"
+            ]
+          },
+          {
+            "group": "AI",
+            "icon": "robot",
+            "pages": [
+              "api-reference/ai"
+            ]
+          },
+          {
+            "group": "Storage",
+            "icon": "cloud-arrow-up",
+            "pages": [
+              "api-reference/storage"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "MCP",
+        "icon": "microchip",
+        "pages": [
+          "mcp/introduction",
+          "mcp/setup",
+          "mcp/tools"
+        ]
+      },
+      {
+        "tab": "Guias",
+        "icon": "book-open",
+        "pages": [
+          "guides/invoice-lifecycle",
+          "guides/contingency",
+          "guides/siat-requirements"
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "GitHub",
+          "icon": "github",
+          "href": "https://github.com/cucuapi"
+        },
+        {
+          "anchor": "Soporte",
+          "icon": "envelope",
+          "href": "mailto:api@cucu.bo"
+        }
+      ]
+    }
+  },
+  "footerSocials": {
+    "github": "https://github.com/cucuapi",
+    "youtube": "https://youtube.com/@cucuapi",
+    "facebook": "https://facebook.com/cucubolivia",
+    "tiktok": "https://tiktok.com/@cucubolivia"
+  },
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true,
+    "raiseIssue": true
+  },
+  "api": {
+    "baseUrl": "https://sandbox.cucu.bo",
+    "auth": {
+      "method": "key",
+      "name": "X-API-Key"
+    },
+    "playground": {
+      "mode": "simple"
+    }
+  }
+}

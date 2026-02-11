@@ -1,0 +1,133 @@
+---
+title: "Entidades Financieras"
+sidebarTitle: "Financieras"
+description: "Factura para bancos, cooperativas y entidades financieras. Sector 23."
+---
+
+Para bancos, cooperativas de ahorro, mutuales, fondos financieros y entidades reguladas por ASFI.
+
+## Datos del sector
+
+| Campo | Valor |
+|-------|-------|
+| `codigoDocumentoSector` | `23` |
+| `invoiceType` | `ELECTRONIC_FINANCIAL` |
+| WSDL SIAT | `ServicioFacturacionEntidadFinanciera` |
+
+## Campos adicionales
+
+Este sector no requiere campos adicionales mas alla de los [campos estandar](/api-reference/create-invoice#request-body). Los datos financieros especificos (numero de cuenta, tipo de operacion) se incluyen en la descripcion de los items.
+
+## Ejemplo
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "invoiceType": "ELECTRONIC_FINANCIAL",
+    "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
+    "clientDocumentType": 5,
+    "clientDocumentNumber": "99001",
+    "clientBusinessName": "EMPRESA FINANCIERA S.A.",
+    "paymentMethodCode": 1,
+    "details": [
+      {
+        "activityEconomic": "651000",
+        "codeProductSin": "71121",
+        "description": "Comision por transferencia internacional - Cta 100-234567",
+        "quantity": 1,
+        "unitMeasure": 58,
+        "priceUnit": 150.00
+      },
+      {
+        "activityEconomic": "651000",
+        "codeProductSin": "71121",
+        "description": "Comision mantenimiento cuenta corriente - Marzo 2026",
+        "quantity": 1,
+        "unitMeasure": 58,
+        "priceUnit": 25.00
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    invoiceType: 'ELECTRONIC_FINANCIAL',
+    pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
+    clientDocumentType: 5,
+    clientDocumentNumber: '99001',
+    clientBusinessName: 'EMPRESA FINANCIERA S.A.',
+    paymentMethodCode: 1,
+    details: [
+      {
+        activityEconomic: '651000',
+        codeProductSin: '71121',
+        description: 'Comision por transferencia internacional - Cta 100-234567',
+        quantity: 1,
+        unitMeasure: 58,
+        priceUnit: 150.00
+      },
+      {
+        activityEconomic: '651000',
+        codeProductSin: '71121',
+        description: 'Comision mantenimiento cuenta corriente - Marzo 2026',
+        quantity: 1,
+        unitMeasure: 58,
+        priceUnit: 25.00
+      }
+    ]
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'invoiceType': 'ELECTRONIC_FINANCIAL',
+        'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
+        'clientDocumentType': 5,
+        'clientDocumentNumber': '99001',
+        'clientBusinessName': 'EMPRESA FINANCIERA S.A.',
+        'paymentMethodCode': 1,
+        'details': [
+            {
+                'activityEconomic': '651000',
+                'codeProductSin': '71121',
+                'description': 'Comision por transferencia internacional - Cta 100-234567',
+                'quantity': 1,
+                'unitMeasure': 58,
+                'priceUnit': 150.00
+            },
+            {
+                'activityEconomic': '651000',
+                'codeProductSin': '71121',
+                'description': 'Comision mantenimiento cuenta corriente - Marzo 2026',
+                'quantity': 1,
+                'unitMeasure': 58,
+                'priceUnit': 25.00
+            }
+        ]
+    }
+)
+```
+</CodeGroup>
+
+<Info>
+  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+</Info>

@@ -1,0 +1,105 @@
+---
+title: "Servicios de Salud"
+sidebarTitle: "Salud"
+description: "Factura para servicios medicos y de salud. Sector 10."
+---
+
+Para consultorios medicos, laboratorios clinicos, farmacias y servicios de salud en general.
+
+## Datos del sector
+
+| Campo | Valor |
+|-------|-------|
+| `codigoDocumentoSector` | `10` |
+| `invoiceType` | `ELECTRONIC_HEALTH_SERVICE` |
+| WSDL SIAT | `ServicioFacturacionElectronica` |
+
+## Campos adicionales
+
+Este sector no requiere campos adicionales mas alla de los [campos estandar](/api-reference/create-invoice#request-body).
+
+## Ejemplo
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "invoiceType": "ELECTRONIC_HEALTH_SERVICE",
+    "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
+    "clientDocumentType": 1,
+    "clientDocumentNumber": "8765432",
+    "clientBusinessName": "CARLOS MENDOZA QUISPE",
+    "paymentMethodCode": 1,
+    "details": [
+      {
+        "activityEconomic": "851000",
+        "codeProductSin": "93121",
+        "description": "Consulta medica general",
+        "quantity": 1,
+        "unitMeasure": 58,
+        "priceUnit": 150.00
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    invoiceType: 'ELECTRONIC_HEALTH_SERVICE',
+    pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
+    clientDocumentType: 1,
+    clientDocumentNumber: '8765432',
+    clientBusinessName: 'CARLOS MENDOZA QUISPE',
+    paymentMethodCode: 1,
+    details: [{
+      activityEconomic: '851000',
+      codeProductSin: '93121',
+      description: 'Consulta medica general',
+      quantity: 1,
+      unitMeasure: 58,
+      priceUnit: 150.00
+    }]
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'invoiceType': 'ELECTRONIC_HEALTH_SERVICE',
+        'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
+        'clientDocumentType': 1,
+        'clientDocumentNumber': '8765432',
+        'clientBusinessName': 'CARLOS MENDOZA QUISPE',
+        'paymentMethodCode': 1,
+        'details': [{
+            'activityEconomic': '851000',
+            'codeProductSin': '93121',
+            'description': 'Consulta medica general',
+            'quantity': 1,
+            'unitMeasure': 58,
+            'priceUnit': 150.00
+        }]
+    }
+)
+```
+</CodeGroup>
+
+<Info>
+  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+</Info>

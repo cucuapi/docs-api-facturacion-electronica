@@ -1,0 +1,358 @@
+---
+title: "Ambientes"
+description: "Sandbox y produccion: URLs, diferencias y como cambiar de ambiente."
+---
+
+## Dos ambientes, misma API
+
+CUCU opera en dos ambientes completamente aislados. Mismos endpoints, mismo formato de
+respuesta, misma logica de negocio. La unica diferencia es la conexion al SIAT: sandbox
+conecta al **SIAT Piloto** (facturas de prueba), produccion conecta al **SIAT real**
+(facturas con validez fiscal).
+
+Cambiar de ambiente es tan simple como cambiar la URL base y la API Key.
+
+---
+
+## Comparacion detallada
+
+| Caracteristica | Sandbox | Produccion |
+|---------------|---------|------------|
+| **URL base** | `https://sandbox.cucu.bo` | `https://api.cucu.bo` |
+| **API Key** | `sk_test_...` | `sk_live_...` |
+| **Ambiente SIAT** | Piloto (ambiente 2) | Produccion (ambiente 1) |
+| **Validez fiscal** | No. Facturas de prueba | Si. Reportadas al SIN |
+| **Certificado digital** | No requerido (usa certificado demo) | Requerido (emitido por el SIN) |
+| **NIT del emisor** | NIT demo pre-configurado | NIT real de tu empresa |
+| **Datos** | Completamente aislados | Completamente aislados |
+| **Base de datos** | Separada (sandbox) | Separada (produccion) |
+| **Costo** | Gratis, sin limites | Segun plan contratado |
+| **Rate limiting** | Relajado (para testing) | Segun plan contratado |
+| **Emails de factura** | Se envian (para testing del flujo) | Se envian al cliente real |
+| **Anulaciones** | Libres (sin consecuencia fiscal) | Irreversibles ante el SIN |
+
+---
+
+## Sandbox
+
+El sandbox conecta al **SIAT Piloto** (ambiente 2) del Servicio de Impuestos Nacionales.
+El flujo completo es identico a produccion: emision, validacion por SIAT, generacion de CUF,
+firma digital, PDF y XML. La unica diferencia es que las facturas no tienen validez fiscal.
+
+### Ideal para
+
+<CardGroup cols={2}>
+
+<Card title="Desarrollo" icon="code">
+  Integra la API en tu aplicacion sin riesgo. Las facturas de sandbox son gratuitas e ilimitadas.
+</Card>
+
+<Card title="Testing automatizado" icon="vial">
+  Incluye la API en tus tests de integracion y CI/CD. El sandbox siempre esta disponible.
+</Card>
+
+<Card title="Demos y presentaciones" icon="presentation-screen">
+  Muestra el flujo completo de facturacion a tus clientes o inversores con datos reales de prueba.
+</Card>
+
+<Card title="Exploracion" icon="compass">
+  Conoce todos los endpoints, prueba diferentes combinaciones y aprende el API sin consecuencias.
+</Card>
+
+</CardGroup>
+
+```bash
+# Health check del sandbox
+curl https://sandbox.cucu.bo/api/v1/ping
+
+# Emitir factura de prueba
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{ ... }'
+```
+
+<Note>
+  El sandbox tiene los mismos endpoints, validaciones y comportamiento que produccion.
+  Si tu integracion funciona en sandbox, funcionara en produccion con solo cambiar la URL y la key.
+</Note>
+
+---
+
+## Produccion
+
+El ambiente de produccion conecta al **SIAT real** (ambiente 1). Las facturas emitidas
+tienen validez fiscal total y son reportadas automaticamente al Servicio de Impuestos
+Nacionales (SIN) de Bolivia.
+
+```bash
+# Health check de produccion
+curl https://api.cucu.bo/api/v1/ping
+
+# Emitir factura real
+curl -X POST https://api.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: sk_live_tu_key_de_produccion" \
+  -d '{ ... }'
+```
+
+<Warning>
+  **Las facturas emitidas en produccion son irreversibles ante el SIN.** Solo pueden anularse
+  (con motivo justificado), nunca eliminarse. Cada factura emitida genera un registro fiscal
+  permanente. Asegurate de que los datos sean correctos antes de emitir.
+</Warning>
+
+---
+
+## Requisitos para produccion
+
+Antes de pasar a produccion, necesitas completar los siguientes requisitos ante el SIN
+y en la plataforma CUCU:
+
+<Steps>
+
+<Step title="NIT activo en el SIN">
+  Tu empresa debe tener un NIT (Numero de Identificacion Tributaria) activo y vigente
+  en el Servicio de Impuestos Nacionales. El NIT debe estar habilitado para emision de
+  facturas electronicas.
+</Step>
+
+<Step title="Certificado digital vigente">
+  Obtener un certificado digital del SIN (formato `.p12`). Este certificado se usa para
+  la firma digital de las facturas. Tiene vigencia de **1 ano** y debe renovarse antes
+  del vencimiento. Se obtiene en [impuestos.gob.bo](https://impuestos.gob.bo).
+</Step>
+
+<Step title="Sistema registrado en SIAT">
+  Registrar tu sistema de facturacion en el SIAT (Sistema Integrado de Administracion
+  Tributaria) del SIN. CUCU se registra como tu sistema delegado de facturacion.
+</Step>
+
+<Step title="Token de delegacion activo">
+  Generar un token de delegacion en el SIN que autorice a CUCU a emitir facturas
+  en nombre de tu empresa. Este token se configura en tu cuenta de CUCU.
+</Step>
+
+<Step title="CUIS y CUFD configurados">
+  Los codigos de seguridad CUIS (Codigo Unico de Inicio de Sistema) y CUFD
+  (Codigo Unico de Facturacion Diario) se generan automaticamente una vez que
+  el sistema esta registrado y el certificado configurado.
+</Step>
+
+<Step title="Plan de produccion contratado">
+  Seleccionar un plan de produccion en [app.cucu.bo](https://app.cucu.bo). El plan
+  determina el numero de facturas mensuales, soporte y funcionalidades disponibles.
+</Step>
+
+</Steps>
+
+<Info>
+  El equipo de CUCU te guia en todo el proceso de activacion. Contacta a **soporte@cucu.bo**
+  para agendar una sesion de onboarding donde te ayudamos con el registro en el SIN,
+  la configuracion del certificado y la activacion de tu cuenta de produccion.
+</Info>
+
+---
+
+## Cambiar de ambiente
+
+Cambiar entre sandbox y produccion requiere solo dos variables: la **URL base** y la
+**API Key**. Todos los endpoints, request bodies y response formats son identicos.
+
+### Patron recomendado: variable de entorno
+
+<CodeGroup>
+
+```javascript JavaScript
+// .env.development
+CUCU_BASE_URL=https://sandbox.cucu.bo
+CUCU_API_KEY=YOUR_API_KEY
+
+// .env.production
+CUCU_BASE_URL=https://api.cucu.bo
+CUCU_API_KEY=sk_live_tu_key_de_produccion
+
+// client.js - Mismo codigo, diferente ambiente
+const CUCU = {
+  baseUrl: process.env.CUCU_BASE_URL,
+  apiKey: process.env.CUCU_API_KEY,
+
+  async emitirFactura(data) {
+    const response = await fetch(`${this.baseUrl}/api/v1/invoices`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': this.apiKey
+      },
+      body: JSON.stringify(data)
+    });
+    return response.json();
+  },
+
+  async obtenerFactura(id) {
+    const response = await fetch(`${this.baseUrl}/api/v1/invoices/${id}`, {
+      headers: { 'X-API-Key': this.apiKey }
+    });
+    return response.json();
+  }
+};
+```
+
+```python Python
+# .env.development
+# CUCU_BASE_URL=https://sandbox.cucu.bo
+# CUCU_API_KEY=YOUR_API_KEY
+
+# .env.production
+# CUCU_BASE_URL=https://api.cucu.bo
+# CUCU_API_KEY=sk_live_tu_key_de_produccion
+
+# client.py - Mismo codigo, diferente ambiente
+import os
+import requests
+
+class CucuAPI:
+    def __init__(self):
+        self.base_url = os.environ.get('CUCU_BASE_URL', 'https://sandbox.cucu.bo')
+        self.api_key = os.environ['CUCU_API_KEY']
+        self.session = requests.Session()
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'X-API-Key': self.api_key
+        })
+
+    def emitir_factura(self, data):
+        response = self.session.post(f'{self.base_url}/api/v1/invoices', json=data)
+        return response.json()
+
+    def obtener_factura(self, invoice_id):
+        response = self.session.get(f'{self.base_url}/api/v1/invoices/{invoice_id}')
+        return response.json()
+
+    @property
+    def es_produccion(self):
+        return self.base_url == 'https://api.cucu.bo'
+```
+
+```go Go
+package main
+
+import (
+    "os"
+)
+
+type CucuConfig struct {
+    BaseURL string
+    APIKey  string
+}
+
+func NewConfig() CucuConfig {
+    baseURL := os.Getenv("CUCU_BASE_URL")
+    if baseURL == "" {
+        baseURL = "https://sandbox.cucu.bo" // Default a sandbox
+    }
+
+    return CucuConfig{
+        BaseURL: baseURL,
+        APIKey:  os.Getenv("CUCU_API_KEY"),
+    }
+}
+
+func (c CucuConfig) IsProduction() bool {
+    return c.BaseURL == "https://api.cucu.bo"
+}
+```
+
+</CodeGroup>
+
+<Tip>
+  **Nunca hardcodees URLs ni API Keys.** Usa variables de entorno y archivos `.env` por ambiente.
+  Esto te permite cambiar de sandbox a produccion sin tocar una sola linea de codigo.
+</Tip>
+
+---
+
+## SIAT Piloto vs SIAT Produccion
+
+El SIN (Servicio de Impuestos Nacionales) de Bolivia mantiene dos ambientes completamente
+separados del SIAT:
+
+<Tabs>
+
+<Tab title="SIAT Piloto (sandbox)">
+
+| Aspecto | Detalle |
+|---------|---------|
+| **Codigo de ambiente** | `2` |
+| **Proposito** | Testing y desarrollo de sistemas de facturacion |
+| **Facturas** | De prueba, sin validez fiscal |
+| **Disponibilidad** | Generalmente alta, pero puede tener mantenimientos sin previo aviso |
+| **Datos** | Pre-cargados con NITs de prueba y catalogos demo |
+| **Certificado** | Certificado demo pre-configurado por CUCU |
+| **Peculiaridades** | Algunos servicios pueden comportarse diferente a produccion. Las validaciones son menos estrictas en algunos campos. |
+
+<Note>
+  El SIAT Piloto ocasionalmente tiene periodos de mantenimiento no anunciados. Si recibes
+  errores `503` o `99999` en sandbox, espera unos minutos y reintenta. Esto no afecta
+  al SIAT de produccion.
+</Note>
+
+</Tab>
+
+<Tab title="SIAT Produccion">
+
+| Aspecto | Detalle |
+|---------|---------|
+| **Codigo de ambiente** | `1` |
+| **Proposito** | Emision real de facturas electronicas con validez fiscal |
+| **Facturas** | Reales, reportadas al SIN, con validez fiscal completa |
+| **Disponibilidad** | Alta disponibilidad con SLA del SIN (99.5%+) |
+| **Datos** | NITs reales, catalogos oficiales actualizados periodicamente |
+| **Certificado** | Certificado digital real emitido por el SIN |
+| **Peculiaridades** | Validaciones estrictas. Cada factura genera un registro fiscal permanente. Las anulaciones requieren motivo justificado. |
+
+<Warning>
+  Cuando el SIAT de produccion no esta disponible, activa el **modo contingencia** de CUCU.
+  Las facturas se emiten localmente con un CUF offline y se sincronizan automaticamente
+  cuando el servicio vuelve. Consulta la [guia de contingencia](/api-reference/contingency).
+</Warning>
+
+</Tab>
+
+</Tabs>
+
+---
+
+## Preguntas frecuentes
+
+<AccordionGroup>
+
+<Accordion title="Los datos de sandbox se comparten con produccion?">
+  No. Los ambientes son **completamente aislados**. Tienen bases de datos separadas,
+  API Keys separadas, y conectan a ambientes SIAT separados. Una factura emitida en
+  sandbox no existe en produccion y viceversa.
+</Accordion>
+
+<Accordion title="Puedo usar mi API Key de produccion en sandbox?">
+  No. Las keys `sk_live_` solo funcionan con `api.cucu.bo` y las keys `sk_test_` solo
+  funcionan con `sandbox.cucu.bo`. Si usas la key incorrecta, recibiras un error `401`.
+</Accordion>
+
+<Accordion title="El sandbox tiene limites de facturas?">
+  No. El sandbox es **gratuito e ilimitado**. Puedes emitir todas las facturas de prueba
+  que necesites. No hay rate limiting estricto (solo proteccion basica contra abuso).
+</Accordion>
+
+<Accordion title="Que pasa si el SIAT Piloto esta caido?">
+  Puedes activar el modo contingencia en sandbox igual que en produccion. Las facturas
+  se emiten con CUF offline. Tambien puedes simplemente esperar; el SIAT Piloto
+  generalmente se recupera en minutos.
+</Accordion>
+
+<Accordion title="Cuanto toma pasar de sandbox a produccion?">
+  Si ya tienes todos los requisitos del SIN (NIT, certificado, sistema registrado),
+  la activacion de produccion toma **1-2 dias habiles**. El proceso mas largo es
+  obtener el certificado digital del SIN, que puede tomar 3-5 dias.
+</Accordion>
+
+</AccordionGroup>
