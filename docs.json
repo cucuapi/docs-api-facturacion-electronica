@@ -45,7 +45,7 @@
     ],
     "tabs": [
       {
-        "tab": "API Reference",
+        "tab": "API REST",
         "icon": "square-terminal",
         "groups": [
           {
