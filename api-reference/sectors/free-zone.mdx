@@ -1,0 +1,112 @@
+---
+title: "Zona Franca"
+sidebarTitle: "Zona Franca"
+description: "Factura para operaciones en zonas francas. Sector 4."
+---
+
+Para empresas que operan dentro de zonas francas comerciales o industriales de Bolivia.
+
+## Datos del sector
+
+| Campo | Valor |
+|-------|-------|
+| `codigoDocumentoSector` | `4` |
+| `invoiceType` | `ELECTRONIC_FREE_ZONE` |
+| WSDL SIAT | `ServicioFacturacionCompraVenta` |
+
+## Campos adicionales
+
+### Cabecera
+
+| Campo | Tipo | Req | Descripcion |
+|-------|------|-----|-------------|
+| `receptionPartyNumber` | integer | Si | Numero de parte de recepcion asignado por la zona franca |
+
+## Ejemplo
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "invoiceType": "ELECTRONIC_FREE_ZONE",
+    "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
+    "clientDocumentType": 5,
+    "clientDocumentNumber": "99001",
+    "clientBusinessName": "ZONA FRANCA COMERCIAL ORURO S.A.",
+    "paymentMethodCode": 1,
+    "receptionPartyNumber": 12345,
+    "details": [
+      {
+        "activityEconomic": "620100",
+        "codeProductSin": "83141",
+        "description": "Mercaderia importada - zona franca",
+        "quantity": 50,
+        "unitMeasure": 1,
+        "priceUnit": 120.00
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    invoiceType: 'ELECTRONIC_FREE_ZONE',
+    pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
+    clientDocumentType: 5,
+    clientDocumentNumber: '99001',
+    clientBusinessName: 'ZONA FRANCA COMERCIAL ORURO S.A.',
+    paymentMethodCode: 1,
+    receptionPartyNumber: 12345,
+    details: [{
+      activityEconomic: '620100',
+      codeProductSin: '83141',
+      description: 'Mercaderia importada - zona franca',
+      quantity: 50,
+      unitMeasure: 1,
+      priceUnit: 120.00
+    }]
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'invoiceType': 'ELECTRONIC_FREE_ZONE',
+        'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
+        'clientDocumentType': 5,
+        'clientDocumentNumber': '99001',
+        'clientBusinessName': 'ZONA FRANCA COMERCIAL ORURO S.A.',
+        'paymentMethodCode': 1,
+        'receptionPartyNumber': 12345,
+        'details': [{
+            'activityEconomic': '620100',
+            'codeProductSin': '83141',
+            'description': 'Mercaderia importada - zona franca',
+            'quantity': 50,
+            'unitMeasure': 1,
+            'priceUnit': 120.00
+        }]
+    }
+)
+```
+</CodeGroup>
+
+<Info>
+  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+</Info>

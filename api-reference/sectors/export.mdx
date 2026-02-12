@@ -1,0 +1,116 @@
+---
+title: "Exportacion"
+sidebarTitle: "Exportacion"
+description: "Factura de exportacion de bienes y servicios. Sector 3."
+---
+
+Para operaciones de exportacion de Bolivia al exterior. Tasa IVA cero.
+
+## Datos del sector
+
+| Campo | Valor |
+|-------|-------|
+| `codigoDocumentoSector` | `3` |
+| `invoiceType` electronica | `ELECTRONIC_EXPORT` |
+| `invoiceType` computarizada | `COMPUTERIZED_EXPORT` |
+| WSDL SIAT | `ServicioFacturacionCompraVenta` |
+
+## Campos adicionales
+
+### Detalle
+
+| Campo | Tipo | Req | Descripcion |
+|-------|------|-----|-------------|
+| `details[].codeNandina` | string | Si | Codigo arancelario Nandina del producto exportado |
+
+## Ejemplo
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "invoiceType": "ELECTRONIC_EXPORT",
+    "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
+    "clientDocumentType": 5,
+    "clientDocumentNumber": "99001",
+    "clientBusinessName": "IMPORTADORA INTERNACIONAL LLC",
+    "paymentMethodCode": 1,
+    "exchangeRate": 6.96,
+    "details": [
+      {
+        "activityEconomic": "620100",
+        "codeProductSin": "83141",
+        "description": "Quinua real organica - exportacion",
+        "quantity": 1000,
+        "unitMeasure": 2,
+        "priceUnit": 15.00,
+        "codeNandina": "1008509000"
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    invoiceType: 'ELECTRONIC_EXPORT',
+    pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
+    clientDocumentType: 5,
+    clientDocumentNumber: '99001',
+    clientBusinessName: 'IMPORTADORA INTERNACIONAL LLC',
+    paymentMethodCode: 1,
+    exchangeRate: 6.96,
+    details: [{
+      activityEconomic: '620100',
+      codeProductSin: '83141',
+      description: 'Quinua real organica - exportacion',
+      quantity: 1000,
+      unitMeasure: 2,
+      priceUnit: 15.00,
+      codeNandina: '1008509000'
+    }]
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'invoiceType': 'ELECTRONIC_EXPORT',
+        'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
+        'clientDocumentType': 5,
+        'clientDocumentNumber': '99001',
+        'clientBusinessName': 'IMPORTADORA INTERNACIONAL LLC',
+        'paymentMethodCode': 1,
+        'exchangeRate': 6.96,
+        'details': [{
+            'activityEconomic': '620100',
+            'codeProductSin': '83141',
+            'description': 'Quinua real organica - exportacion',
+            'quantity': 1000,
+            'unitMeasure': 2,
+            'priceUnit': 15.00,
+            'codeNandina': '1008509000'
+        }]
+    }
+)
+```
+</CodeGroup>
+
+<Info>
+  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+</Info>

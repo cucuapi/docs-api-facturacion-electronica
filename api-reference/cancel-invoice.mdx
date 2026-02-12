@@ -1,0 +1,88 @@
+---
+title: "Anular Factura"
+sidebarTitle: "Anular Factura"
+description: "Anula una factura electronica emitida. Operacion irreversible."
+api: "POST https://sandbox.cucu.bo/api/v1/invoices/{id}/cancel"
+---
+
+Anula una factura previamente emitida y validada por el SIAT. La anulacion es **irreversible**.
+
+<Warning>
+  Una vez anulada, la factura no puede revertirse. El SIAT registra la anulacion permanentemente.
+</Warning>
+
+## Path Parameters
+
+| Parametro | Tipo | Req | Descripcion |
+|-----------|------|-----|-------------|
+| `id` | string | Si | UUID de la factura a anular |
+
+## Query Parameters
+
+| Parametro | Tipo | Req | Descripcion |
+|-----------|------|-----|-------------|
+| `motivo` | integer | No | Codigo de motivo de anulacion: `1` Error de datos, `2` Devolucion, `3` Periodo posterior, `4` Otro. Default: `1` |
+
+## Headers
+
+| Parametro | Tipo | Req | Descripcion |
+|-----------|------|-----|-------------|
+| `X-API-Key` | string | Si | Tu API Key |
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://sandbox.cucu.bo/api/v1/invoices/a1b2c3d4-e5f6-7890-abcd-ef1234567890/cancel?motivo=1" \
+  -H "X-API-Key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const response = await fetch(
+  'https://sandbox.cucu.bo/api/v1/invoices/a1b2c3d4-e5f6-7890-abcd-ef1234567890/cancel?motivo=1',
+  {
+    method: 'POST',
+    headers: { 'X-API-Key': 'YOUR_API_KEY' }
+  }
+);
+const data = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices/a1b2c3d4-e5f6-7890-abcd-ef1234567890/cancel',
+    headers={'X-API-Key': 'YOUR_API_KEY'},
+    params={'motivo': 1}
+)
+print(response.json())
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "success": true,
+  "message": "Factura anulada exitosamente",
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "invoiceNumber": 5,
+    "cuf": "2872F7294502332E637FABFBC3654EA82202AD48E0969F14EBEB8AF74",
+    "state": "CANCELLED",
+    "cancellationReason": 1,
+    "cancellationDate": "2026-02-11T14:00:00"
+  },
+  "timestamp": "2026-02-11T14:00:00"
+}
+```
+
+```json 409
+{
+  "success": false,
+  "error": {
+    "code": "CONFLICT",
+    "details": "La factura ya fue anulada anteriormente"
+  },
+  "timestamp": "2026-02-11T14:00:00"
+}
+```
+</ResponseExample>

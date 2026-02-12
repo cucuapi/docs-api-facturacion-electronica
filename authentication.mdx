@@ -1,0 +1,449 @@
+---
+title: "Autenticacion"
+description: "Autenticacion con API Keys estilo Stripe. Sandbox y produccion con un solo header."
+---
+
+## Como funciona
+
+CUCU usa **API Keys con formato estilo Stripe** para autenticacion. Un solo header (`X-API-Key`)
+en cada request es todo lo que necesitas. Sin OAuth, sin tokens temporales, sin flujos complejos.
+La key determina automaticamente el **tenant** (empresa), el **ambiente** (sandbox o produccion)
+y los **permisos** de acceso.
+
+```
+X-API-Key: YOUR_API_KEY
+           ──┬───  ──┬──
+             │       └── Ambiente: test (sandbox) o live (produccion)
+             └────────── Prefijo: siempre "sk_" (secret key)
+```
+
+---
+
+## Tipos de API Keys
+
+<Tabs>
+
+<Tab title="Sandbox (sk_test_)">
+
+Las keys de **sandbox** conectan al SIAT Piloto del SIN. Las facturas emitidas son de prueba
+y no tienen validez fiscal.
+
+| Propiedad | Valor |
+|-----------|-------|
+| **Prefijo** | `sk_test_` |
+| **Ambiente SIAT** | Piloto (ambiente 2) |
+| **Validez fiscal** | No |
+| **Costo** | Gratis, sin limites |
+| **Uso recomendado** | Desarrollo, testing, demos, integracion |
+
+```bash
+# Ejemplo de key sandbox
+X-API-Key: YOUR_API_KEY
+```
+
+<Tip>
+  Puedes usar la key de demo de arriba para probar la API sin registrarte.
+  Funciona con el punto de venta demo y tiene acceso completo al sandbox.
+</Tip>
+
+</Tab>
+
+<Tab title="Produccion (sk_live_)">
+
+Las keys de **produccion** conectan al SIAT real del SIN. Las facturas emitidas tienen
+validez fiscal y son reportadas al Servicio de Impuestos Nacionales.
+
+| Propiedad | Valor |
+|-----------|-------|
+| **Prefijo** | `sk_live_` |
+| **Ambiente SIAT** | Produccion (ambiente 1) |
+| **Validez fiscal** | Si |
+| **Costo** | Segun plan contratado |
+| **Uso recomendado** | Aplicaciones en produccion |
+
+```bash
+# Ejemplo de key produccion (formato referencial)
+X-API-Key: sk_live_TU_KEY_DE_PRODUCCION_AQUI
+```
+
+<Warning>
+  **Las keys `sk_live_` NUNCA deben exponerse en codigo frontend, repositorios publicos,
+  o cualquier lugar accesible por usuarios finales.** Solo deben existir en tu backend,
+  protegidas como variables de entorno o en un secret manager.
+</Warning>
+
+</Tab>
+
+</Tabs>
+
+---
+
+## Autenticacion via header
+
+Incluye tu API Key en el header `X-API-Key` de cada request. No se acepta autenticacion via
+query params, body, ni Basic Auth.
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET https://sandbox.cucu.bo/api/v1/invoices \
+  -H "X-API-Key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const API_KEY = process.env.CUCU_API_KEY;
+
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  headers: {
+    'X-API-Key': API_KEY
+  }
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import os
+import requests
+
+api_key = os.environ['CUCU_API_KEY']
+
+response = requests.get(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={'X-API-Key': api_key}
+)
+
+print(response.json())
+```
+
+```go Go
+package main
+
+import (
+    "fmt"
+    "io"
+    "net/http"
+    "os"
+)
+
+func main() {
+    apiKey := os.Getenv("CUCU_API_KEY")
+
+    req, _ := http.NewRequest("GET", "https://sandbox.cucu.bo/api/v1/invoices", nil)
+    req.Header.Set("X-API-Key", apiKey)
+
+    resp, err := http.DefaultClient.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+    body, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(body))
+}
+```
+
+```php PHP
+<?php
+
+$apiKey = getenv('CUCU_API_KEY');
+
+$ch = curl_init('https://sandbox.cucu.bo/api/v1/invoices');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    "X-API-Key: $apiKey"
+]);
+
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+$data = json_decode($response, true);
+print_r($data);
+```
+
+</CodeGroup>
+
+---
+
+## Buenas practicas de seguridad
+
+<CardGroup cols={2}>
+
+<Card title="Variables de entorno" icon="lock">
+  Almacena la API Key en variables de entorno o en un secret manager (Vault, Infisical, AWS Secrets Manager).
+  Nunca hardcodees la key directamente en el codigo fuente.
+</Card>
+
+<Card title="Separa ambientes" icon="code-branch">
+  Usa `sk_test_` en desarrollo y testing, `sk_live_` exclusivamente en produccion. Nunca mezcles
+  keys entre ambientes en el mismo despliegue.
+</Card>
+
+<Card title="Solo backend" icon="server">
+  Las keys `sk_live_` deben vivir exclusivamente en tu servidor backend. Nunca las expongas en
+  aplicaciones frontend, moviles o repositorios publicos.
+</Card>
+
+<Card title="Rota periodicamente" icon="arrows-rotate">
+  Regenera tu API Key desde el dashboard si sospechas una filtracion o como practica periodica.
+  La key anterior se revoca inmediatamente al generar una nueva.
+</Card>
+
+</CardGroup>
+
+### Patrones recomendados por lenguaje
+
+<AccordionGroup>
+
+<Accordion title="Node.js / JavaScript">
+```javascript
+// .env
+CUCU_API_KEY=sk_live_...
+
+// app.js
+import 'dotenv/config';
+
+const cucuClient = {
+  baseUrl: process.env.CUCU_BASE_URL || 'https://api.cucu.bo',
+  apiKey: process.env.CUCU_API_KEY,
+
+  async request(method, path, body) {
+    const response = await fetch(`${this.baseUrl}${path}`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': this.apiKey
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    return response.json();
+  }
+};
+```
+</Accordion>
+
+<Accordion title="Python">
+```python
+# .env
+CUCU_API_KEY=sk_live_...
+
+# client.py
+import os
+import requests
+
+class CucuClient:
+    def __init__(self):
+        self.base_url = os.environ.get('CUCU_BASE_URL', 'https://api.cucu.bo')
+        self.api_key = os.environ['CUCU_API_KEY']
+        self.session = requests.Session()
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'X-API-Key': self.api_key
+        })
+
+    def request(self, method, path, json=None):
+        response = self.session.request(method, f'{self.base_url}{path}', json=json)
+        return response.json()
+```
+</Accordion>
+
+<Accordion title="Go">
+```go
+// main.go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "net/http"
+    "os"
+)
+
+type CucuClient struct {
+    BaseURL string
+    APIKey  string
+    Client  *http.Client
+}
+
+func NewCucuClient() *CucuClient {
+    baseURL := os.Getenv("CUCU_BASE_URL")
+    if baseURL == "" {
+        baseURL = "https://api.cucu.bo"
+    }
+    return &CucuClient{
+        BaseURL: baseURL,
+        APIKey:  os.Getenv("CUCU_API_KEY"),
+        Client:  &http.Client{},
+    }
+}
+
+func (c *CucuClient) Request(method, path string, body interface{}) (*http.Response, error) {
+    var buf bytes.Buffer
+    if body != nil {
+        json.NewEncoder(&buf).Encode(body)
+    }
+    req, _ := http.NewRequest(method, c.BaseURL+path, &buf)
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("X-API-Key", c.APIKey)
+    return c.Client.Do(req)
+}
+```
+</Accordion>
+
+<Accordion title="PHP">
+```php
+<?php
+// .env
+// CUCU_API_KEY=sk_live_...
+
+// CucuClient.php
+class CucuClient {
+    private string $baseUrl;
+    private string $apiKey;
+
+    public function __construct() {
+        $this->baseUrl = getenv('CUCU_BASE_URL') ?: 'https://api.cucu.bo';
+        $this->apiKey = getenv('CUCU_API_KEY');
+    }
+
+    public function request(string $method, string $path, ?array $body = null): array {
+        $ch = curl_init($this->baseUrl . $path);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            "X-API-Key: {$this->apiKey}"
+        ]);
+        if ($body) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+        }
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($response, true);
+    }
+}
+```
+</Accordion>
+
+</AccordionGroup>
+
+---
+
+## Errores de autenticacion
+
+Cuando la autenticacion falla, la API responde con un JSON estructurado que indica la causa exacta:
+
+| HTTP Code | Codigo interno | Causa | Solucion |
+|-----------|---------------|-------|----------|
+| `401` | `UNAUTHORIZED` | API Key no enviada | Incluir header `X-API-Key` en el request |
+| `401` | `UNAUTHORIZED` | API Key invalida | Verificar que la key existe y no tiene errores tipograficos |
+| `401` | `UNAUTHORIZED` | API Key revocada | Generar una nueva key desde el dashboard |
+| `401` | `UNAUTHORIZED` | Tenant inactivo | Contactar soporte; la cuenta asociada esta desactivada |
+| `403` | `FORBIDDEN` | Sin permisos | La key no tiene acceso al recurso solicitado |
+
+Ejemplo de respuesta de error:
+
+```json
+{
+  "success": false,
+  "message": null,
+  "data": null,
+  "error": {
+    "code": "UNAUTHORIZED",
+    "details": "API Key invalida o tenant inactivo"
+  },
+  "timestamp": "2026-02-11T12:00:00"
+}
+```
+
+<Tip>
+  Si recibes `401` de forma inesperada, verifica: (1) que el header sea `X-API-Key` (no `Authorization`),
+  (2) que no haya espacios extra en la key, y (3) que estes usando la key del ambiente correcto
+  (`sk_test_` para sandbox, `sk_live_` para produccion).
+</Tip>
+
+---
+
+## Endpoints publicos (sin autenticacion)
+
+Estos endpoints no requieren API Key y pueden ser accedidos directamente:
+
+| Endpoint | Metodo | Descripcion |
+|----------|--------|-------------|
+| `/api/v1/ping` | `GET` | Health check del servidor |
+| `/api/v1/info` | `GET` | Informacion del servidor (version, uptime) |
+| `/api/v1/public/invoice/{cuf}/pdf` | `GET` | Descarga publica del PDF de una factura |
+| `/api/v1/public/invoice/{cuf}/xml` | `GET` | Descarga publica del XML firmado |
+| `/api/v1/public/invoice/{cuf}/status` | `GET` | Estado publico de una factura |
+
+<Note>
+  Los endpoints publicos de factura usan el **CUF** (Codigo Unico de Facturacion) como identificador.
+  Esto permite compartir URLs de descarga directamente con clientes sin exponer credenciales.
+</Note>
+
+---
+
+## Rotacion de API Keys
+
+Rotar tu API Key es una practica recomendada de seguridad. Cuando generas una nueva key desde
+el dashboard, la key anterior **se revoca inmediatamente**.
+
+<Steps>
+
+<Step title="Genera una nueva key">
+  Accede a tu dashboard en [app.cucu.bo](https://app.cucu.bo) y navega a **Configuracion > API Keys**.
+  Haz clic en **Regenerar key** para el ambiente deseado (sandbox o produccion).
+</Step>
+
+<Step title="Actualiza tu aplicacion">
+  Reemplaza la key antigua en tus variables de entorno o secret manager con la nueva key.
+  Despliega la actualizacion.
+</Step>
+
+<Step title="Verifica la conexion">
+  Haz un request de prueba al endpoint `/ping` con la nueva key para confirmar que funciona.
+</Step>
+
+</Steps>
+
+<Warning>
+  **La rotacion es inmediata e irreversible.** Al generar una nueva key, la anterior deja de
+  funcionar al instante. Asegurate de actualizar todos los servicios que usen la key antes de
+  rotarla, o implementa un mecanismo de rollout gradual.
+</Warning>
+
+---
+
+## SDKs (proximamente)
+
+Estamos desarrollando SDKs oficiales para los lenguajes mas populares. Mientras tanto,
+la API REST funciona con cualquier cliente HTTP en cualquier lenguaje.
+
+<CardGroup cols={3}>
+
+<Card title="Node.js SDK" icon="js">
+  `npm install @cucu/sdk`
+
+  En desarrollo. Lanzamiento estimado Q2 2026.
+</Card>
+
+<Card title="Python SDK" icon="python">
+  `pip install cucu-sdk`
+
+  En desarrollo. Lanzamiento estimado Q2 2026.
+</Card>
+
+<Card title="Go SDK" icon="golang">
+  `go get github.com/cucuapi/cucu-go`
+
+  En planificacion. Lanzamiento estimado Q3 2026.
+</Card>
+
+</CardGroup>
+
+<Info>
+  Quieres que prioricemos un SDK en particular? Escribe a **dev@cucu.bo** y cuentanos
+  que lenguaje usas. Tambien aceptamos contribuciones open source.
+</Info>

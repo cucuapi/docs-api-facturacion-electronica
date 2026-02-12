@@ -1,0 +1,145 @@
+---
+title: "Alojamiento"
+sidebarTitle: "Hotel"
+description: "Factura para hoteles, hostales y servicios de alojamiento. Sector 14."
+---
+
+Para hoteles, hostales, apart-hoteles, residenciales y todo servicio de hospedaje.
+
+## Datos del sector
+
+| Campo | Valor |
+|-------|-------|
+| `codigoDocumentoSector` | `14` |
+| `invoiceType` electronica | `ELECTRONIC_HOTEL` |
+| `invoiceType` computarizada | `COMPUTERIZED_HOTEL` |
+| WSDL SIAT | `ServicioFacturacionElectronica` |
+
+## Campos adicionales
+
+### Cabecera
+
+| Campo | Tipo | Req | Descripcion |
+|-------|------|-----|-------------|
+| `qtyGuests` | integer | Si | Cantidad total de huespedes |
+| `qtyRooms` | integer | Si | Cantidad de habitaciones ocupadas |
+| `qtyGreater` | integer | No | Cantidad de huespedes mayores de edad |
+| `qtyMinors` | integer | No | Cantidad de huespedes menores de edad |
+| `dateEntryLodging` | string | Si | Fecha de ingreso al hospedaje (ISO 8601) |
+
+### Detalle
+
+| Campo | Tipo | Req | Descripcion |
+|-------|------|-----|-------------|
+| `details[].codeTypeRoom` | integer | No | Codigo tipo de habitacion (catalogo SIAT) |
+| `details[].detailGuests` | string | No | Detalle de huespedes por habitacion |
+
+## Ejemplo
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "invoiceType": "ELECTRONIC_HOTEL",
+    "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
+    "clientDocumentType": 3,
+    "clientDocumentNumber": "AB123456",
+    "clientBusinessName": "JOHN SMITH",
+    "paymentMethodCode": 2,
+    "cardNumber": "4532",
+    "qtyGuests": 2,
+    "qtyRooms": 1,
+    "qtyGreater": 2,
+    "qtyMinors": 0,
+    "dateEntryLodging": "2026-03-01T14:00:00",
+    "details": [
+      {
+        "activityEconomic": "551000",
+        "codeProductSin": "63111",
+        "description": "Habitacion doble - 3 noches (01-04 Mar 2026)",
+        "quantity": 3,
+        "unitMeasure": 58,
+        "priceUnit": 280.00,
+        "codeTypeRoom": 1,
+        "detailGuests": "John Smith, Jane Smith"
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    invoiceType: 'ELECTRONIC_HOTEL',
+    pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
+    clientDocumentType: 3,
+    clientDocumentNumber: 'AB123456',
+    clientBusinessName: 'JOHN SMITH',
+    paymentMethodCode: 2,
+    cardNumber: '4532',
+    qtyGuests: 2,
+    qtyRooms: 1,
+    qtyGreater: 2,
+    qtyMinors: 0,
+    dateEntryLodging: '2026-03-01T14:00:00',
+    details: [{
+      activityEconomic: '551000',
+      codeProductSin: '63111',
+      description: 'Habitacion doble - 3 noches (01-04 Mar 2026)',
+      quantity: 3,
+      unitMeasure: 58,
+      priceUnit: 280.00,
+      codeTypeRoom: 1,
+      detailGuests: 'John Smith, Jane Smith'
+    }]
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'invoiceType': 'ELECTRONIC_HOTEL',
+        'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
+        'clientDocumentType': 3,
+        'clientDocumentNumber': 'AB123456',
+        'clientBusinessName': 'JOHN SMITH',
+        'paymentMethodCode': 2,
+        'cardNumber': '4532',
+        'qtyGuests': 2,
+        'qtyRooms': 1,
+        'qtyGreater': 2,
+        'qtyMinors': 0,
+        'dateEntryLodging': '2026-03-01T14:00:00',
+        'details': [{
+            'activityEconomic': '551000',
+            'codeProductSin': '63111',
+            'description': 'Habitacion doble - 3 noches (01-04 Mar 2026)',
+            'quantity': 3,
+            'unitMeasure': 58,
+            'priceUnit': 280.00,
+            'codeTypeRoom': 1,
+            'detailGuests': 'John Smith, Jane Smith'
+        }]
+    }
+)
+```
+</CodeGroup>
+
+<Info>
+  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+</Info>

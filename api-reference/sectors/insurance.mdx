@@ -1,0 +1,113 @@
+---
+title: "Seguros"
+sidebarTitle: "Seguros"
+description: "Factura para companias de seguros. Sector 24."
+---
+
+Para companias de seguros, reaseguros y corredores de seguros.
+
+## Datos del sector
+
+| Campo | Valor |
+|-------|-------|
+| `codigoDocumentoSector` | `24` |
+| `invoiceType` electronica | `ELECTRONIC_INSURANCE` |
+| `invoiceType` computarizada | `COMPUTERIZED_INSURANCE` |
+| WSDL SIAT | `ServicioFacturacionElectronica` |
+
+## Campos adicionales
+
+### Cabecera
+
+| Campo | Tipo | Req | Descripcion |
+|-------|------|-----|-------------|
+| `isSureComplement` | boolean | No | Indica si es complemento de seguro. Default: `false` |
+
+## Ejemplo
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "invoiceType": "ELECTRONIC_INSURANCE",
+    "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
+    "clientDocumentType": 5,
+    "clientDocumentNumber": "99001",
+    "clientBusinessName": "EMPRESA ASEGURADA S.R.L.",
+    "paymentMethodCode": 1,
+    "isSureComplement": false,
+    "details": [
+      {
+        "activityEconomic": "660000",
+        "codeProductSin": "71321",
+        "description": "Prima seguro vehicular - Toyota Hilux 2025 - Poliza SV-2026-00158",
+        "quantity": 1,
+        "unitMeasure": 58,
+        "priceUnit": 2800.00
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    invoiceType: 'ELECTRONIC_INSURANCE',
+    pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
+    clientDocumentType: 5,
+    clientDocumentNumber: '99001',
+    clientBusinessName: 'EMPRESA ASEGURADA S.R.L.',
+    paymentMethodCode: 1,
+    isSureComplement: false,
+    details: [{
+      activityEconomic: '660000',
+      codeProductSin: '71321',
+      description: 'Prima seguro vehicular - Toyota Hilux 2025 - Poliza SV-2026-00158',
+      quantity: 1,
+      unitMeasure: 58,
+      priceUnit: 2800.00
+    }]
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'invoiceType': 'ELECTRONIC_INSURANCE',
+        'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
+        'clientDocumentType': 5,
+        'clientDocumentNumber': '99001',
+        'clientBusinessName': 'EMPRESA ASEGURADA S.R.L.',
+        'paymentMethodCode': 1,
+        'isSureComplement': False,
+        'details': [{
+            'activityEconomic': '660000',
+            'codeProductSin': '71321',
+            'description': 'Prima seguro vehicular - Toyota Hilux 2025 - Poliza SV-2026-00158',
+            'quantity': 1,
+            'unitMeasure': 58,
+            'priceUnit': 2800.00
+        }]
+    }
+)
+```
+</CodeGroup>
+
+<Info>
+  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+</Info>

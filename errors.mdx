@@ -1,0 +1,509 @@
+---
+title: "Errores"
+description: "Formato de errores, codigos HTTP y errores SIAT comunes en la API de CUCU."
+---
+
+## Formato de respuesta
+
+Todas las respuestas de la API siguen el formato estandar `ApiResponse`. Esto aplica tanto
+para respuestas exitosas como para errores, lo que facilita el manejo uniforme en tu codigo:
+
+<Tabs>
+
+<Tab title="Respuesta exitosa">
+```json
+{
+  "success": true,
+  "message": "Operacion exitosa",
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "invoiceNumber": 1,
+    "cuf": "2872F7294502332E637FABFBC3654EA82202AD48E0969F14EBEB8AF74",
+    "state": "VALIDATED"
+  },
+  "error": null,
+  "timestamp": "2026-02-11T12:00:00"
+}
+```
+</Tab>
+
+<Tab title="Error de validacion">
+```json
+{
+  "success": false,
+  "message": null,
+  "data": null,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "details": "El campo clientBusinessName es requerido",
+    "field": "clientBusinessName"
+  },
+  "timestamp": "2026-02-11T12:00:00"
+}
+```
+</Tab>
+
+<Tab title="Error SIAT">
+```json
+{
+  "success": false,
+  "message": null,
+  "data": null,
+  "error": {
+    "code": "SIAT_ERROR",
+    "details": "CUFD no vigente. Regenere el CUFD e intente nuevamente.",
+    "siatCode": 980,
+    "siatDescription": "CUFD NO VIGENTE O NO EXISTE"
+  },
+  "timestamp": "2026-02-11T12:00:00"
+}
+```
+</Tab>
+
+</Tabs>
+
+### Campos del objeto error
+
+| Campo | Tipo | Siempre presente | Descripcion |
+|-------|------|-----------------|-------------|
+| `code` | string | Si | Codigo interno de CUCU (ver tabla abajo) |
+| `details` | string | Si | Mensaje legible con la descripcion del error |
+| `field` | string | No | Campo especifico que causo el error (solo en `VALIDATION_ERROR`) |
+| `siatCode` | int | No | Codigo numerico devuelto por el SIAT (solo en `SIAT_ERROR`) |
+| `siatDescription` | string | No | Descripcion original del SIAT (solo en `SIAT_ERROR`) |
+
+---
+
+## Codigos HTTP
+
+| Codigo | Nombre | Cuando ocurre | Accion recomendada |
+|--------|--------|---------------|-------------------|
+| `200` | OK | Request exitoso (consultas, anulaciones) | Procesar la respuesta normalmente |
+| `201` | Created | Recurso creado exitosamente (factura emitida) | Guardar el `cuf` y las URLs de descarga |
+| `400` | Bad Request | Datos invalidos, faltantes o con formato incorrecto | Revisar el campo `error.field` y corregir el request |
+| `401` | Unauthorized | API Key invalida, faltante o revocada | Verificar el header `X-API-Key` |
+| `403` | Forbidden | La key no tiene permisos para este recurso | Verificar permisos de la API Key |
+| `404` | Not Found | Recurso no encontrado (factura, POS, etc.) | Verificar el ID o CUF usado |
+| `409` | Conflict | Estado conflictivo (ej: anular factura ya anulada) | Verificar el estado actual del recurso |
+| `422` | Unprocessable Entity | Datos validos en formato pero no en negocio | Revisar reglas de negocio SIAT |
+| `429` | Too Many Requests | Limite de rate limiting alcanzado | Esperar y reintentar con backoff exponencial |
+| `500` | Internal Server Error | Error inesperado del servidor | Reportar a soporte con el `timestamp` |
+| `503` | Service Unavailable | SIAT no disponible | Activar modo contingencia |
+
+---
+
+## Codigos de error internos
+
+| Codigo | Descripcion | HTTP | Retriable |
+|--------|-------------|------|-----------|
+| `VALIDATION_ERROR` | Datos del request no pasan validacion | 400 | No (corregir datos) |
+| `UNAUTHORIZED` | Falla de autenticacion | 401 | No (verificar key) |
+| `FORBIDDEN` | Sin permisos para el recurso | 403 | No (verificar permisos) |
+| `NOT_FOUND` | Recurso no existe | 404 | No (verificar ID) |
+| `CONFLICT` | Estado conflictivo | 409 | No (verificar estado) |
+| `SIAT_ERROR` | Error devuelto por el SIAT | 422 | Depende del codigo SIAT |
+| `SIAT_UNAVAILABLE` | SIAT no responde | 503 | Si (contingencia o retry) |
+| `RATE_LIMITED` | Limite de requests alcanzado | 429 | Si (esperar) |
+| `INTERNAL_ERROR` | Error inesperado del servidor | 500 | Si (reintentar) |
+
+---
+
+## Errores SIAT
+
+Cuando el SIAT (Sistema Integrado de Administracion Tributaria) rechaza una operacion,
+la respuesta incluye el codigo SIAT original junto con la descripcion y una solucion sugerida.
+
+<AccordionGroup>
+
+<Accordion title="Errores de codigos (CUIS, CUFD, CUF)">
+
+Estos errores estan relacionados con los codigos de seguridad que el SIAT requiere para
+autorizar emisiones de facturas.
+
+| Codigo SIAT | Descripcion | Solucion |
+|-------------|-------------|----------|
+| `980` | CUFD no vigente o no existe | El CUFD expira cada 24 horas. Regenerar con `POST /api/v1/codes/cufd`. CUCU lo renueva automaticamente, pero si emites muchas facturas al dia puede necesitar renovacion manual. |
+| `985` | CUF duplicado | La factura ya fue emitida con este CUF. No reenviar. Consultar el estado con `GET /api/v1/invoices/{id}`. |
+| `1024` | CUIS no valido o expirado | El CUIS cambio o fue revocado. Solicitar nuevo CUIS con `POST /api/v1/siat/cuis`. Esto ocurre si se reregistro el sistema en el SIN. |
+| `1025` | CUIS no corresponde al punto de venta | El CUIS fue generado para otro punto de venta. Generar CUIS para el POS correcto. |
+| `1026` | NIT del emisor no corresponde | El NIT del emisor registrado en SIAT no coincide con el de la empresa. Verificar la configuracion de la empresa. |
+
+<Tip>
+  CUCU renueva automaticamente el CUFD cada 24 horas. Si ves el error `980` de forma recurrente,
+  contacta a soporte para verificar que el cron de renovacion esta funcionando correctamente.
+</Tip>
+
+</Accordion>
+
+<Accordion title="Errores de datos de factura">
+
+Estos errores ocurren cuando los datos enviados en la factura no cumplen con las reglas del SIAT.
+
+| Codigo SIAT | Descripcion | Solucion |
+|-------------|-------------|----------|
+| `986` | NIT del cliente no valido | Verificar el NIT del cliente con `POST /api/v1/codes/nit`. El SIAT valida que el NIT exista y este activo. |
+| `990` | Datos de factura invalidos | Revisar campos requeridos, formatos y codigos del catalogo SIN. El `details` del error indicara el campo especifico. |
+| `991` | Codigo de producto SIN no valido | El `codeProductSin` no existe en el catalogo SIN. Consultar codigos validos con `POST /api/v1/siat/sync-products`. |
+| `992` | Actividad economica no valida | El `activityEconomic` no esta registrado para la empresa. Verificar actividades registradas en el SIN. |
+| `993` | Codigo de unidad de medida no valido | El `unitMeasure` no existe en el catalogo SIN. Consultar unidades con `POST /api/v1/siat/sync-parameters`. |
+| `994` | Codigo de metodo de pago no valido | El `paymentMethodCode` no es valido. Valores comunes: `1` (efectivo), `2` (tarjeta), `6` (transferencia). |
+| `996` | Monto total no coincide con detalle | La suma de los items no coincide con el total calculado. Verificar cantidades y precios unitarios. |
+| `997` | Tipo de documento no valido | El `clientDocumentType` no es valido. Valores: `1` (CI), `2` (CEX), `3` (pasaporte), `4` (OD), `5` (NIT). |
+
+<Tip>
+  Para validar datos antes de emitir, usa los endpoints de sincronizacion SIAT
+  (`/api/v1/siat/sync-*`) para obtener los catalogos actualizados de productos,
+  actividades economicas, unidades de medida y metodos de pago.
+</Tip>
+
+</Accordion>
+
+<Accordion title="Errores de certificado y autorizacion">
+
+Errores relacionados con el certificado digital y la autorizacion del sistema ante el SIN.
+
+| Codigo SIAT | Descripcion | Solucion |
+|-------------|-------------|----------|
+| `1003` | Certificado digital expirado | Renovar el certificado digital en el portal del SIN (impuestos.gob.bo). El certificado tiene una vigencia de 1 ano. |
+| `1004` | Certificado digital no valido | El certificado no corresponde al NIT o fue revocado. Verificar en el SIN. |
+| `1005` | Firma digital invalida | Error en el proceso de firma. Contactar soporte para verificar la configuracion del certificado. |
+| `1010` | Token de delegacion expirado | El token de delegacion caduco. Renovar en el portal del SIN. CUCU notificara por email antes del vencimiento. |
+| `1011` | Sistema no registrado | El sistema no esta registrado en SIAT. Completar el registro en el portal del SIN. |
+
+<Warning>
+  Los errores de certificado requieren accion en el portal del SIN (impuestos.gob.bo).
+  No se pueden resolver via API. Planifica la renovacion del certificado con anticipacion
+  (al menos 15 dias antes del vencimiento).
+</Warning>
+
+</Accordion>
+
+<Accordion title="Errores de disponibilidad del SIAT">
+
+Estos errores indican que el SIAT no esta disponible o tiene problemas de servicio.
+
+| Codigo SIAT | Descripcion | Solucion |
+|-------------|-------------|----------|
+| `99999` | Servicio no disponible | El SIAT esta completamente caido. Activar modo contingencia con `POST /api/v1/contingency/start`. Las facturas se almacenan localmente y se sincronizan cuando el SIAT vuelva. |
+| `90009` | Servicio temporalmente no disponible | El SIAT tiene problemas parciales. Reintentar en 2-5 minutos. Si persiste, activar contingencia. |
+| `90010` | Timeout de conexion | La conexion al SIAT excedio el tiempo limite. Reintentar. Si es recurrente, puede indicar problemas de red. |
+| `90011` | Error de comunicacion | Fallo en la comunicacion SOAP con el SIAT. Reintentar. Si persiste por mas de 10 minutos, activar contingencia. |
+
+<Tip>
+  CUCU detecta automaticamente cuando el SIAT no esta disponible y sugiere activar el modo
+  contingencia. En contingencia, las facturas se emiten con CUF offline y se sincronizan
+  automaticamente cuando el SIAT vuelve a estar disponible.
+</Tip>
+
+</Accordion>
+
+<Accordion title="Errores de anulacion">
+
+Errores que ocurren al intentar anular una factura.
+
+| Codigo SIAT | Descripcion | Solucion |
+|-------------|-------------|----------|
+| `2001` | Factura no encontrada en SIAT | El CUF no existe en el SIAT. Verificar que la factura fue emitida correctamente. |
+| `2002` | Factura ya anulada | La factura ya fue anulada previamente. No se puede anular dos veces. |
+| `2003` | Plazo de anulacion vencido | Supero el plazo maximo para anular (segun normativa SIN). Contactar al SIN directamente. |
+| `2004` | Motivo de anulacion no valido | El codigo de motivo de anulacion no es valido. Valores: `1` (error de datos), `2` (devolucion), `3` (nota de credito-debito). |
+
+</Accordion>
+
+</AccordionGroup>
+
+---
+
+## Manejo de errores en codigo
+
+### Patron basico
+
+<CodeGroup>
+
+```javascript JavaScript
+async function emitirFactura(invoiceData) {
+  try {
+    const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': process.env.CUCU_API_KEY
+      },
+      body: JSON.stringify(invoiceData)
+    });
+
+    const result = await response.json();
+
+    if (!result.success) {
+      const { code, details, siatCode, field } = result.error;
+
+      switch (code) {
+        case 'VALIDATION_ERROR':
+          console.error(`Campo invalido [${field}]: ${details}`);
+          // Corregir el campo y reintentar
+          break;
+
+        case 'SIAT_ERROR':
+          console.error(`Error SIAT [${siatCode}]: ${details}`);
+          if (siatCode === 980) {
+            // CUFD expirado - regenerar y reintentar
+            await regenerarCufd();
+            return emitirFactura(invoiceData); // Reintentar
+          }
+          break;
+
+        case 'SIAT_UNAVAILABLE':
+          console.warn('SIAT no disponible. Activando contingencia...');
+          return emitirEnContingencia(invoiceData);
+
+        case 'RATE_LIMITED':
+          const retryAfter = response.headers.get('Retry-After') || 5;
+          console.warn(`Rate limited. Reintentando en ${retryAfter}s...`);
+          await sleep(retryAfter * 1000);
+          return emitirFactura(invoiceData); // Reintentar
+
+        default:
+          console.error(`Error [${code}]: ${details}`);
+      }
+
+      return null;
+    }
+
+    console.log('Factura emitida:', result.data.cuf);
+    return result.data;
+
+  } catch (networkError) {
+    console.error('Error de red:', networkError.message);
+    // Decidir si reintentar o activar contingencia
+    return null;
+  }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+```
+
+```python Python
+import os
+import time
+import requests
+
+class CucuError(Exception):
+    def __init__(self, code, details, siat_code=None, field=None):
+        self.code = code
+        self.details = details
+        self.siat_code = siat_code
+        self.field = field
+        super().__init__(f"[{code}] {details}")
+
+def emitir_factura(invoice_data, max_retries=3):
+    api_key = os.environ['CUCU_API_KEY']
+    url = 'https://sandbox.cucu.bo/api/v1/invoices'
+
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(
+                url,
+                headers={
+                    'Content-Type': 'application/json',
+                    'X-API-Key': api_key
+                },
+                json=invoice_data,
+                timeout=30
+            )
+
+            result = response.json()
+
+            if result['success']:
+                print(f"Factura emitida: {result['data']['cuf']}")
+                return result['data']
+
+            error = result['error']
+            code = error['code']
+            details = error['details']
+            siat_code = error.get('siatCode')
+
+            if code == 'VALIDATION_ERROR':
+                field = error.get('field', 'desconocido')
+                raise CucuError(code, details, field=field)
+
+            elif code == 'SIAT_ERROR' and siat_code == 980:
+                print('CUFD expirado. Regenerando...')
+                regenerar_cufd()
+                continue  # Reintentar
+
+            elif code == 'SIAT_UNAVAILABLE':
+                print('SIAT no disponible. Activando contingencia...')
+                return emitir_en_contingencia(invoice_data)
+
+            elif code == 'RATE_LIMITED':
+                retry_after = int(response.headers.get('Retry-After', 5))
+                print(f'Rate limited. Esperando {retry_after}s...')
+                time.sleep(retry_after)
+                continue  # Reintentar
+
+            else:
+                raise CucuError(code, details, siat_code=siat_code)
+
+        except requests.exceptions.ConnectionError:
+            print(f'Error de conexion (intento {attempt + 1}/{max_retries})')
+            time.sleep(2 ** attempt)  # Backoff exponencial
+            continue
+
+        except requests.exceptions.Timeout:
+            print(f'Timeout (intento {attempt + 1}/{max_retries})')
+            time.sleep(2 ** attempt)
+            continue
+
+    raise CucuError('MAX_RETRIES', f'No se pudo emitir despues de {max_retries} intentos')
+```
+
+</CodeGroup>
+
+### Patron con reintentos y backoff exponencial
+
+<CodeGroup>
+
+```javascript JavaScript
+async function fetchWithRetry(url, options, maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, options);
+      const result = await response.json();
+
+      // No reintentar errores de validacion o autenticacion
+      if (!result.success && ['VALIDATION_ERROR', 'UNAUTHORIZED', 'FORBIDDEN', 'NOT_FOUND', 'CONFLICT'].includes(result.error.code)) {
+        return result; // Error no retriable
+      }
+
+      // Reintentar errores de servidor y SIAT
+      if (!result.success && ['SIAT_UNAVAILABLE', 'INTERNAL_ERROR', 'RATE_LIMITED'].includes(result.error.code)) {
+        const delay = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s
+        console.warn(`Error retriable [${result.error.code}]. Reintentando en ${delay}ms...`);
+        await sleep(delay);
+        continue;
+      }
+
+      return result; // Exito u otro error
+
+    } catch (error) {
+      if (attempt === maxRetries - 1) throw error;
+      const delay = Math.pow(2, attempt) * 1000;
+      console.warn(`Error de red. Reintentando en ${delay}ms...`);
+      await sleep(delay);
+    }
+  }
+}
+```
+
+```python Python
+import time
+import requests
+from functools import wraps
+
+NON_RETRIABLE = {'VALIDATION_ERROR', 'UNAUTHORIZED', 'FORBIDDEN', 'NOT_FOUND', 'CONFLICT'}
+RETRIABLE = {'SIAT_UNAVAILABLE', 'INTERNAL_ERROR', 'RATE_LIMITED'}
+
+def with_retry(max_retries=3, base_delay=1):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(max_retries):
+                try:
+                    result = func(*args, **kwargs)
+
+                    if not result.get('success') and result.get('error', {}).get('code') in NON_RETRIABLE:
+                        return result  # Error no retriable
+
+                    if not result.get('success') and result.get('error', {}).get('code') in RETRIABLE:
+                        delay = base_delay * (2 ** attempt)
+                        print(f"Error retriable [{result['error']['code']}]. "
+                              f"Reintentando en {delay}s...")
+                        time.sleep(delay)
+                        continue
+
+                    return result
+
+                except requests.exceptions.RequestException as e:
+                    if attempt == max_retries - 1:
+                        raise
+                    delay = base_delay * (2 ** attempt)
+                    print(f"Error de red: {e}. Reintentando en {delay}s...")
+                    time.sleep(delay)
+
+            return result
+        return wrapper
+    return decorator
+
+@with_retry(max_retries=3)
+def emitir_factura(invoice_data):
+    return requests.post(
+        'https://sandbox.cucu.bo/api/v1/invoices',
+        headers={'X-API-Key': os.environ['CUCU_API_KEY']},
+        json=invoice_data,
+        timeout=30
+    ).json()
+```
+
+</CodeGroup>
+
+---
+
+## Resolucion de errores con AI
+
+CUCU incluye un endpoint de IA que puede analizar errores del SIAT y sugerir soluciones
+automaticamente:
+
+```bash
+curl -X POST https://sandbox.cucu.bo/api/v1/ai/resolve-error \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "errorCode": "SIAT_ERROR",
+    "siatCode": 990,
+    "siatDescription": "DATOS DE FACTURA INVALIDOS",
+    "context": "Intentando emitir factura con NIT 12345678"
+  }'
+```
+
+<Tip>
+  El endpoint de AI usa RAG (Retrieval-Augmented Generation) con la documentacion oficial del
+  SIAT y la base de conocimiento de errores resueltos de CUCU. Es especialmente util para
+  errores SIAT poco comunes o con descripciones ambiguas.
+</Tip>
+
+---
+
+## Checklist de debugging
+
+Cuando algo falla, sigue este orden:
+
+<Steps>
+
+<Step title="Revisa el codigo HTTP">
+  El codigo HTTP te dice la categoria general del error. Los `4xx` son errores de tu lado
+  (datos, autenticacion, permisos). Los `5xx` son errores del servidor o del SIAT.
+</Step>
+
+<Step title="Lee el campo error.code">
+  El codigo interno de CUCU te dice exactamente que tipo de error es. Usa las tablas de arriba
+  para determinar si es retriable o no.
+</Step>
+
+<Step title="Revisa error.details y error.field">
+  El campo `details` tiene un mensaje legible. Si es un `VALIDATION_ERROR`, el campo `field`
+  te indica exactamente que campo corregir.
+</Step>
+
+<Step title="Para errores SIAT, revisa siatCode">
+  Los codigos SIAT son numericos y estan documentados en las tablas de arriba. El `siatCode`
+  te permite saber si el error es de datos, certificado, o disponibilidad.
+</Step>
+
+<Step title="Usa el endpoint de AI si no encuentras la solucion">
+  `POST /api/v1/ai/resolve-error` puede analizar el error y sugerir la solucion correcta
+  basandose en la documentacion del SIAT y errores previamente resueltos.
+</Step>
+
+</Steps>

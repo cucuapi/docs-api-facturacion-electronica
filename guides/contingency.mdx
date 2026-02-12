@@ -1,0 +1,85 @@
+---
+title: "Modo Contingencia"
+sidebarTitle: "Contingencia"
+description: "Como funciona el modo contingencia cuando el SIAT no esta disponible."
+---
+
+## Que es la contingencia?
+
+El modo contingencia permite seguir emitiendo facturas cuando el SIAT no responde. Las facturas se almacenan localmente y se envian al SIAT cuando el servicio se restablece.
+
+<Warning>
+  La contingencia es un mecanismo regulado por el SIN. Solo debe activarse cuando hay una interrupcion real del servicio SIAT.
+</Warning>
+
+## Cuando activar contingencia
+
+| Motivo | Codigo | Descripcion |
+|--------|--------|-------------|
+| Corte de internet | `1` | Sin conexion a internet |
+| Falla SIAT | `2` | El SIAT no responde |
+| Virus informatico | `3` | Sistema comprometido |
+| Otro | `4` | Causa no especificada |
+
+## Flujo de contingencia
+
+### 1. Detectar caida del SIAT
+
+```bash
+# Verificar conexion
+curl -X GET https://sandbox.cucu.bo/api/v1/events/check-connection \
+  -H "X-API-Key: tu_api_key"
+```
+
+Si retorna `false`, el SIAT no esta disponible.
+
+### 2. Iniciar evento de contingencia
+
+```bash
+curl -X POST https://sandbox.cucu.bo/api/v1/events/start \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: tu_api_key" \
+  -d '{
+    "posId": "uuid-del-pos",
+    "branchId": "uuid-de-sucursal",
+    "codigoMotivo": 2,
+    "descripcion": "SIAT no responde"
+  }'
+```
+
+### 3. Emitir facturas normalmente
+
+Durante la contingencia, las facturas se emiten con `emissionType: "CONTINGENCY"`. El proceso es identico al normal:
+
+```bash
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: tu_api_key" \
+  -d '{ ... mismos datos de siempre ... }'
+```
+
+### 4. Finalizar contingencia
+
+Cuando el SIAT se restablece:
+
+```bash
+curl -X POST https://sandbox.cucu.bo/api/v1/events/end \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: tu_api_key" \
+  -d '{
+    "posId": "uuid-del-pos",
+    "branchId": "uuid-de-sucursal",
+    "eventoId": "uuid-del-evento"
+  }'
+```
+
+Las facturas emitidas en contingencia se envian automaticamente al SIAT para validacion.
+
+## Consideraciones
+
+<Note>
+  - Las facturas en contingencia tienen validez fiscal una vez enviadas al SIAT
+  - El SIN permite hasta 48 horas de contingencia
+  - Debes registrar el evento con motivo valido
+  - Al finalizar, todas las facturas pendientes se procesan automaticamente
+</Note>

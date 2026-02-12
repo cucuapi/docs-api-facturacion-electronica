@@ -1,0 +1,165 @@
+---
+title: "CUCU API"
+sidebarTitle: "Introduccion"
+description: "API de facturacion electronica para Bolivia. Emite, anula y gestiona facturas validas ante el SIN con una sola llamada."
+---
+
+<img
+  className="block dark:hidden"
+  src="/images/hero-light.svg"
+  alt="CUCU API - Facturacion Electronica para Bolivia"
+/>
+<img
+  className="hidden dark:block"
+  src="/images/hero-dark.svg"
+  alt="CUCU API - Facturacion Electronica para Bolivia"
+/>
+
+## La API de facturacion electronica mas moderna de Bolivia
+
+CUCU API es la infraestructura que conecta tu sistema con el **Servicio de Impuestos Nacionales (SIN)** a traves del SIAT. En lugar de meses implementando SOAP, firma digital y contingencia, integra facturacion electronica boliviana con una sola llamada REST o directamente desde tu AI con MCP.
+
+Diseñada para desarrolladores, equipos de producto y empresas que necesitan **facturar rapido, sin errores y sin depender de software legacy**. Multi-tenant desde el nucleo: gestiona decenas de empresas, sucursales y puntos de venta desde una sola integracion.
+
+---
+
+## Por que CUCU?
+
+<CardGroup cols={2}>
+  <Card title="Emision en 2 segundos" icon="bolt">
+    Crea y emite facturas electronicas validadas por el SIAT en tiempo real.
+    Tu cliente recibe su factura antes de terminar de leer el recibo. Sin colas,
+    sin esperas, sin procesamiento batch.
+  </Card>
+  <Card title="PDF, Ticket 80mm y XML automatico" icon="file-pdf">
+    Cada factura genera automaticamente su PDF A4, ticket termico de 80mm
+    para impresoras POS, y el XML normado por el SIN. Todo listo para
+    descargar o enviar al instante.
+  </Card>
+  <Card title="Email al cliente incluido" icon="envelope">
+    No necesitas configurar SMTP ni servicios de email. CUCU envia
+    automaticamente la factura al correo del cliente con PDF adjunto
+    y branding personalizado de tu empresa.
+  </Card>
+  <Card title="Multi-empresa, sucursal y POS" icon="building">
+    Arquitectura multi-tenant real. Una sola API Key puede gestionar
+    multiples empresas, cada una con sus sucursales, puntos de venta,
+    certificados digitales y configuracion SIAT independiente.
+  </Card>
+  <Card title="Contingencia automatica" icon="shield-check">
+    Cuando el SIAT no responde, CUCU activa automaticamente el modo
+    contingencia. Tus facturas se emiten sin interrupcion y se sincronizan
+    cuando el servicio se restablece. Cero downtime para tu negocio.
+  </Card>
+  <Card title="AI integrado con RAG" icon="robot">
+    Asistente inteligente que consulta la normativa tributaria boliviana
+    usando Retrieval-Augmented Generation. Resuelve errores SIAT, valida
+    datos fiscales y responde consultas tecnicas al instante.
+  </Card>
+  <Card title="MCP Server — 12 herramientas" icon="plug" color="#10b981">
+    **NUEVO** — Conecta Claude, Cursor, VS Code o cualquier AI directamente a
+    facturacion electronica via Model Context Protocol. Emite facturas con
+    lenguaje natural. El futuro de la integracion ya esta aqui.
+  </Card>
+  <Card title="Firma digital y CUF automatico" icon="lock">
+    La firma digital PKCS#12, generacion del Codigo Unico de Facturacion (CUF)
+    y toda la criptografia requerida por el SIN se manejan internamente.
+    Tu solo envias los datos de la venta.
+  </Card>
+</CardGroup>
+
+---
+
+## El futuro: factura desde tu AI
+
+<div style={{display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px'}}>
+  <img src="/logo/cucu-fly-small.gif" alt="CUCU" style={{width: '80px'}} />
+  <div>
+    <strong style={{fontSize: '1.1em'}}>Model Context Protocol (MCP)</strong><br/>
+    Conecta Claude Desktop, Cursor, Windsurf o VS Code directamente a facturacion electronica.
+    Sin escribir codigo — solo dile a tu AI: <em>"Emite una factura a EMPRESA S.R.L. por Bs. 1,500"</em> y listo.
+  </div>
+</div>
+
+Con el MCP Server de CUCU, tu asistente AI tiene acceso a **12 herramientas** que cubren todo el ciclo de facturacion: emision, anulacion, consulta, verificacion de NIT, sincronizacion SIAT y mas. Es la forma mas rapida y natural de integrar facturacion electronica en tu flujo de trabajo.
+
+<Card title="Descubre MCP Server" icon="plug" href="/mcp/introduction">
+  Aprende como conectar tu AI a facturacion electronica en 2 minutos.
+</Card>
+
+---
+
+## Empieza en 3 pasos
+
+<Steps>
+  <Step title="Obtén tu API Key">
+    Registrate en [app.cucu.bo](https://app.cucu.bo/signup) y genera tu API Key sandbox
+    en segundos. No necesitas NIT real ni certificado digital para probar — el
+    ambiente sandbox conecta con el SIAT piloto del SIN.
+
+    ```bash
+    # Tu API Key sandbox se ve asi:
+    YOUR_API_KEY
+    ```
+  </Step>
+  <Step title="Emite tu primera factura">
+    Una sola llamada POST con los datos de la venta. CUCU se encarga de la firma
+    digital, el CUF, la validacion SIAT, la generacion del PDF y el envio por email.
+
+    ```bash
+    curl -X POST https://sandbox.cucu.bo/api/v1/facturas \
+      -H "X-API-Key: YOUR_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "nitCliente": "1234567",
+        "razonSocial": "EMPRESA TEST S.R.L.",
+        "detalle": [{
+          "descripcion": "Servicio de consultoria",
+          "cantidad": 1,
+          "precioUnitario": 500.00
+        }]
+      }'
+    ```
+  </Step>
+  <Step title="Pasa a produccion">
+    Cuando estes listo, sube tu certificado digital (.pfx), configura tu NIT real
+    y cambia a tu API Key de produccion (`sk_live_...`). Mismo codigo, mismo
+    endpoint, facturas reales validadas por el SIN.
+  </Step>
+</Steps>
+
+---
+
+## Explora la documentacion
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Tutorial completo para emitir tu primera factura en 5 minutos.
+    Incluye ejemplos en curl, JavaScript y Python.
+  </Card>
+  <Card title="Referencia API" icon="code" href="/api-reference/overview">
+    Documentacion completa de todos los endpoints REST. Schemas,
+    codigos de error, paginacion y ejemplos de request/response.
+  </Card>
+  <Card title="MCP Server" icon="plug" href="/mcp/introduction">
+    Conecta tu AI directamente a facturacion. 12 herramientas MCP
+    para emitir, anular y consultar facturas con lenguaje natural.
+  </Card>
+  <Card title="Precios" icon="credit-card" href="/pricing">
+    Planes flexibles desde startup hasta enterprise. Sandbox
+    gratuito e ilimitado para desarrollo y pruebas.
+  </Card>
+</CardGroup>
+
+---
+
+<div className="gradient-card" style={{marginTop: '32px', padding: '32px', textAlign: 'center', borderRadius: '12px'}}>
+  <h3 style={{marginTop: 0}}>Factura electronica en minutos, no en meses</h3>
+  <p style={{maxWidth: '500px', margin: '0 auto 16px'}}>
+    Crea tu cuenta gratuita y emite tu primera factura de prueba ahora mismo.
+    Sin tarjeta de credito. Sin compromisos. Sandbox ilimitado.
+  </p>
+  <a href="https://app.cucu.bo/signup" style={{fontWeight: 'bold'}}>
+    Crear cuenta gratuita →
+  </a>
+</div>

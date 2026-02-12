@@ -1,0 +1,156 @@
+---
+title: "Ciclo de Vida de una Factura"
+sidebarTitle: "Ciclo de Vida"
+description: "Entiende el flujo completo de una factura: desde la creacion hasta el almacenamiento."
+---
+
+## Flujo completo
+
+Cuando creas una factura a traves de la API, este es el proceso interno:
+
+```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#cbd5e1', 'primaryBorderColor': '#334155', 'lineColor': '#475569', 'secondaryColor': '#0f172a', 'tertiaryColor': '#1e293b', 'fontSize': '13px' }}}%%
+flowchart TD
+  A["POST /api/v1/invoices"] --> B["Validar datos"]
+  B --> C["Generar CUF"]
+  C --> D["Firmar XML"]
+  D --> E{"Enviar a SIAT"}
+
+  E -->|"200 OK"| F["VALIDATED"]
+  E -->|"Error"| G["REJECTED"]
+  E -->|"Timeout"| H["CONTINGENCY"]
+
+  F --> I["Generar PDF A4 + Ticket"]
+  I --> J["PUT S3 bucket"]
+  J --> K["SMTP email"]
+  K --> L["return 201"]
+
+  G --> M["return 422 + error SIAT"]
+
+  H --> N["Queue reenvio"]
+  N -->|"retry"| E
+
+  style A fill:#1e293b,stroke:#475569,color:#e2e8f0
+  style B fill:#1e293b,stroke:#334155,color:#cbd5e1
+  style C fill:#1e293b,stroke:#334155,color:#cbd5e1
+  style D fill:#1e293b,stroke:#334155,color:#cbd5e1
+  style E fill:#0f172a,stroke:#475569,color:#e2e8f0
+  style F fill:#1e293b,stroke:#475569,color:#e2e8f0
+  style G fill:#1e293b,stroke:#475569,color:#e2e8f0
+  style H fill:#1e293b,stroke:#475569,color:#e2e8f0
+  style I fill:#1e293b,stroke:#334155,color:#cbd5e1
+  style J fill:#1e293b,stroke:#334155,color:#cbd5e1
+  style K fill:#1e293b,stroke:#334155,color:#cbd5e1
+  style L fill:#1e293b,stroke:#475569,color:#e2e8f0
+  style M fill:#1e293b,stroke:#475569,color:#e2e8f0
+  style N fill:#1e293b,stroke:#334155,color:#cbd5e1
+```
+
+---
+
+## 1. Validacion de datos
+
+La API valida:
+- **Campos requeridos**: NIT, razon social, metodo de pago, detalles
+- **Formato de NIT**: 7-15 digitos, algoritmo de verificacion SIN
+- **Codigos SIAT**: Actividad economica, producto SIN, unidad de medida
+- **Montos**: Positivos y coherentes (subtotal = cantidad x precio - descuento)
+
+Si la validacion falla, se retorna HTTP 400 con detalle del error.
+
+## 2. Generacion del CUF
+
+El **CUF** (Codigo Unico de Factura) es el identificador unico de cada factura ante el SIN. Se genera combinando:
+- NIT del emisor
+- Fecha y hora de emision
+- Sucursal y punto de venta
+- Numero de factura
+- Tipo de documento
+- CUFD vigente
+
+El CUF es irrepetible y actua como "firma" de la factura.
+
+## 3. Firma digital
+
+El XML de la factura se firma con el **certificado digital** del emisor (emitido por el SIN). La firma garantiza la integridad y autenticidad de la factura.
+
+## 4. Envio al SIAT
+
+La factura firmada se envia al SIAT para validacion. Posibles resultados:
+
+| Resultado | Accion |
+|-----------|--------|
+| **VALIDATED** | Factura valida. Se procede a generar PDF. |
+| **REJECTED** | El SIAT rechazo la factura. Se retorna el error. |
+| **SIAT no disponible** | Se activa automaticamente modo contingencia (si esta configurado). |
+
+## 5. Generacion de documentos
+
+Una vez validada, se generan automaticamente:
+- **PDF A4** - Formato estandar para impresion
+- **Ticket 80mm** - Para impresoras termicas/POS
+- **XML firmado** - Documento fiscal oficial
+
+## 6. Almacenamiento
+
+Todos los archivos se almacenan en S3 con URLs publicas permanentes. Las facturas son **inmutables** una vez emitidas.
+
+## 7. Notificacion por email
+
+Si se proporciono un email del cliente, se envia automaticamente:
+- PDF A4 adjunto
+- Ticket adjunto (si `isTicket: true`)
+- XML adjunto
+- Link de descarga publica
+
+---
+
+## Estados de una factura
+
+```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#1e293b', 'primaryTextColor': '#cbd5e1', 'primaryBorderColor': '#334155', 'lineColor': '#475569', 'secondaryColor': '#0f172a', 'tertiaryColor': '#1e293b', 'fontSize': '13px', 'noteBkgColor': '#0f172a', 'noteTextColor': '#94a3b8', 'noteBorderColor': '#334155' }}}%%
+stateDiagram-v2
+  [*] --> PENDING: Factura creada
+
+  PENDING --> VALIDATED: SIAT aprueba
+  PENDING --> REJECTED: SIAT rechaza
+  PENDING --> CONTINGENCY: SIAT no disponible
+
+  CONTINGENCY --> VALIDATED: Reenvio exitoso
+
+  VALIDATED --> CANCELLED: Anulacion solicitada
+
+  VALIDATED --> [*]
+  REJECTED --> [*]
+  CANCELLED --> [*]
+
+  note right of VALIDATED
+    Estado exitoso.
+    PDF, XML y email
+    ya fueron generados.
+  end note
+
+  note right of CONTINGENCY
+    Factura almacenada
+    localmente. Se reenvia
+    cuando SIAT vuelve.
+  end note
+
+  note right of CANCELLED
+    Requiere motivo del
+    catalogo SIN. Irreversible.
+  end note
+```
+
+| Estado | Descripcion | Final? |
+|--------|-------------|--------|
+| `PENDING` | Creada, pendiente de envio al SIAT | No |
+| `VALIDATED` | Validada por el SIAT — tiene validez fiscal | Si (a menos que se anule) |
+| `REJECTED` | Rechazada por el SIAT — revisar errores | Si |
+| `CANCELLED` | Anulada ante el SIAT — irreversible | Si |
+| `CONTINGENCY` | Emitida offline, en cola de reenvio | No |
+
+<Tip>
+  Puedes consultar el estado actual de cualquier factura con
+  `GET /api/v1/invoices/{id}/status`. Ver [Estado de factura](/api-reference/invoice-status).
+</Tip>

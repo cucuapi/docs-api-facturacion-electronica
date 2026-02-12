@@ -1,0 +1,105 @@
+---
+title: "Requisitos SIAT"
+sidebarTitle: "Requisitos SIAT"
+description: "Todo lo que necesitas para facturar electronicamente en Bolivia."
+---
+
+## Requisitos para facturacion electronica
+
+Para emitir facturas electronicas validas en Bolivia, necesitas:
+
+### 1. NIT activo
+
+Un **NIT** (Numero de Identificacion Tributaria) activo en el Servicio de Impuestos Nacionales (SIN). El NIT identifica a tu empresa como contribuyente.
+
+### 2. Certificado digital
+
+Un **certificado digital** emitido por el SIN. Se usa para firmar digitalmente cada factura, garantizando su autenticidad.
+
+<Note>
+  El certificado digital tiene fecha de vencimiento. Debe renovarse antes de que expire.
+</Note>
+
+### 3. Sistema registrado en SIAT
+
+Tu sistema debe estar registrado en el **SIAT** (Sistema de Facturacion). Al registrar obtienes:
+- **Codigo de sistema** - Identificador unico de tu sistema
+- **Token de delegacion** - Permiso para operar en nombre del contribuyente
+
+### 4. CUIS (Codigo Unico de Inicio de Sistemas)
+
+El **CUIS** se solicita una vez al iniciar la integracion. Identifica la sesion de tu sistema con el SIAT.
+
+```bash
+# Solicitar CUIS
+curl -X POST https://sandbox.cucu.bo/api/v1/siat/cuis \
+  -H "X-API-Key: tu_api_key"
+```
+
+### 5. CUFD (Codigo Unico de Facturacion Diaria)
+
+El **CUFD** se genera diariamente y es requerido para emitir facturas. Tiene vigencia limitada y debe regenerarse periodicamente.
+
+```bash
+# Generar CUFD
+curl -X POST https://sandbox.cucu.bo/api/v1/codes/cufd \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: tu_api_key" \
+  -d '{"posId": "uuid-del-pos"}'
+```
+
+### 6. Catalogos sincronizados
+
+Los catalogos SIAT contienen los codigos oficiales necesarios para las facturas:
+- Actividades economicas
+- Productos y servicios
+- Metodos de pago
+- Unidades de medida
+- Tipos de documento
+- Leyendas
+
+```bash
+# Sincronizar todos los catalogos
+curl -X POST https://sandbox.cucu.bo/api/v1/siat/sync/all \
+  -H "X-API-Key: tu_api_key"
+```
+
+## Flujo de configuracion inicial
+
+<Steps>
+  <Step title="Registrar sistema en el SIN">
+    Accede al portal del SIN, registra tu sistema y obtiene el token de delegacion.
+  </Step>
+  <Step title="Obtener certificado digital">
+    Solicita el certificado digital en una oficina del SIN.
+  </Step>
+  <Step title="Configurar en CUCU">
+    Sube el certificado y configura tu empresa en el dashboard.
+  </Step>
+  <Step title="Solicitar CUIS">
+    La API solicita automaticamente el CUIS al SIAT.
+  </Step>
+  <Step title="Generar CUFD">
+    La API genera el CUFD automaticamente cada dia.
+  </Step>
+  <Step title="Sincronizar catalogos">
+    Sincroniza los catalogos SIAT una vez.
+  </Step>
+  <Step title="Emitir facturas">
+    Tu sistema esta listo para emitir facturas electronicas.
+  </Step>
+</Steps>
+
+## Sandbox vs Produccion
+
+| Aspecto | Sandbox | Produccion |
+|---------|---------|------------|
+| NIT | Cualquier NIT de prueba | NIT real y activo |
+| Certificado | No requerido | Obligatorio (SIN) |
+| SIAT | Piloto (ambiente 2) | Produccion (ambiente 1) |
+| Facturas | Sin validez fiscal | Validez fiscal total |
+| CUIS/CUFD | De prueba | Reales |
+
+<Tip>
+  Recomendamos desarrollar y probar completamente en sandbox antes de pasar a produccion. La migracion es simplemente cambiar la URL base y la API Key.
+</Tip>

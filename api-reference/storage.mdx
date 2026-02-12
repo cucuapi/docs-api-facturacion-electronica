@@ -1,0 +1,111 @@
+---
+title: "Storage"
+sidebarTitle: "Storage"
+description: "Gestion de almacenamiento S3 y carga de logos."
+---
+
+## Estado del storage
+
+`GET /api/v1/storage/status`
+
+Verifica si el almacenamiento S3 esta disponible.
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://sandbox.cucu.bo/api/v1/storage/status \
+  -H "X-API-Key: YOUR_API_KEY"
+```
+</CodeGroup>
+
+```json
+{
+  "success": true,
+  "data": {
+    "s3Enabled": true,
+    "timestamp": "2026-02-11T12:00:00"
+  }
+}
+```
+
+---
+
+## Test de conectividad
+
+`POST /api/v1/storage/test`
+
+Ejecuta un test completo de S3: upload, verificacion de existencia, descarga y comparacion de contenido.
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+
+```json
+{
+  "success": true,
+  "data": {
+    "upload": true,
+    "exists": true,
+    "download": true,
+    "contentMatch": true
+  }
+}
+```
+
+---
+
+## Subir logo de empresa
+
+`POST /api/v1/storage/brand/logo?companyId={uuid}`
+
+Sube el logo de la empresa que aparece en los PDFs de las facturas.
+
+El body debe ser el archivo PNG binario del logo.
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+| `Content-Type` | Header | string | Si | `image/png` |
+| `companyId` | Query | string | Si | UUID de la empresa |
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://sandbox.cucu.bo/api/v1/storage/brand/logo?companyId=660e8400-e29b-41d4-a716-446655440002" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "Content-Type: image/png" \
+  --data-binary @logo.png
+```
+
+```python Python
+import requests
+
+with open('logo.png', 'rb') as f:
+    response = requests.post(
+        'https://sandbox.cucu.bo/api/v1/storage/brand/logo',
+        headers={
+            'X-API-Key': 'YOUR_API_KEY',
+            'Content-Type': 'image/png'
+        },
+        params={'companyId': '660e8400-e29b-41d4-a716-446655440002'},
+        data=f.read()
+    )
+```
+</CodeGroup>
+
+```json
+{
+  "success": true,
+  "data": {
+    "s3Key": "brand/logos/660e8400.../logo.png",
+    "cdnUrl": "https://cdn.cucu.bo/brand/logos/660e8400.../logo.png",
+    "size": 45678
+  }
+}
+```
+
+<Tip>
+  Recomendamos logos PNG con fondo transparente, tamaño maximo 500KB, y dimensiones minimas de 200x200px.
+</Tip>

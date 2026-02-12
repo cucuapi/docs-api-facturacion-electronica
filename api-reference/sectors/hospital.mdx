@@ -1,0 +1,183 @@
+---
+title: "Hospitales y Clinicas"
+sidebarTitle: "Hospitales"
+description: "Factura para hospitales, clinicas y centros medicos especializados. Sector 15."
+---
+
+Para hospitales, clinicas privadas y centros medicos con servicios especializados (cirugia, internacion, laboratorio hospitalario).
+
+## Datos del sector
+
+| Campo | Valor |
+|-------|-------|
+| `codigoDocumentoSector` | `15` |
+| `invoiceType` electronica | `ELECTRONIC_HOSPITAL` |
+| `invoiceType` computarizada | `COMPUTERIZED_HOSPITAL` |
+| WSDL SIAT | `ServicioFacturacionElectronica` |
+
+## Campos adicionales
+
+Este sector requiere informacion detallada del servicio medico y profesional.
+
+### Detalle
+
+| Campo | Tipo | Req | Descripcion |
+|-------|------|-----|-------------|
+| `details[].specialty` | string | Si | Especialidad medica |
+| `details[].specialtyDetail` | string | No | Detalle adicional de la especialidad |
+| `details[].operatingRoomNumber` | string | No | Numero de quirofano o sala de operaciones |
+| `details[].doctorSpecialty` | string | Si | Especialidad del medico tratante |
+| `details[].doctorName` | string | Si | Nombre completo del medico |
+| `details[].doctorDocument` | string | Si | NIT o documento del medico |
+| `details[].doctorRegistrationNumber` | string | Si | Numero de matricula profesional |
+| `details[].doctorInvoiceNumber` | string | No | Numero de factura del medico |
+
+## Ejemplo
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "invoiceType": "ELECTRONIC_HOSPITAL",
+    "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
+    "clientDocumentType": 1,
+    "clientDocumentNumber": "8765432",
+    "clientBusinessName": "MARIA RODRIGUEZ FLORES",
+    "paymentMethodCode": 1,
+    "details": [
+      {
+        "activityEconomic": "851000",
+        "codeProductSin": "93121",
+        "description": "Cirugia laparoscopica de vesicula",
+        "quantity": 1,
+        "unitMeasure": 58,
+        "priceUnit": 8500.00,
+        "specialty": "Cirugia General",
+        "specialtyDetail": "Colecistectomia laparoscopica",
+        "operatingRoomNumber": "Q-03",
+        "doctorSpecialty": "Cirugia General",
+        "doctorName": "Dr. Roberto Sanchez Gutierrez",
+        "doctorDocument": "4521876",
+        "doctorRegistrationNumber": "MP-12345"
+      },
+      {
+        "activityEconomic": "851000",
+        "codeProductSin": "93121",
+        "description": "Anestesia general",
+        "quantity": 1,
+        "unitMeasure": 58,
+        "priceUnit": 2500.00,
+        "specialty": "Anestesiologia",
+        "doctorSpecialty": "Anestesiologia",
+        "doctorName": "Dra. Patricia Cuellar Ramos",
+        "doctorDocument": "6789012",
+        "doctorRegistrationNumber": "MP-67890"
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    invoiceType: 'ELECTRONIC_HOSPITAL',
+    pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
+    clientDocumentType: 1,
+    clientDocumentNumber: '8765432',
+    clientBusinessName: 'MARIA RODRIGUEZ FLORES',
+    paymentMethodCode: 1,
+    details: [
+      {
+        activityEconomic: '851000',
+        codeProductSin: '93121',
+        description: 'Cirugia laparoscopica de vesicula',
+        quantity: 1,
+        unitMeasure: 58,
+        priceUnit: 8500.00,
+        specialty: 'Cirugia General',
+        specialtyDetail: 'Colecistectomia laparoscopica',
+        operatingRoomNumber: 'Q-03',
+        doctorSpecialty: 'Cirugia General',
+        doctorName: 'Dr. Roberto Sanchez Gutierrez',
+        doctorDocument: '4521876',
+        doctorRegistrationNumber: 'MP-12345'
+      },
+      {
+        activityEconomic: '851000',
+        codeProductSin: '93121',
+        description: 'Anestesia general',
+        quantity: 1,
+        unitMeasure: 58,
+        priceUnit: 2500.00,
+        specialty: 'Anestesiologia',
+        doctorSpecialty: 'Anestesiologia',
+        doctorName: 'Dra. Patricia Cuellar Ramos',
+        doctorDocument: '6789012',
+        doctorRegistrationNumber: 'MP-67890'
+      }
+    ]
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'invoiceType': 'ELECTRONIC_HOSPITAL',
+        'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
+        'clientDocumentType': 1,
+        'clientDocumentNumber': '8765432',
+        'clientBusinessName': 'MARIA RODRIGUEZ FLORES',
+        'paymentMethodCode': 1,
+        'details': [
+            {
+                'activityEconomic': '851000',
+                'codeProductSin': '93121',
+                'description': 'Cirugia laparoscopica de vesicula',
+                'quantity': 1,
+                'unitMeasure': 58,
+                'priceUnit': 8500.00,
+                'specialty': 'Cirugia General',
+                'specialtyDetail': 'Colecistectomia laparoscopica',
+                'operatingRoomNumber': 'Q-03',
+                'doctorSpecialty': 'Cirugia General',
+                'doctorName': 'Dr. Roberto Sanchez Gutierrez',
+                'doctorDocument': '4521876',
+                'doctorRegistrationNumber': 'MP-12345'
+            },
+            {
+                'activityEconomic': '851000',
+                'codeProductSin': '93121',
+                'description': 'Anestesia general',
+                'quantity': 1,
+                'unitMeasure': 58,
+                'priceUnit': 2500.00,
+                'specialty': 'Anestesiologia',
+                'doctorSpecialty': 'Anestesiologia',
+                'doctorName': 'Dra. Patricia Cuellar Ramos',
+                'doctorDocument': '6789012',
+                'doctorRegistrationNumber': 'MP-67890'
+            }
+        ]
+    }
+)
+```
+</CodeGroup>
+
+<Info>
+  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+</Info>

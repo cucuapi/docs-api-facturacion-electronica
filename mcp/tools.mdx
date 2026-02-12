@@ -1,0 +1,230 @@
+---
+title: "Referencia de Tools"
+sidebarTitle: "Tools"
+description: "Referencia completa de las 12 herramientas MCP disponibles en CUCU."
+---
+
+## Herramientas de Facturacion
+
+### listarFacturas
+
+Lista facturas emitidas por el tenant autenticado, paginadas y ordenadas por fecha de emision descendente.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `page` | int | No | Pagina (inicia en 0, default: 0) |
+| `size` | int | No | Elementos por pagina (max 50, default: 10) |
+
+**Requiere autenticacion:** Si
+
+**Ejemplo de uso con AI:**
+> "Lista mis ultimas 5 facturas"
+
+---
+
+### obtenerFactura
+
+Obtiene los detalles completos de una factura por UUID, incluyendo datos del cliente, montos, estado SIAT, CUF y codigo QR.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `id` | String | Si | UUID de la factura |
+
+**Requiere autenticacion:** Si
+
+**Ejemplo:**
+> "Muestra los detalles de la factura a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+
+---
+
+### obtenerFacturaPorCuf
+
+Obtiene los detalles de una factura por su CUF (Codigo Unico de Factura), el identificador unico ante el SIN.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `cuf` | String | Si | Codigo Unico de Factura |
+
+**Requiere autenticacion:** Si
+
+**Ejemplo:**
+> "Busca la factura con CUF 2872F729450..."
+
+---
+
+### crearFactura
+
+Crea y emite una factura electronica validada por el SIAT. Acepta un JSON con la estructura de `CreateInvoiceRequest`.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `requestJson` | String | Si | JSON con los datos de la factura |
+
+**Requiere autenticacion:** Si
+
+**Estructura del JSON:**
+```json
+{
+  "pointOfSaleId": "UUID del POS",
+  "clientDocumentType": 5,
+  "clientDocumentNumber": "99001",
+  "clientBusinessName": "EMPRESA S.R.L.",
+  "clientEmail": "email@ejemplo.com",
+  "paymentMethodCode": 1,
+  "details": [{
+    "activityEconomic": "620100",
+    "codeProductSin": "83141",
+    "description": "Servicio",
+    "quantity": 1,
+    "unitMeasure": 58,
+    "priceUnit": 100.00
+  }]
+}
+```
+
+**Ejemplo:**
+> "Emite una factura a DEMO S.R.L. con NIT 99001 por Bs. 500 de servicio de desarrollo"
+
+---
+
+### anularFactura
+
+Anula una factura electronica emitida. La anulacion es **irreversible** ante el SIAT.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `id` | String | Si | UUID de la factura |
+| `codigoMotivo` | int | Si | 1=Error datos, 2=Devolucion, 3=Periodo posterior, 4=Otro |
+
+**Requiere autenticacion:** Si
+
+**Ejemplo:**
+> "Anula la factura a1b2c3d4... por error de datos"
+
+---
+
+### verificarEstadoFactura
+
+Verifica el estado actual de una factura directamente con el SIAT. Estados posibles: VALIDATED, REJECTED, CANCELLED, PENDING, CONTINGENCY.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `id` | String | Si | UUID de la factura |
+
+**Requiere autenticacion:** Si
+
+**Ejemplo:**
+> "Verifica el estado de la factura a1b2c3d4... en el SIAT"
+
+---
+
+## Herramientas de Utilidades SIAT
+
+### buscarNormativa
+
+Busqueda semantica (RAG) en la normativa oficial del SIAT sobre facturacion electronica boliviana.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `consulta` | String | Si | Pregunta o termino de busqueda |
+
+**Requiere autenticacion:** No
+
+**Ejemplo:**
+> "Como funciona el CUFD segun la normativa?"
+
+---
+
+### verificarFormatoNit
+
+Valida el formato de un NIT boliviano. Los NITs validos tienen 7-15 digitos. El NIT 0 es valido (consumidor final).
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `nit` | String | Si | NIT a validar (solo digitos) |
+
+**Requiere autenticacion:** No
+
+**Ejemplo:**
+> "Verifica si el NIT 1023456789 es valido"
+
+---
+
+### historialCliente
+
+Obtiene el historial de facturacion de un cliente por NIT. Muestra razon social, email, telefono y cantidad de facturas emitidas.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `nit` | String | Si | NIT del cliente |
+
+**Requiere autenticacion:** Si
+
+**Ejemplo:**
+> "Cual es el historial de facturacion del cliente con NIT 99001?"
+
+---
+
+### erroresComunesSiat
+
+Lista los errores mas comunes del SIAT con sus codigos, descripciones y soluciones recomendadas.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| *(ninguno)* | - | - | No requiere parametros |
+
+**Requiere autenticacion:** No
+
+**Ejemplo:**
+> "Cuales son los errores mas comunes del SIAT?"
+
+---
+
+### buscarContingencias
+
+Busqueda semantica (RAG) en el historial de contingencias y eventos significativos. Encuentra caidas del SIAT, puntos de venta con problemas, duracion y patrones.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `consulta` | String | Si | Pregunta sobre contingencias |
+
+**Requiere autenticacion:** No
+
+**Ejemplo:**
+> "Cuantas caidas del SIAT hubo este mes?"
+
+---
+
+### calcularMontoLiteral
+
+Convierte un monto numerico a su representacion en texto literal (requerido por el SIAT en cada factura).
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `monto` | double | Si | Monto numerico a convertir |
+
+**Requiere autenticacion:** No
+
+**Retorno ejemplo:** `"Quinientos 50/100 Bolivianos"`
+
+**Ejemplo:**
+> "Convierte 1500.75 a texto literal"
+
+---
+
+## Resumen
+
+| Herramienta | Auth | Descripcion corta |
+|------------|------|-------------------|
+| `listarFacturas` | Si | Listar facturas paginadas |
+| `obtenerFactura` | Si | Detalle por UUID |
+| `obtenerFacturaPorCuf` | Si | Detalle por CUF |
+| `crearFactura` | Si | Emitir factura |
+| `anularFactura` | Si | Anular factura |
+| `verificarEstadoFactura` | Si | Estado SIAT |
+| `buscarNormativa` | No | RAG normativa SIAT |
+| `verificarFormatoNit` | No | Validar formato NIT |
+| `historialCliente` | Si | Historial por NIT |
+| `erroresComunesSiat` | No | Errores comunes |
+| `buscarContingencias` | No | RAG contingencias |
+| `calcularMontoLiteral` | No | Monto a literal |

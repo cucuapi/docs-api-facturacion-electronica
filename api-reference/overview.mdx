@@ -1,0 +1,214 @@
+---
+title: "Overview"
+description: "Introduccion a la API REST de CUCU. Convenciones, paginacion y estructura de respuestas."
+---
+
+<div style={{textAlign: 'center', marginBottom: '24px'}}>
+  <h1 style={{fontSize: '2rem', fontWeight: '900', margin: '0 0 8px', letterSpacing: '-0.02em'}}>
+    <span style={{background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+      API Reference
+    </span>
+  </h1>
+  <p style={{color: '#94a3b8', fontSize: '1.05rem', margin: 0}}>
+    REST API para facturacion electronica Bolivia. JSON, paginada, versionada.
+  </p>
+</div>
+
+---
+
+## URL Base
+
+<CardGroup cols={2}>
+  <Card title="Sandbox" icon="flask">
+    ```
+    https://sandbox.cucu.bo
+    ```
+    SIAT Piloto — facturas de prueba, sin validez fiscal. **Gratis, sin limites.**
+  </Card>
+  <Card title="Produccion" icon="rocket">
+    ```
+    https://api.cucu.bo
+    ```
+    SIAT Produccion — facturas fiscalmente validas ante el SIN.
+  </Card>
+</CardGroup>
+
+---
+
+## Autenticacion
+
+Todas las llamadas autenticadas requieren el header `X-API-Key`:
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://sandbox.cucu.bo/api/v1/invoices \
+  -H "X-API-Key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  headers: { 'X-API-Key': process.env.CUCU_API_KEY }
+});
+```
+
+```python Python
+import requests
+response = requests.get(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={'X-API-Key': os.environ['CUCU_API_KEY']}
+)
+```
+</CodeGroup>
+
+<Tip>
+  La key `sk_test_` de arriba es de demo — usala libremente para probar sin registrarte.
+  Ver [Autenticacion](/authentication) para mas detalles.
+</Tip>
+
+---
+
+## Formato de respuesta
+
+Todas las respuestas usan el wrapper estandar `ApiResponse`:
+
+<Tabs>
+  <Tab title="Respuesta exitosa">
+    ```json
+    {
+      "success": true,
+      "message": "Operacion exitosa",
+      "data": {
+        // Datos del recurso
+      },
+      "error": null,
+      "timestamp": "2026-02-11T12:00:00"
+    }
+    ```
+  </Tab>
+  <Tab title="Respuesta con error">
+    ```json
+    {
+      "success": false,
+      "message": null,
+      "data": null,
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": "El campo 'nitCliente' es requerido"
+      },
+      "timestamp": "2026-02-11T12:00:00"
+    }
+    ```
+  </Tab>
+</Tabs>
+
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| `success` | boolean | `true` si la operacion fue exitosa |
+| `message` | string | Mensaje descriptivo (puede ser null) |
+| `data` | object | Datos del recurso o resultado |
+| `error` | object | Detalle del error (null si exito) |
+| `timestamp` | string | Fecha/hora ISO 8601 |
+
+---
+
+## Paginacion
+
+Los endpoints de listado usan paginacion con `page` y `size`:
+
+```bash
+GET /api/v1/invoices?page=0&size=20
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "content": [ /* ... array de recursos ... */ ],
+    "page": 0,
+    "size": 20,
+    "totalElements": 150,
+    "totalPages": 8,
+    "first": true,
+    "last": false
+  }
+}
+```
+
+| Parametro | Tipo | Default | Descripcion |
+|-----------|------|---------|-------------|
+| `page` | integer | `0` | Numero de pagina (base 0) |
+| `size` | integer | `20` | Elementos por pagina (max 50) |
+
+---
+
+## Content-Type
+
+Todas las peticiones con body requieren:
+
+```
+Content-Type: application/json
+```
+
+---
+
+## Versionado
+
+La API usa versionado en la URL: `/api/v1/`. Cambios breaking se anuncian con anticipacion y se introducen en una nueva version (`/api/v2/`).
+
+---
+
+## Tipos de documento sector
+
+Todos los tipos de documento usan el endpoint unificado `POST /api/v1/invoices` con el campo `invoiceType` en el body.
+
+| `codigoDocumentoSector` | `invoiceType` | Documento Sector | Modalidad |
+|---|---|---|---|
+| `1` | `ELECTRONIC_SALE` | Compra Venta | Electronica |
+| `1` | `COMPUTERIZED_SALE` | Compra Venta | Computarizada |
+| `2` | `NOTE_CREDIT_DEBIT` | Nota Credito-Debito | Electronica |
+| `3` | `ELECTRONIC_EXPORT` | Exportacion | Electronica |
+| `3` | `COMPUTERIZED_EXPORT` | Exportacion | Computarizada |
+| `4` | `ELECTRONIC_FREE_ZONE` | Zona Franca | Electronica |
+| `5` | `ELECTRONIC_DUTY_FREE` | Tasa Cero | Electronica |
+| `8` | `ELECTRONIC_SECTOR_EDUCATION` | Sector Educativo | Electronica |
+| `8` | `COMPUTERIZED_SECTOR_EDUCATION` | Sector Educativo | Computarizada |
+| `10` | `ELECTRONIC_HEALTH_SERVICE` | Servicios de Salud | Electronica |
+| `11` | `ELECTRONIC_BASIC_SERVICE` | Servicios Basicos | Electronica |
+| `13` | `ELECTRONIC_AIRLINE` | Aerolineas | Electronica |
+| `14` | `ELECTRONIC_HOTEL` | Alojamiento | Electronica |
+| `14` | `COMPUTERIZED_HOTEL` | Alojamiento | Computarizada |
+| `15` | `ELECTRONIC_HOSPITAL` | Hospitales y Clinicas | Electronica |
+| `15` | `COMPUTERIZED_HOSPITAL` | Hospitales y Clinicas | Computarizada |
+| `16` | `ELECTRONIC_GAMES_LUCK` | Juegos de Azar | Electronica |
+| `18` | `ELECTRONIC_TELECOM` | Telecomunicaciones | Electronica |
+| `18` | `COMPUTERIZED_TELECOM` | Telecomunicaciones | Computarizada |
+| `23` | `ELECTRONIC_FINANCIAL` | Entidades Financieras | Electronica |
+| `24` | `ELECTRONIC_INSURANCE` | Seguros | Electronica |
+| `24` | `COMPUTERIZED_INSURANCE` | Seguros | Computarizada |
+
+Cada tipo de documento sector puede requerir campos adicionales en el request body. Ver la referencia de cada sector para los campos especificos.
+
+---
+
+## Endpoints disponibles
+
+<CardGroup cols={2}>
+  <Card title="Facturas" icon="file-invoice" href="/api-reference/create-invoice">
+    Crear, listar, obtener, cancelar facturas. El core de la API.
+  </Card>
+  <Card title="Contingencia" icon="triangle-exclamation" href="/api-reference/events">
+    Manejo de eventos offline cuando el SIAT no esta disponible.
+  </Card>
+  <Card title="Codigos SIAT" icon="barcode" href="/api-reference/codes">
+    Verificacion de NIT, CUFD y comunicacion con el SIAT.
+  </Card>
+  <Card title="Catalogos" icon="book" href="/api-reference/catalogs">
+    Sincronizacion y consulta de catalogos del SIN.
+  </Card>
+  <Card title="Acceso publico" icon="globe" href="/api-reference/public-access">
+    Descarga publica de PDF, XML, ZIP por CUF.
+  </Card>
+  <Card title="AI & RAG" icon="brain" href="/api-reference/ai">
+    Chat, validacion inteligente y resolucion de errores con AI.
+  </Card>
+</CardGroup>

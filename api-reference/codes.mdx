@@ -1,0 +1,133 @@
+---
+title: "Codigos SIAT"
+sidebarTitle: "Codigos SIAT"
+description: "Verificacion de NIT y gestion de CUFD."
+---
+
+## Verificar NIT
+
+`POST /api/v1/codes/nit`
+
+Verifica si un NIT es valido ante el SIAT.
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+| `posId` | Body | string | Si | UUID del punto de venta |
+| `nit` | Body | integer | Si | Numero de NIT a verificar |
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/codes/nit \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{"posId": "660e8400-e29b-41d4-a716-446655440004", "nit": 1023456789}'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/codes/nit', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    posId: '660e8400-e29b-41d4-a716-446655440004',
+    nit: 1023456789
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/codes/nit',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={'posId': '660e8400-e29b-41d4-a716-446655440004', 'nit': 1023456789}
+)
+```
+</CodeGroup>
+
+**Respuesta:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "valido": true,
+    "nit": 1023456789,
+    "mensaje": "NIT valido"
+  }
+}
+```
+
+---
+
+## Regenerar CUFD
+
+`POST /api/v1/codes/cufd`
+
+Genera un nuevo CUFD (Codigo Unico de Facturacion Diaria) para un punto de venta. El CUFD es requerido para emitir facturas y tiene vigencia limitada.
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+| `posId` | Body | string | Si | UUID del punto de venta |
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/codes/cufd \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{"posId": "660e8400-e29b-41d4-a716-446655440004"}'
+```
+</CodeGroup>
+
+**Respuesta:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "cufd": "BQW5FZ...",
+    "codigoControl": "A1B2C3",
+    "vigencia": "2026-02-12T00:00:00"
+  }
+}
+```
+
+---
+
+## Consultar CUFD Activo
+
+`GET /api/v1/codes/cufd/{posId}`
+
+Obtiene el CUFD activo de un punto de venta.
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+| `posId` | Path | string | Si | UUID del punto de venta |
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://sandbox.cucu.bo/api/v1/codes/cufd/660e8400-e29b-41d4-a716-446655440004 \
+  -H "X-API-Key: YOUR_API_KEY"
+```
+</CodeGroup>
+
+```json
+{
+  "success": true,
+  "data": {
+    "cufd": "BQW5FZ...",
+    "codigoControl": "A1B2C3",
+    "vigencia": "2026-02-12T00:00:00",
+    "activo": true
+  }
+}
+```

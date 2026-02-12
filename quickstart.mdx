@@ -1,0 +1,344 @@
+---
+title: "Quickstart"
+description: "Emite tu primera factura electronica en 5 minutos. Tutorial paso a paso con codigo real."
+---
+
+<img src="/logo/cucufly.gif" alt="CUCU" style={{width: '60px', display: 'inline'}} />
+
+Bienvenido a CUCU API. En los proximos 5 minutos vas a emitir tu primera factura electronica
+boliviana, descargar el PDF y tener todo funcionando contra el **SIAT Piloto** del Servicio de
+Impuestos Nacionales. Sin configuraciones complicadas, sin certificados digitales, sin tramites.
+Solo tu API Key de sandbox y una llamada HTTP.
+
+<Note>
+  **Ambiente sandbox:** Las facturas emitidas en sandbox son de prueba y **no tienen validez fiscal**.
+  El sandbox conecta al SIAT Piloto (ambiente 2) del SIN, asi que el flujo completo es identico
+  a produccion: emision, validacion, CUF, firma digital, PDF y XML.
+</Note>
+
+## Requisitos previos
+
+Antes de empezar, asegurate de tener:
+
+- Una **API Key de sandbox** -- para este tutorial puedes usar la key demo de abajo
+- Un cliente HTTP: `curl`, JavaScript (`fetch`), o Python (`requests`)
+- 5 minutos de tu tiempo
+
+<Info>
+  **Key de demo disponible:** Usaremos `YOUR_API_KEY` en
+  todos los ejemplos. Esta key es publica y funciona con el punto de venta demo. Para obtener tu
+  propia key, registrate en [app.cucu.bo/signup](https://app.cucu.bo/signup).
+</Info>
+
+---
+
+<Steps>
+
+<Step title="Verifica la conexion con un health check">
+
+Lo primero es confirmar que puedes conectarte al servidor. El endpoint `/ping` es publico
+(no requiere API Key) y te devuelve el estado del servicio:
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET https://sandbox.cucu.bo/api/v1/ping
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/ping');
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.get('https://sandbox.cucu.bo/api/v1/ping')
+print(response.json())
+```
+
+</CodeGroup>
+
+Respuesta esperada (`200 OK`):
+
+```json
+{
+  "message": "pong",
+  "timestamp": "2026-02-11T12:00:00"
+}
+```
+
+Si recibes `pong`, la conexion esta lista. Si recibes un error de red, verifica que no tengas
+un proxy o firewall bloqueando `sandbox.cucu.bo`.
+
+</Step>
+
+<Step title="Emite tu primera factura">
+
+Ahora vamos a crear una factura electronica real contra el SIAT Piloto. Antes de ver el codigo,
+estos son los campos que necesitas enviar:
+
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| `pointOfSaleId` | UUID | Identificador del punto de venta registrado en SIAT |
+| `clientDocumentType` | int | Tipo de documento del cliente. `5` = NIT, `1` = CI, `4` = Extranjero |
+| `clientDocumentNumber` | string | Numero de documento del cliente (NIT, CI, pasaporte) |
+| `clientBusinessName` | string | Razon social o nombre completo del cliente |
+| `clientEmail` | string | Email donde se envia la factura automaticamente |
+| `paymentMethodCode` | int | Metodo de pago. `1` = Efectivo, `2` = Tarjeta, `6` = Transferencia |
+| `details` | array | Lista de items/productos de la factura (minimo 1) |
+| `details[].activityEconomic` | string | Codigo de actividad economica CAEB del SIN |
+| `details[].codeProductSin` | string | Codigo de producto/servicio del catalogo SIN |
+| `details[].description` | string | Descripcion libre del producto o servicio |
+| `details[].quantity` | number | Cantidad (puede ser decimal: `1.5`) |
+| `details[].unitMeasure` | int | Unidad de medida SIN. `58` = Servicio, `1` = Unidad, `57` = Pieza |
+| `details[].priceUnit` | number | Precio unitario en bolivianos (hasta 2 decimales) |
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
+    "clientDocumentType": 5,
+    "clientDocumentNumber": "99001",
+    "clientBusinessName": "EMPRESA DEMO S.R.L.",
+    "clientEmail": "demo@ejemplo.com",
+    "paymentMethodCode": 1,
+    "details": [
+      {
+        "activityEconomic": "620100",
+        "codeProductSin": "83141",
+        "description": "Servicio de desarrollo de software",
+        "quantity": 1,
+        "unitMeasure": 58,
+        "priceUnit": 500.00
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
+    clientDocumentType: 5,
+    clientDocumentNumber: '99001',
+    clientBusinessName: 'EMPRESA DEMO S.R.L.',
+    clientEmail: 'demo@ejemplo.com',
+    paymentMethodCode: 1,
+    details: [
+      {
+        activityEconomic: '620100',
+        codeProductSin: '83141',
+        description: 'Servicio de desarrollo de software',
+        quantity: 1,
+        unitMeasure: 58,
+        priceUnit: 500.00
+      }
+    ]
+  })
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
+        'clientDocumentType': 5,
+        'clientDocumentNumber': '99001',
+        'clientBusinessName': 'EMPRESA DEMO S.R.L.',
+        'clientEmail': 'demo@ejemplo.com',
+        'paymentMethodCode': 1,
+        'details': [
+            {
+                'activityEconomic': '620100',
+                'codeProductSin': '83141',
+                'description': 'Servicio de desarrollo de software',
+                'quantity': 1,
+                'unitMeasure': 58,
+                'priceUnit': 500.00
+            }
+        ]
+    }
+)
+
+print(response.json())
+```
+
+</CodeGroup>
+
+Respuesta exitosa (`201 Created`):
+
+```json
+{
+  "success": true,
+  "message": "Factura emitida exitosamente",
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "invoiceNumber": 1,
+    "cuf": "2872F7294502332E637FABFBC3654EA82202AD48E0969F14EBEB8AF74",
+    "state": "VALIDATED",
+    "clientBusinessName": "EMPRESA DEMO S.R.L.",
+    "amountTotal": 500.00,
+    "literal": "Quinientos 00/100 Bolivianos",
+    "emissionDate": "2026-02-11T12:00:00",
+    "emissionType": "NORMAL",
+    "pdfUrl": "https://sandbox.cucu.bo/api/v1/public/invoice/2872F...AF74/pdf",
+    "xmlUrl": "https://sandbox.cucu.bo/api/v1/public/invoice/2872F...AF74/xml"
+  },
+  "timestamp": "2026-02-11T12:00:00"
+}
+```
+
+<Expandable title="Detalle de cada campo en la respuesta">
+
+| Campo | Descripcion |
+|-------|-------------|
+| `id` | UUID interno de la factura en CUCU. Usalo para consultas posteriores via API. |
+| `invoiceNumber` | Numero secuencial de la factura dentro del punto de venta. |
+| `cuf` | **Codigo Unico de Facturacion** -- identificador unico generado por el SIAT. Es el "DNI" de tu factura ante el SIN. Lo necesitas para consultas, anulaciones y descargas publicas. |
+| `state` | Estado de la factura: `VALIDATED` (aceptada por el SIAT), `REJECTED` (rechazada), `ANNULLED` (anulada). |
+| `clientBusinessName` | Razon social del cliente tal como quedo registrada en la factura. |
+| `amountTotal` | Monto total de la factura en bolivianos, con 2 decimales. |
+| `literal` | Monto total expresado en palabras (requerido por normativa boliviana). |
+| `emissionDate` | Fecha y hora de emision en formato ISO 8601. |
+| `emissionType` | Tipo de emision: `NORMAL` (online contra SIAT) o `CONTINGENCY` (offline, sincronizada despues). |
+| `pdfUrl` | URL publica para descargar el PDF de la factura. No requiere autenticacion. |
+| `xmlUrl` | URL publica para descargar el XML firmado digitalmente. No requiere autenticacion. |
+
+</Expandable>
+
+<Tip>
+  Guarda el `cuf` -- lo necesitaras para descargar el PDF, consultar el estado, o anular la factura.
+  El CUF es el identificador universal de la factura ante el SIN.
+</Tip>
+
+</Step>
+
+<Step title="Descarga el PDF de la factura">
+
+Usa el CUF devuelto en el paso anterior para descargar el PDF. Este endpoint es **publico**
+(no requiere API Key), asi que puedes compartir la URL directamente con tu cliente:
+
+<CodeGroup>
+
+```bash cURL
+# Reemplaza {cuf} con el CUF real del paso anterior
+curl -O https://sandbox.cucu.bo/api/v1/public/invoice/{cuf}/pdf
+```
+
+```javascript JavaScript
+// Abrir el PDF en una nueva pestana del navegador
+const cuf = '2872F7294502332E637FABFBC3654EA82202AD48E0969F14EBEB8AF74';
+window.open(`https://sandbox.cucu.bo/api/v1/public/invoice/${cuf}/pdf`);
+
+// O descargarlo programaticamente
+const response = await fetch(
+  `https://sandbox.cucu.bo/api/v1/public/invoice/${cuf}/pdf`
+);
+const blob = await response.blob();
+```
+
+```python Python
+import requests
+
+cuf = '2872F7294502332E637FABFBC3654EA82202AD48E0969F14EBEB8AF74'
+
+response = requests.get(
+    f'https://sandbox.cucu.bo/api/v1/public/invoice/{cuf}/pdf'
+)
+
+with open('factura.pdf', 'wb') as f:
+    f.write(response.content)
+
+print(f'PDF guardado: factura.pdf ({len(response.content)} bytes)')
+```
+
+</CodeGroup>
+
+<Tip>
+  Tambien puedes descargar el **XML firmado digitalmente** cambiando `/pdf` por `/xml` en la URL.
+  El XML contiene la firma digital y es el documento con validez legal ante el SIN.
+</Tip>
+
+</Step>
+
+<Step title="Bonus: Conecta tu AI con MCP">
+
+CUCU incluye un **MCP Server** (Model Context Protocol) que permite a asistentes de IA como
+Claude, Cursor o Windsurf emitir facturas, consultar estados y manejar errores del SIAT
+directamente desde tu IDE o chat.
+
+Agrega esta configuracion a tu Claude Desktop (`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "cucu-facturacion": {
+      "url": "https://sandbox.cucu.bo/mcp/sse",
+      "headers": {
+        "X-API-Key": "YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+Despues de reiniciar Claude Desktop, puedes pedirle cosas como:
+
+- *"Emite una factura a EMPRESA DEMO por Bs. 500 por servicio de software"*
+- *"Muestra las facturas emitidas hoy"*
+- *"Anula la ultima factura emitida"*
+- *"Que codigos de producto SIN existen para consultoria?"*
+
+<Info>
+  El MCP Server expone **11 herramientas** que cubren todo el ciclo de facturacion.
+  Consulta la [documentacion MCP completa](/mcp/introduction) para ver todas las herramientas disponibles.
+</Info>
+
+</Step>
+
+</Steps>
+
+---
+
+## Que sigue?
+
+<CardGroup cols={2}>
+  <Card title="API Reference" icon="code" href="/api-reference/overview">
+    Explora todos los endpoints: emision, anulacion, consultas, sincronizaciones SIAT, y mas.
+  </Card>
+  <Card title="MCP Server" icon="plug" href="/mcp/introduction">
+    Conecta tu IA directamente a facturacion electronica con 11 herramientas disponibles.
+  </Card>
+  <Card title="Contingencia" icon="shield-halved" href="/api-reference/contingency">
+    Aprende a emitir facturas offline cuando el SIAT no esta disponible y sincronizarlas despues.
+  </Card>
+  <Card title="Planes y precios" icon="credit-card" href="/pricing">
+    Revisa los planes disponibles para pasar de sandbox a produccion.
+  </Card>
+</CardGroup>
+
+<div className="gradient-card" style={{marginTop: '32px', textAlign: 'center', padding: '24px'}}>
+  **Sin limites en sandbox.** Emite todas las facturas de prueba que necesites, sin costo y sin
+  restricciones. Cuando estes listo para produccion, [ve los planes disponibles](/pricing).
+</div>

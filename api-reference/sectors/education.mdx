@@ -1,0 +1,117 @@
+---
+title: "Sector Educativo"
+sidebarTitle: "Educacion"
+description: "Factura para instituciones educativas. Sector 8."
+---
+
+Para colegios, universidades, institutos y centros de formacion.
+
+## Datos del sector
+
+| Campo | Valor |
+|-------|-------|
+| `codigoDocumentoSector` | `8` |
+| `invoiceType` electronica | `ELECTRONIC_SECTOR_EDUCATION` |
+| `invoiceType` computarizada | `COMPUTERIZED_SECTOR_EDUCATION` |
+| WSDL SIAT | `ServicioFacturacionElectronica` |
+
+## Campos adicionales
+
+### Cabecera
+
+| Campo | Tipo | Req | Descripcion |
+|-------|------|-----|-------------|
+| `studentName` | string | Si | Nombre completo del estudiante |
+| `billedPeriod` | string | Si | Periodo facturado. Ej: `"Marzo 2026"`, `"1er Semestre 2026"` |
+
+## Ejemplo
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "invoiceType": "ELECTRONIC_SECTOR_EDUCATION",
+    "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
+    "clientDocumentType": 5,
+    "clientDocumentNumber": "99001",
+    "clientBusinessName": "JUAN PEREZ MAMANI",
+    "paymentMethodCode": 1,
+    "studentName": "Maria Perez Lopez",
+    "billedPeriod": "Marzo 2026",
+    "details": [
+      {
+        "activityEconomic": "801000",
+        "codeProductSin": "93101",
+        "description": "Colegiatura mensual - 3er grado primaria",
+        "quantity": 1,
+        "unitMeasure": 58,
+        "priceUnit": 450.00
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    invoiceType: 'ELECTRONIC_SECTOR_EDUCATION',
+    pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
+    clientDocumentType: 5,
+    clientDocumentNumber: '99001',
+    clientBusinessName: 'JUAN PEREZ MAMANI',
+    paymentMethodCode: 1,
+    studentName: 'Maria Perez Lopez',
+    billedPeriod: 'Marzo 2026',
+    details: [{
+      activityEconomic: '801000',
+      codeProductSin: '93101',
+      description: 'Colegiatura mensual - 3er grado primaria',
+      quantity: 1,
+      unitMeasure: 58,
+      priceUnit: 450.00
+    }]
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'invoiceType': 'ELECTRONIC_SECTOR_EDUCATION',
+        'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
+        'clientDocumentType': 5,
+        'clientDocumentNumber': '99001',
+        'clientBusinessName': 'JUAN PEREZ MAMANI',
+        'paymentMethodCode': 1,
+        'studentName': 'Maria Perez Lopez',
+        'billedPeriod': 'Marzo 2026',
+        'details': [{
+            'activityEconomic': '801000',
+            'codeProductSin': '93101',
+            'description': 'Colegiatura mensual - 3er grado primaria',
+            'quantity': 1,
+            'unitMeasure': 58,
+            'priceUnit': 450.00
+        }]
+    }
+)
+```
+</CodeGroup>
+
+<Info>
+  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+</Info>

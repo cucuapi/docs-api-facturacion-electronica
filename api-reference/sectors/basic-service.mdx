@@ -1,0 +1,159 @@
+---
+title: "Servicios Basicos"
+sidebarTitle: "Servicios Basicos"
+description: "Factura para empresas de agua, luz, gas y servicios basicos. Sector 11."
+---
+
+Para empresas distribuidoras de electricidad, agua potable, gas natural y otros servicios basicos domiciliarios.
+
+## Datos del sector
+
+| Campo | Valor |
+|-------|-------|
+| `codigoDocumentoSector` | `11` |
+| `invoiceType` | `ELECTRONIC_BASIC_SERVICE` |
+| WSDL SIAT | `ServicioFacturacionServicioBasico` |
+
+## Campos adicionales
+
+Este sector tiene la mayor cantidad de campos especificos. Ademas de los [campos estandar](/api-reference/create-invoice#request-body):
+
+### Cabecera
+
+| Campo | Tipo | Req | Descripcion |
+|-------|------|-----|-------------|
+| `month` | string | Si | Mes del consumo. Ej: `"Febrero"` |
+| `gestation` | integer | Si | Ano de gestion. Ej: `2026` |
+| `city` | string | Si | Ciudad del servicio |
+| `zone` | string | Si | Zona del domicilio del cliente |
+| `meterNumber` | string | Si | Numero de medidor |
+| `customerAddress` | string | Si | Domicilio del cliente |
+| `consumptionPeriod` | number | Si | Consumo del periodo (kWh, m3, etc.) |
+| `beneficiary1886` | integer | No | Beneficiario Ley 1886 (tarifa solidaria). `0` = no |
+| `discountAmount1886` | number | No | Monto descuento por Ley 1886 |
+| `amountDiscountDignityRate` | number | No | Monto descuento Tarifa Dignidad |
+| `rateSewage` | number | No | Tasa aseo/alcantarillado |
+| `rateLighting` | number | No | Tasa alumbrado publico |
+| `rateOthers` | number | No | Otras tasas y contribuciones |
+| `adjustmentNotTax` | number | No | Ajuste no sujeto a IVA |
+| `detailAdjustmentNotTax` | string | No | Detalle del ajuste no sujeto a IVA |
+| `adjustmentToTax` | number | No | Ajuste sujeto a IVA |
+| `detailAdjustmentToTax` | string | No | Detalle del ajuste sujeto a IVA |
+| `otherPaymentsNotToTax` | number | No | Otros pagos no sujetos a IVA |
+| `detailOtherPaymentsNotToTax` | string | No | Detalle otros pagos no sujetos a IVA |
+
+## Ejemplo
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "invoiceType": "ELECTRONIC_BASIC_SERVICE",
+    "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
+    "clientDocumentType": 1,
+    "clientDocumentNumber": "8765432",
+    "clientBusinessName": "CARLOS MENDOZA QUISPE",
+    "paymentMethodCode": 1,
+    "month": "Febrero",
+    "gestation": 2026,
+    "city": "La Paz",
+    "zone": "Sopocachi",
+    "meterNumber": "MED-2024-00158",
+    "customerAddress": "Av. 6 de Agosto #2450",
+    "consumptionPeriod": 185.5,
+    "beneficiary1886": 0,
+    "rateSewage": 12.50,
+    "rateLighting": 8.00,
+    "details": [
+      {
+        "activityEconomic": "351000",
+        "codeProductSin": "69101",
+        "description": "Consumo energia electrica - Febrero 2026",
+        "quantity": 185.5,
+        "unitMeasure": 53,
+        "priceUnit": 0.68
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    invoiceType: 'ELECTRONIC_BASIC_SERVICE',
+    pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
+    clientDocumentType: 1,
+    clientDocumentNumber: '8765432',
+    clientBusinessName: 'CARLOS MENDOZA QUISPE',
+    paymentMethodCode: 1,
+    month: 'Febrero',
+    gestation: 2026,
+    city: 'La Paz',
+    zone: 'Sopocachi',
+    meterNumber: 'MED-2024-00158',
+    customerAddress: 'Av. 6 de Agosto #2450',
+    consumptionPeriod: 185.5,
+    beneficiary1886: 0,
+    rateSewage: 12.50,
+    rateLighting: 8.00,
+    details: [{
+      activityEconomic: '351000',
+      codeProductSin: '69101',
+      description: 'Consumo energia electrica - Febrero 2026',
+      quantity: 185.5,
+      unitMeasure: 53,
+      priceUnit: 0.68
+    }]
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'invoiceType': 'ELECTRONIC_BASIC_SERVICE',
+        'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
+        'clientDocumentType': 1,
+        'clientDocumentNumber': '8765432',
+        'clientBusinessName': 'CARLOS MENDOZA QUISPE',
+        'paymentMethodCode': 1,
+        'month': 'Febrero',
+        'gestation': 2026,
+        'city': 'La Paz',
+        'zone': 'Sopocachi',
+        'meterNumber': 'MED-2024-00158',
+        'customerAddress': 'Av. 6 de Agosto #2450',
+        'consumptionPeriod': 185.5,
+        'beneficiary1886': 0,
+        'rateSewage': 12.50,
+        'rateLighting': 8.00,
+        'details': [{
+            'activityEconomic': '351000',
+            'codeProductSin': '69101',
+            'description': 'Consumo energia electrica - Febrero 2026',
+            'quantity': 185.5,
+            'unitMeasure': 53,
+            'priceUnit': 0.68
+        }]
+    }
+)
+```
+</CodeGroup>
+
+<Info>
+  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+</Info>

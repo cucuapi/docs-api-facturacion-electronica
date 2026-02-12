@@ -1,0 +1,109 @@
+---
+title: "Catalogos"
+sidebarTitle: "Catalogos"
+description: "Sincroniza y consulta catalogos del SIAT (actividades, productos, leyendas, etc.)."
+---
+
+Los catalogos contienen los codigos oficiales del SIAT que se usan en las facturas (actividades economicas, productos, unidades de medida, etc.).
+
+## Sincronizar todos los catalogos
+
+`POST /api/v1/siat/sync/all`
+
+Sincroniza todos los catalogos del SIAT con la base de datos local. Ejecutar al menos una vez al inicio.
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+| `posId` | Query | string | No | UUID del punto de venta (usa el default si se omite) |
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/siat/sync/all \
+  -H "X-API-Key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/siat/sync/all', {
+  method: 'POST',
+  headers: { 'X-API-Key': 'YOUR_API_KEY' }
+});
+```
+</CodeGroup>
+
+---
+
+## Sincronizar catalogo especifico
+
+`POST /api/v1/siat/sync/{catalog}`
+
+Catalogos disponibles: `activities`, `products`, `legends`, `cancellation-reasons`, `document-types`, `payment-methods`, `currencies`, `unit-measures`, `significant-events`.
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+| `catalog` | Path | string | Si | Nombre del catalogo a sincronizar |
+| `posId` | Query | string | No | UUID del punto de venta |
+
+---
+
+## Consultar actividades economicas
+
+`GET /api/v1/siat/sync/catalogs/activities`
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://sandbox.cucu.bo/api/v1/siat/sync/catalogs/activities \
+  -H "X-API-Key: YOUR_API_KEY"
+```
+</CodeGroup>
+
+---
+
+## Consultar productos por actividad
+
+`GET /api/v1/siat/sync/catalogs/products?activityCode=620100`
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+| `activityCode` | Query | string | No | Filtrar productos por codigo de actividad economica |
+
+---
+
+## Consultar leyendas
+
+`GET /api/v1/siat/sync/catalogs/legends`
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+| `activityCode` | Query | string | No | Filtrar leyendas por actividad economica |
+
+---
+
+## Consultar catalogo generico
+
+`GET /api/v1/siat/sync/catalogs/{type}`
+
+Tipos disponibles: `document-types`, `payment-methods`, `currencies`, `unit-measures`, `cancellation-reasons`, `significant-events`.
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+| `type` | Path | string | Si | Tipo de catalogo |
+
+```json
+{
+  "success": true,
+  "data": [
+    { "codigo": 1, "descripcion": "Efectivo" },
+    { "codigo": 2, "descripcion": "Tarjeta" },
+    { "codigo": 3, "descripcion": "Cheque" }
+  ]
+}
+```

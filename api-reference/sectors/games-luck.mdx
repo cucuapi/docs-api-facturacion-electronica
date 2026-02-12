@@ -1,0 +1,105 @@
+---
+title: "Juegos de Azar"
+sidebarTitle: "Juegos de Azar"
+description: "Factura para casinos, loterias y juegos de azar. Sector 16."
+---
+
+Para casinos, bingos, loterias y establecimientos de juegos de azar autorizados.
+
+## Datos del sector
+
+| Campo | Valor |
+|-------|-------|
+| `codigoDocumentoSector` | `16` |
+| `invoiceType` | `ELECTRONIC_GAMES_LUCK` |
+| WSDL SIAT | `ServicioFacturacionElectronica` |
+
+## Campos adicionales
+
+Este sector no requiere campos adicionales mas alla de los [campos estandar](/api-reference/create-invoice#request-body).
+
+## Ejemplo
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "invoiceType": "ELECTRONIC_GAMES_LUCK",
+    "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
+    "clientDocumentType": 1,
+    "clientDocumentNumber": "8765432",
+    "clientBusinessName": "CARLOS MENDOZA QUISPE",
+    "paymentMethodCode": 1,
+    "details": [
+      {
+        "activityEconomic": "924000",
+        "codeProductSin": "96411",
+        "description": "Ficha de casino - Mesa blackjack",
+        "quantity": 10,
+        "unitMeasure": 1,
+        "priceUnit": 100.00
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    invoiceType: 'ELECTRONIC_GAMES_LUCK',
+    pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
+    clientDocumentType: 1,
+    clientDocumentNumber: '8765432',
+    clientBusinessName: 'CARLOS MENDOZA QUISPE',
+    paymentMethodCode: 1,
+    details: [{
+      activityEconomic: '924000',
+      codeProductSin: '96411',
+      description: 'Ficha de casino - Mesa blackjack',
+      quantity: 10,
+      unitMeasure: 1,
+      priceUnit: 100.00
+    }]
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={
+        'invoiceType': 'ELECTRONIC_GAMES_LUCK',
+        'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
+        'clientDocumentType': 1,
+        'clientDocumentNumber': '8765432',
+        'clientBusinessName': 'CARLOS MENDOZA QUISPE',
+        'paymentMethodCode': 1,
+        'details': [{
+            'activityEconomic': '924000',
+            'codeProductSin': '96411',
+            'description': 'Ficha de casino - Mesa blackjack',
+            'quantity': 10,
+            'unitMeasure': 1,
+            'priceUnit': 100.00
+        }]
+    }
+)
+```
+</CodeGroup>
+
+<Info>
+  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+</Info>

@@ -1,0 +1,158 @@
+---
+title: "AI"
+sidebarTitle: "AI"
+description: "Asistente AI para facturacion: chat, validacion de datos y resolucion de errores SIAT."
+---
+
+CUCU integra inteligencia artificial para ayudarte con la facturacion electronica boliviana. Usa RAG (Retrieval Augmented Generation) sobre normativa SIAT oficial.
+
+## Chat
+
+`POST /api/v1/ai/chat`
+
+Pregunta cualquier cosa sobre facturacion electronica boliviana. El AI consulta normativa oficial del SIN.
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+| `mensaje` | Body | string | Si | Tu pregunta sobre facturacion |
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/ai/chat \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{"mensaje": "Que requisitos necesito para emitir facturas electronicas en Bolivia?"}'
+```
+
+```javascript JavaScript
+const response = await fetch('https://sandbox.cucu.bo/api/v1/ai/chat', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    mensaje: 'Que requisitos necesito para emitir facturas electronicas en Bolivia?'
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/ai/chat',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'YOUR_API_KEY'
+    },
+    json={'mensaje': 'Que requisitos necesito para emitir facturas electronicas en Bolivia?'}
+)
+```
+</CodeGroup>
+
+```json
+{
+  "success": true,
+  "data": "Para emitir facturas electronicas en Bolivia necesitas: 1) NIT activo...",
+  "timestamp": "2026-02-11T12:00:00"
+}
+```
+
+---
+
+## Validar datos de factura
+
+`POST /api/v1/ai/validate`
+
+Valida los datos de una factura antes de emitirla. El AI verifica formato de NIT, coherencia de montos, codigos validos, etc.
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+| `nit` | Body | string | Si | NIT del cliente |
+| `razonSocial` | Body | string | Si | Razon social del cliente |
+| `tipoDocumento` | Body | integer | Si | Tipo de documento |
+| `montoTotal` | Body | number | Si | Monto total |
+| `metodoPago` | Body | integer | Si | Metodo de pago |
+| `detalle` | Body | string | Si | Descripcion del detalle |
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/ai/validate \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "nit": "1023456789",
+    "razonSocial": "EMPRESA DEMO S.R.L.",
+    "tipoDocumento": 5,
+    "montoTotal": 500.00,
+    "metodoPago": 1,
+    "detalle": "Servicio de desarrollo de software"
+  }'
+```
+</CodeGroup>
+
+---
+
+## Resolver error SIAT
+
+`POST /api/v1/ai/resolve-error`
+
+Proporciona un codigo de error SIAT y obtiene una explicacion detallada con pasos para resolverlo.
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+| `codigoError` | Body | integer | Si | Codigo de error SIAT |
+| `mensajeError` | Body | string | Si | Mensaje de error devuelto por SIAT |
+| `contexto` | Body | string | Si | Contexto adicional (que estabas intentando hacer) |
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/ai/resolve-error \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "codigoError": 980,
+    "mensajeError": "CUFD no vigente",
+    "contexto": "Intentando emitir factura de venta"
+  }'
+```
+</CodeGroup>
+
+---
+
+## Buscar normativa
+
+`GET /api/v1/ai/normativas/search?q=como funciona el CUFD`
+
+Busqueda semantica en la normativa oficial del SIN sobre facturacion electronica.
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+| `q` | Query | string | Si | Consulta de busqueda |
+
+---
+
+## Estado del servicio AI
+
+`GET /api/v1/ai/status`
+
+Verifica la disponibilidad del servicio AI y las colecciones de vectores.
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key |
+
+```json
+{
+  "success": true,
+  "data": {
+    "qdrantAvailable": true,
+    "collections": ["normativas", "contingencias"]
+  }
+}
+```

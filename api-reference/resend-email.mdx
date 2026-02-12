@@ -1,0 +1,77 @@
+---
+title: "Reenviar Email"
+sidebarTitle: "Reenviar Email"
+description: "Reenvia la factura por email al cliente."
+api: "POST https://sandbox.cucu.bo/api/v1/invoices/{id}/resend-email"
+---
+
+Reenvia la factura (PDF + XML) por email. Puedes enviar al email original del cliente o a uno diferente.
+
+## Path Parameters
+
+| Parametro | Tipo | Req | Descripcion |
+|-----------|------|-----|-------------|
+| `id` | string | Si | UUID de la factura |
+
+## Query Parameters
+
+| Parametro | Tipo | Req | Descripcion |
+|-----------|------|-----|-------------|
+| `email` | string | No | Email destino. Si se omite, se usa el email original del cliente |
+
+## Headers
+
+| Parametro | Tipo | Req | Descripcion |
+|-----------|------|-----|-------------|
+| `X-API-Key` | string | Si | Tu API Key |
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://sandbox.cucu.bo/api/v1/invoices/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resend-email?email=otro@ejemplo.com" \
+  -H "X-API-Key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const response = await fetch(
+  'https://sandbox.cucu.bo/api/v1/invoices/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resend-email?email=otro@ejemplo.com',
+  {
+    method: 'POST',
+    headers: { 'X-API-Key': 'YOUR_API_KEY' }
+  }
+);
+const data = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resend-email',
+    headers={'X-API-Key': 'YOUR_API_KEY'},
+    params={'email': 'otro@ejemplo.com'}
+)
+print(response.json())
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "success": true,
+  "message": "Email reenviado exitosamente a otro@ejemplo.com",
+  "data": "Email enviado",
+  "timestamp": "2026-02-11T15:00:00"
+}
+```
+
+```json 404
+{
+  "success": false,
+  "error": {
+    "code": "NOT_FOUND",
+    "details": "Factura no encontrada"
+  },
+  "timestamp": "2026-02-11T15:00:00"
+}
+```
+</ResponseExample>
