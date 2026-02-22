@@ -4,13 +4,23 @@ sidebarTitle: "Catalogos"
 description: "Sincroniza y consulta catalogos del SIAT (actividades, productos, leyendas, etc.)."
 ---
 
-Los catalogos contienen los codigos oficiales del SIAT que se usan en las facturas (actividades economicas, productos, unidades de medida, etc.).
+Los catalogos contienen los codigos oficiales del SIAT que se usan en las facturas (actividades economicas, productos, unidades de medida, metodos de pago, etc.). Los catalogos son especificos por NIT y se sincronizan desde el SIAT.
+
+<Warning>
+  **Todos los endpoints de catalogos requieren autenticacion via `X-API-Key`.** Los catalogos son multi-tenant y cada NIT tiene su propio conjunto de datos sincronizados.
+</Warning>
+
+<Note>
+  **No hardcodear codigos.** Los codigos de metodos de pago, unidades de medida, actividades economicas, etc. provienen del catalogo SIAT sincronizado. El catalogo tiene **308 metodos de pago**, **154 monedas**, **126 unidades de medida**, y cientos de actividades y productos. Siempre consultar el catalogo sincronizado para obtener los codigos correctos.
+</Note>
 
 ## Sincronizar todos los catalogos
 
 `POST /api/v1/siat/sync/all`
 
-Sincroniza todos los catalogos del SIAT con la base de datos local. Ejecutar al menos una vez al inicio.
+Sincroniza todos los catalogos del SIAT con la base de datos local. Ejecutar al menos una vez al inicio y se recomienda ejecutar diariamente.
+
+La sincronizacion es **atomica**: si algun catalogo falla, todos se revierten para evitar estado parcial. Incluye proteccion contra ejecucion concurrente por tenant.
 
 | Parametro | Ubicacion | Tipo | Req | Descripcion |
 |-----------|-----------|------|-----|-------------|
@@ -101,9 +111,16 @@ Tipos disponibles: `document-types`, `payment-methods`, `currencies`, `unit-meas
 {
   "success": true,
   "data": [
-    { "codigo": 1, "descripcion": "Efectivo" },
-    { "codigo": 2, "descripcion": "Tarjeta" },
-    { "codigo": 3, "descripcion": "Cheque" }
+    { "code": "1", "description": "EFECTIVO", "catalogType": "PAYMENT_METHOD" },
+    { "code": "2", "description": "TARJETA DE CREDITO", "catalogType": "PAYMENT_METHOD" },
+    { "code": "5", "description": "TRANSFERENCIA BANCARIA", "catalogType": "PAYMENT_METHOD" },
+    { "code": "27", "description": "GIFT-CARD", "catalogType": "PAYMENT_METHOD" },
+    { "code": "35", "description": "EFECTIVO-GIFT CARD", "catalogType": "PAYMENT_METHOD" }
   ]
 }
+```
+
+<Tip>
+  El catalogo de metodos de pago tiene **308 codigos** que incluyen combinaciones (ej: Efectivo + Tarjeta, Efectivo + Gift Card, etc.). Consultar el catalogo completo para ver todas las opciones disponibles para tu NIT.
+</Tip>
 ```

@@ -25,10 +25,12 @@ Crea una nueva factura electronica, la firma digitalmente, la envia al SIAT para
 | `clientBusinessName` | string | Si | Razon social del cliente (max 255 caracteres) |
 | `clientEmail` | string | No | Email del cliente. Si se proporciona, se envia automaticamente la factura por correo |
 | `clientComplement` | string | No | Complemento del documento de identidad |
-| `paymentMethodCode` | integer | Si | Metodo de pago. `1` = Efectivo, `2` = Tarjeta, `3` = Cheque, etc. |
-| `cardNumber` | string | No | Ultimos 4 digitos de tarjeta (solo si `paymentMethodCode` = 2) |
+| `paymentMethodCode` | integer | Si | Codigo de metodo de pago del catalogo SIAT (1-308). Consultar catalogo sincronizado: `GET /api/v1/siat/sync/catalogs/payment-methods`. Ejemplos: `1` = Efectivo, `2` = Tarjeta credito, `5` = Transferencia, `27` = Gift-Card |
+| `cardNumber` | string | No | Ultimos 4 digitos de tarjeta (solo si `paymentMethodCode` = 2 o 3) |
 | `exchangeRate` | number | No | Tipo de cambio (solo si la factura es en moneda extranjera) |
-| `observations` | string | No | Observaciones o notas (max 500 caracteres) |
+| `descuentoAdicional` | number | No | Descuento global sobre el total de la factura. Default: `0`. El SIAT valida: `montoTotal = Σ(subTotal) - descuentoAdicional` |
+| `montoGiftCard` | number | No | Monto pagado con gift card. Default: `0`. Requiere `paymentMethodCode` de tipo gift card (ej: `27`, `35`). Error SIAT [1050] si el metodo de pago no corresponde |
+| `observations` | string | No | Observaciones o notas (max 500 caracteres). Aparece en el PDF A4 y ticket |
 | `isTicket` | boolean | No | Si `true`, adjunta tambien el formato ticket (80mm) en el email. Default: `false` |
 | `details` | array | Si | Lista de items de la factura (minimo 1). Ver tabla siguiente |
 

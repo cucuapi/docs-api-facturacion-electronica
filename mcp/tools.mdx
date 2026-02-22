@@ -1,7 +1,7 @@
 ---
 title: "Referencia de Tools"
 sidebarTitle: "Tools"
-description: "Referencia completa de las 12 herramientas MCP disponibles en CUCU."
+description: "Referencia completa de las 14 herramientas MCP disponibles en CUCU."
 ---
 
 ## Herramientas de Facturacion
@@ -118,6 +118,54 @@ Verifica el estado actual de una factura directamente con el SIAT. Estados posib
 
 ---
 
+### crearNotaCreditoDebito
+
+Crea y emite una Nota de Credito o Debito contra una factura original validada. La nota se envia al SIAT para validacion.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `requestJson` | String | Si | JSON con los datos de la nota |
+
+**Requiere autenticacion:** Si
+
+**Estructura del JSON:**
+```json
+{
+  "pointOfSaleId": "UUID del POS",
+  "originalInvoiceId": "UUID de la factura original",
+  "notaType": "CREDITO",
+  "paymentMethodCode": 1,
+  "returnedDetails": [{
+    "activityEconomic": "620100",
+    "codeProductSin": "83141",
+    "description": "Devolucion servicio",
+    "quantity": 1,
+    "unitMeasure": 58,
+    "priceUnit": 100.00
+  }]
+}
+```
+
+**Ejemplo:**
+> "Emite una nota de credito contra la factura a1b2c3d4... por devolucion de Bs. 100"
+
+---
+
+### resumenFacturacion
+
+Obtiene un resumen tipo dashboard de la facturacion del tenant: total facturas, montos, estados, facturas recientes.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| *(ninguno)* | - | - | No requiere parametros |
+
+**Requiere autenticacion:** Si
+
+**Ejemplo:**
+> "Dame un resumen de mi facturacion"
+
+---
+
 ## Herramientas de Utilidades SIAT
 
 ### buscarNormativa
@@ -222,6 +270,8 @@ Convierte un monto numerico a su representacion en texto literal (requerido por 
 | `crearFactura` | Si | Emitir factura |
 | `anularFactura` | Si | Anular factura |
 | `verificarEstadoFactura` | Si | Estado SIAT |
+| `crearNotaCreditoDebito` | Si | Emitir nota credito/debito |
+| `resumenFacturacion` | Si | Dashboard facturacion |
 | `buscarNormativa` | No | RAG normativa SIAT |
 | `verificarFormatoNit` | No | Validar formato NIT |
 | `historialCliente` | Si | Historial por NIT |

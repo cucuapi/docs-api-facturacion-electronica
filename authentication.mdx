@@ -377,11 +377,19 @@ Estos endpoints no requieren API Key y pueden ser accedidos directamente:
 | `/api/v1/public/invoice/{cuf}/pdf` | `GET` | Descarga publica del PDF de una factura |
 | `/api/v1/public/invoice/{cuf}/xml` | `GET` | Descarga publica del XML firmado |
 | `/api/v1/public/invoice/{cuf}/status` | `GET` | Estado publico de una factura |
+| `/f/{cuf}` | `GET` | Pagina publica de verificacion de factura (estilo SIAT) |
+| `/api/v1/ai/status` | `GET` | Estado de los servicios de IA (Qdrant, embeddings) |
 
 <Note>
   Los endpoints publicos de factura usan el **CUF** (Codigo Unico de Facturacion) como identificador.
   Esto permite compartir URLs de descarga directamente con clientes sin exponer credenciales.
 </Note>
+
+<Warning>
+  **Todos los demas endpoints requieren `X-API-Key`**, incluyendo los endpoints de SIAT (`/api/v1/siat/*`),
+  catalogos (`/api/v1/siat/sync/*`), facturacion (`/api/v1/invoices`), e IA (`/api/v1/ai/chat`).
+  Cada endpoint valida que los recursos accedidos pertenezcan al tenant autenticado (proteccion cross-tenant).
+</Warning>
 
 ---
 
