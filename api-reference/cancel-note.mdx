@@ -1,0 +1,93 @@
+---
+title: "Anular Nota Credito/Debito"
+sidebarTitle: "Anular Nota"
+description: "Anula una nota de credito o debito emitida. Operacion irreversible."
+api: "POST https://sandbox.cucu.bo/api/v1/invoices/{id}/cancel-note"
+---
+
+Anula una nota de credito o debito previamente emitida y validada por el SIAT. La anulacion es **irreversible**.
+
+<Warning>
+  Una vez anulada, la nota no puede revertirse. El SIAT registra la anulacion permanentemente.
+</Warning>
+
+## Path Parameters
+
+| Parametro | Tipo | Req | Descripcion |
+|-----------|------|-----|-------------|
+| `id` | UUID | Si | UUID de la nota credito/debito a anular |
+
+## Query Parameters
+
+| Parametro | Tipo | Req | Descripcion |
+|-----------|------|-----|-------------|
+| `motivo` | integer | No | Codigo de motivo de anulacion: `1` Error de datos, `2` Devolucion, `3` Periodo posterior, `4` Otro. Default: `1` |
+
+## Headers
+
+| Parametro | Tipo | Req | Descripcion |
+|-----------|------|-----|-------------|
+| `X-API-Key` | string | Si | Tu API Key |
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://sandbox.cucu.bo/api/v1/invoices/b2c3d4e5-f6a7-8901-bcde-f12345678901/cancel-note?motivo=1" \
+  -H "X-API-Key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const response = await fetch(
+  'https://sandbox.cucu.bo/api/v1/invoices/b2c3d4e5-f6a7-8901-bcde-f12345678901/cancel-note?motivo=1',
+  {
+    method: 'POST',
+    headers: { 'X-API-Key': 'YOUR_API_KEY' }
+  }
+);
+const data = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/invoices/b2c3d4e5-f6a7-8901-bcde-f12345678901/cancel-note',
+    headers={'X-API-Key': 'YOUR_API_KEY'},
+    params={'motivo': 1}
+)
+print(response.json())
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "success": true,
+  "message": "Nota anulada exitosamente",
+  "data": {
+    "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+    "invoiceNumber": 10,
+    "cuf": "3983G8305613443F748GCBGCD4765FB93313BE59F1A7AF25FCFC9BG85",
+    "state": "CANCELLED",
+    "cancellationReason": 1,
+    "cancellationDate": "2026-02-22T14:00:00"
+  },
+  "timestamp": "2026-02-22T14:00:00"
+}
+```
+
+```json 409
+{
+  "success": false,
+  "error": {
+    "code": "CONFLICT",
+    "details": "La nota ya fue anulada anteriormente"
+  },
+  "timestamp": "2026-02-22T14:00:00"
+}
+```
+</ResponseExample>
+
+<Info>
+  La anulacion de una nota **no revierte automaticamente** los ajustes en la factura original.
+  Si necesitas emitir una nueva nota con datos corregidos, primero anula la nota actual y luego crea una nueva via [`POST /api/v1/invoices/{id}/credit-note`](/api-reference/credit-note).
+</Info>

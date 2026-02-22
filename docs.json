@@ -62,6 +62,8 @@
               "api-reference/list-invoices",
               "api-reference/get-invoice",
               "api-reference/cancel-invoice",
+              "api-reference/credit-note",
+              "api-reference/cancel-note",
               "api-reference/invoice-status",
               "api-reference/resend-email"
             ]

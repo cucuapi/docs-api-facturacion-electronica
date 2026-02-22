@@ -1,16 +1,24 @@
 ---
-title: "Overview"
-description: "Introduccion a la API REST de CUCU. Convenciones, paginacion y estructura de respuestas."
+title: "API Reference"
+description: "REST API para facturacion electronica Bolivia. Endpoints, convenios, y todo lo que necesitas para integrar."
 ---
 
-<div style={{textAlign: 'center', marginBottom: '24px'}}>
-  <h1 style={{fontSize: '2rem', fontWeight: '900', margin: '0 0 8px', letterSpacing: '-0.02em'}}>
-    <span style={{background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
-      API Reference
+<div style={{textAlign: 'center', marginBottom: '32px'}}>
+  <div style={{display: 'inline-block', padding: '6px 16px', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.15))', border: '1px solid rgba(99,102,241,0.25)', fontSize: '12px', fontWeight: '600', letterSpacing: '1px', textTransform: 'uppercase', color: '#8b5cf6', marginBottom: '16px'}}>
+    REST API v1
+  </div>
+  <h1 style={{fontSize: '2.2rem', fontWeight: '900', margin: '0 0 12px', letterSpacing: '-0.03em', lineHeight: '1.1'}}>
+    <span style={{background: 'linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+      Facturacion electronica
+    </span>
+    <br />
+    <span style={{fontSize: '1.6rem', color: '#e2e8f0'}}>
+      en una sola API
     </span>
   </h1>
-  <p style={{color: '#94a3b8', fontSize: '1.05rem', margin: 0}}>
-    REST API para facturacion electronica Bolivia. JSON, paginada, versionada.
+  <p style={{color: '#94a3b8', fontSize: '1.05rem', margin: '0 auto', maxWidth: '520px', lineHeight: '1.6'}}>
+    JSON. Paginada. Versionada. Conectada al SIAT del SIN Bolivia.
+    Emite facturas, notas de credito/debito, y 15 tipos de documento sector.
   </p>
 </div>
 
@@ -61,7 +69,7 @@ response = requests.get(
 </CodeGroup>
 
 <Tip>
-  La key `sk_test_` de arriba es de demo — usala libremente para probar sin registrarte.
+  Registrate en [app.cucu.bo/signup](https://app.cucu.bo/signup) para obtener tu API Key de sandbox gratuita.
   Ver [Autenticacion](/authentication) para mas detalles.
 </Tip>
 
@@ -81,7 +89,7 @@ Todas las respuestas usan el wrapper estandar `ApiResponse`:
         // Datos del recurso
       },
       "error": null,
-      "timestamp": "2026-02-11T12:00:00"
+      "timestamp": "2026-02-22T12:00:00"
     }
     ```
   </Tab>
@@ -95,7 +103,7 @@ Todas las respuestas usan el wrapper estandar `ApiResponse`:
         "code": "VALIDATION_ERROR",
         "details": "El campo 'nitCliente' es requerido"
       },
-      "timestamp": "2026-02-11T12:00:00"
+      "timestamp": "2026-02-22T12:00:00"
     }
     ```
   </Tab>
@@ -157,44 +165,48 @@ La API usa versionado en la URL: `/api/v1/`. Cambios breaking se anuncian con an
 
 ---
 
-## Tipos de documento sector
-
-Todos los tipos de documento usan el endpoint unificado `POST /api/v1/invoices` con el campo `invoiceType` en el body.
-
-| `codigoDocumentoSector` | `invoiceType` | Documento Sector | Modalidad |
-|---|---|---|---|
-| `1` | `ELECTRONIC_SALE` | Compra Venta | Electronica |
-| `1` | `COMPUTERIZED_SALE` | Compra Venta | Computarizada |
-| `2` | `NOTE_CREDIT_DEBIT` | Nota Credito-Debito | Electronica |
-| `3` | `ELECTRONIC_EXPORT` | Exportacion | Electronica |
-| `3` | `COMPUTERIZED_EXPORT` | Exportacion | Computarizada |
-| `4` | `ELECTRONIC_FREE_ZONE` | Zona Franca | Electronica |
-| `5` | `ELECTRONIC_DUTY_FREE` | Tasa Cero | Electronica |
-| `8` | `ELECTRONIC_SECTOR_EDUCATION` | Sector Educativo | Electronica |
-| `8` | `COMPUTERIZED_SECTOR_EDUCATION` | Sector Educativo | Computarizada |
-| `10` | `ELECTRONIC_HEALTH_SERVICE` | Servicios de Salud | Electronica |
-| `11` | `ELECTRONIC_BASIC_SERVICE` | Servicios Basicos | Electronica |
-| `13` | `ELECTRONIC_AIRLINE` | Aerolineas | Electronica |
-| `14` | `ELECTRONIC_HOTEL` | Alojamiento | Electronica |
-| `14` | `COMPUTERIZED_HOTEL` | Alojamiento | Computarizada |
-| `15` | `ELECTRONIC_HOSPITAL` | Hospitales y Clinicas | Electronica |
-| `15` | `COMPUTERIZED_HOSPITAL` | Hospitales y Clinicas | Computarizada |
-| `16` | `ELECTRONIC_GAMES_LUCK` | Juegos de Azar | Electronica |
-| `18` | `ELECTRONIC_TELECOM` | Telecomunicaciones | Electronica |
-| `18` | `COMPUTERIZED_TELECOM` | Telecomunicaciones | Computarizada |
-| `23` | `ELECTRONIC_FINANCIAL` | Entidades Financieras | Electronica |
-| `24` | `ELECTRONIC_INSURANCE` | Seguros | Electronica |
-| `24` | `COMPUTERIZED_INSURANCE` | Seguros | Computarizada |
-
-Cada tipo de documento sector puede requerir campos adicionales en el request body. Ver la referencia de cada sector para los campos especificos.
-
----
-
 ## Endpoints disponibles
 
+### Facturas
+
+El ciclo completo de facturacion electronica.
+
 <CardGroup cols={2}>
-  <Card title="Facturas" icon="file-invoice" href="/api-reference/create-invoice">
-    Crear, listar, obtener, cancelar facturas. El core de la API.
+  <Card title="Crear Factura" icon="file-invoice" href="/api-reference/create-invoice">
+    Emite una factura electronica validada por el SIAT. Firma digital, CUF, PDF/XML y email automatico.
+  </Card>
+  <Card title="Listar Facturas" icon="list" href="/api-reference/list-invoices">
+    Lista facturas con filtros por fecha, estado, NIT y numero. Paginacion incluida.
+  </Card>
+  <Card title="Obtener Factura" icon="magnifying-glass" href="/api-reference/get-invoice">
+    Detalle completo de una factura: datos fiscales, CUF, estado SIAT, items y montos.
+  </Card>
+  <Card title="Anular Factura" icon="ban" href="/api-reference/cancel-invoice">
+    Anula una factura ante el SIAT. Operacion irreversible con motivo justificado.
+  </Card>
+</CardGroup>
+
+### Notas de Credito/Debito
+
+Documentos de ajuste fiscal para devoluciones parciales o totales.
+
+<CardGroup cols={2}>
+  <Card title="Crear Nota" icon="file-circle-minus" href="/api-reference/credit-note">
+    Emite una nota de credito o debito contra una factura validada. Endpoint dedicado con calculo automatico de montos.
+  </Card>
+  <Card title="Anular Nota" icon="file-circle-xmark" href="/api-reference/cancel-note">
+    Anula una nota de credito/debito emitida. Operacion irreversible ante el SIAT.
+  </Card>
+</CardGroup>
+
+### Utilidades y Soporte
+
+<CardGroup cols={2}>
+  <Card title="Estado de Factura" icon="circle-check" href="/api-reference/invoice-status">
+    Verifica el estado actual de una factura directamente con el SIAT.
+  </Card>
+  <Card title="Reenviar Email" icon="paper-plane" href="/api-reference/resend-email">
+    Reenvia la factura por email al cliente o a otra direccion.
   </Card>
   <Card title="Contingencia" icon="triangle-exclamation" href="/api-reference/events">
     Manejo de eventos offline cuando el SIAT no esta disponible.
@@ -206,9 +218,52 @@ Cada tipo de documento sector puede requerir campos adicionales en el request bo
     Sincronizacion y consulta de catalogos del SIN.
   </Card>
   <Card title="Acceso publico" icon="globe" href="/api-reference/public-access">
-    Descarga publica de PDF, XML, ZIP por CUF.
+    Descarga publica de PDF, XML, ticket y pagina de verificacion por CUF.
   </Card>
-  <Card title="AI & RAG" icon="brain" href="/api-reference/ai">
-    Chat, validacion inteligente y resolucion de errores con AI.
+  <Card title="AI y RAG" icon="brain" href="/api-reference/ai">
+    Chat inteligente, validacion AI y resolucion de errores SIAT.
+  </Card>
+  <Card title="Storage" icon="cloud-arrow-up" href="/api-reference/storage">
+    Gestion de archivos en S3: logo empresa, certificado digital.
   </Card>
 </CardGroup>
+
+---
+
+## Tipos de documento sector
+
+Todos los tipos de documento (excepto notas credito/debito) usan el endpoint unificado `POST /api/v1/invoices` con el campo `invoiceType` en el body.
+
+| `codigoDocumentoSector` | `invoiceType` | Documento Sector |
+|---|---|---|
+| `1` | `ELECTRONIC_SALE` | Compra Venta |
+| `2` | `NOTE_CREDIT_DEBIT` | [Nota Credito-Debito](/api-reference/credit-note) |
+| `3` | `ELECTRONIC_EXPORT` | Exportacion |
+| `4` | `ELECTRONIC_FREE_ZONE` | Zona Franca |
+| `5` | `ELECTRONIC_DUTY_FREE` | Tasa Cero |
+| `8` | `ELECTRONIC_SECTOR_EDUCATION` | Sector Educativo |
+| `10` | `ELECTRONIC_HEALTH_SERVICE` | Servicios de Salud |
+| `11` | `ELECTRONIC_BASIC_SERVICE` | Servicios Basicos |
+| `13` | `ELECTRONIC_AIRLINE` | Aerolineas |
+| `14` | `ELECTRONIC_HOTEL` | Alojamiento |
+| `15` | `ELECTRONIC_HOSPITAL` | Hospitales y Clinicas |
+| `16` | `ELECTRONIC_GAMES_LUCK` | Juegos de Azar |
+| `18` | `ELECTRONIC_TELECOM` | Telecomunicaciones |
+| `23` | `ELECTRONIC_FINANCIAL` | Entidades Financieras |
+| `24` | `ELECTRONIC_INSURANCE` | Seguros |
+
+<Info>
+  Las notas de credito/debito usan un [endpoint dedicado](/api-reference/credit-note): `POST /api/v1/invoices/{id}/credit-note`. Los demas tipos usan el endpoint unificado `POST /api/v1/invoices`.
+</Info>
+
+Cada tipo de documento sector puede requerir campos adicionales en el request body. Ver la referencia de cada sector en la seccion [Documentos Sector](/api-reference/sectors/sale) para los campos especificos.
+
+---
+
+## MCP Server
+
+Ademas de la API REST, CUCU ofrece un **MCP Server** con 14 herramientas que permiten a asistentes de IA operar la facturacion con lenguaje natural.
+
+<Card title="Documentacion MCP" icon="microchip" href="/mcp/introduction">
+  Conecta Claude, Cursor, Windsurf o cualquier cliente MCP. 14 herramientas, Streamable HTTP, sin codigo.
+</Card>

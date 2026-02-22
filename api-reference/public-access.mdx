@@ -101,6 +101,26 @@ GET /api/v1/public/invoice/{cuf}/zip
 
 Descarga un ZIP que contiene: PDF A4 + Ticket 80mm + XML firmado.
 
+---
+
+## Pagina de verificacion
+
+```
+GET /f/{cuf}
+```
+
+Pagina web publica de verificacion de la factura o nota credito/debito. Muestra los datos completos del documento en formato visual con QR, ideal para compartir con clientes o verificar la autenticidad del documento.
+
+```
+https://sandbox.cucu.bo/f/2872F7294502332E637FABFBC3654EA82202AD48E0969F14EBEB8AF74
+```
+
+<Tip>
+  El endpoint `/f/{cuf}` funciona tanto para facturas como para notas de credito/debito. Cada documento tiene su propio CUF unico.
+</Tip>
+
+---
+
 <Tip>
   Todos los archivos incluyen el header `Cache-Control: public, max-age=31536000`. Las facturas son inmutables una vez emitidas.
 </Tip>

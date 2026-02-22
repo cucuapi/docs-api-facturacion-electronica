@@ -294,7 +294,7 @@ Agrega esta configuracion a tu Claude Desktop (`claude_desktop_config.json`):
 {
   "mcpServers": {
     "cucu-facturacion": {
-      "url": "https://sandbox.cucu.bo/mcp/sse",
+      "url": "https://sandbox.cucu.bo/mcp",
       "headers": {
         "X-API-Key": "YOUR_API_KEY"
       }
@@ -311,7 +311,7 @@ Despues de reiniciar Claude Desktop, puedes pedirle cosas como:
 - *"Que codigos de producto SIN existen para consultoria?"*
 
 <Info>
-  El MCP Server expone **11 herramientas** que cubren todo el ciclo de facturacion.
+  El MCP Server expone **14 herramientas** que cubren todo el ciclo de facturacion, incluyendo notas de credito/debito.
   Consulta la [documentacion MCP completa](/mcp/introduction) para ver todas las herramientas disponibles.
 </Info>
 
@@ -328,7 +328,7 @@ Despues de reiniciar Claude Desktop, puedes pedirle cosas como:
     Explora todos los endpoints: emision, anulacion, consultas, sincronizaciones SIAT, y mas.
   </Card>
   <Card title="MCP Server" icon="plug" href="/mcp/introduction">
-    Conecta tu IA directamente a facturacion electronica con 11 herramientas disponibles.
+    Conecta tu IA directamente a facturacion electronica con 14 herramientas disponibles.
   </Card>
   <Card title="Contingencia" icon="shield-halved" href="/api-reference/contingency">
     Aprende a emitir facturas offline cuando el SIAT no esta disponible y sincronizarlas despues.

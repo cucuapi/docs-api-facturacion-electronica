@@ -77,6 +77,10 @@ curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
   Si tu integracion funciona en sandbox, funcionara en produccion con solo cambiar la URL y la key.
 </Note>
 
+### Watermark en sandbox
+
+Los PDFs generados en sandbox (SIAT ambiente 2) incluyen una marca de agua diagonal **"SIN VALOR LEGAL"** semitransparente sobre todo el documento. Esto aplica tanto a facturas regulares como a notas de credito/debito. En produccion (SIAT ambiente 1) los PDFs se generan sin marca de agua.
+
 ---
 
 ## Produccion

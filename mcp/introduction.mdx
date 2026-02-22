@@ -15,7 +15,7 @@ description: "Conecta Claude, Cursor o cualquier AI directamente a facturacion e
     </span>
   </h1>
   <p style={{fontSize: '1.15rem', color: '#94a3b8', maxWidth: '600px', margin: '0 auto', lineHeight: '1.6'}}>
-    12 herramientas MCP. Lenguaje natural. Facturacion electronica completa
+    14 herramientas MCP. Lenguaje natural. Facturacion electronica completa
     sin escribir una sola linea de codigo.
   </p>
 </div>
@@ -81,28 +81,30 @@ El **Model Context Protocol** es un estandar abierto creado por [Anthropic](http
 {/* Layer 2: MCP Server */}
 <div style={{background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', padding: '20px', marginBottom: '0', fontFamily: 'monospace'}}>
   <div style={{fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1.5px', color: '#475569', marginBottom: '4px'}}>CUCU MCP Server</div>
-  <div style={{fontSize: '12px', color: '#64748b', marginBottom: '16px'}}>12 tools — Streamable HTTP + SSE fallback</div>
+  <div style={{fontSize: '12px', color: '#64748b', marginBottom: '16px'}}>14 tools — Streamable HTTP + SSE fallback</div>
   <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px'}}>
     <div style={{background: '#1e293b', border: '1px solid #334155', borderRadius: '6px', padding: '12px'}}>
-      <div style={{fontSize: '11px', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>Facturacion (6)</div>
+      <div style={{fontSize: '11px', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>Facturacion (8)</div>
       <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
         <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>crearFactura()</code>
         <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>listarFacturas()</code>
         <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>obtenerFactura()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>obtenerFacturaPorCuf()</code>
         <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>anularFactura()</code>
-        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>obtenerPdf()</code>
-        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>reenviarEmail()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>verificarEstadoFactura()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>crearNotaCreditoDebito()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>resumenFacturacion()</code>
       </div>
     </div>
     <div style={{background: '#1e293b', border: '1px solid #334155', borderRadius: '6px', padding: '12px'}}>
       <div style={{fontSize: '11px', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>Utilidades SIAT (6)</div>
       <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
-        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>verificarNit()</code>
-        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>consultarNit()</code>
-        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>sincCatalogos()</code>
-        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>verificarSiat()</code>
-        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>consultarNormativa()</code>
-        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>estadoSistema()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>verificarFormatoNit()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>historialCliente()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>buscarNormativa()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>erroresComunesSiat()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>buscarContingencias()</code>
+        <code style={{fontSize: '12px', color: '#e2e8f0', padding: '3px 0'}}>calcularMontoLiteral()</code>
       </div>
     </div>
   </div>
@@ -138,11 +140,11 @@ El **Model Context Protocol** es un estandar abierto creado por [Anthropic](http
 
 ---
 
-## Las 12 herramientas
+## Las 14 herramientas
 
 ### Facturacion
 
-El ciclo completo de facturacion electronica en 6 herramientas.
+El ciclo completo de facturacion electronica en 8 herramientas.
 
 <CardGroup cols={2}>
   <Card title="crearFactura" icon="file-invoice">
@@ -161,13 +163,21 @@ El ciclo completo de facturacion electronica en 6 herramientas.
     Anula una factura ante el SIAT con motivo del catalogo SIN.
     Registra la anulacion y notifica al cliente.
   </Card>
-  <Card title="obtenerPdfFactura" icon="file-pdf">
-    Descarga el PDF en formato A4 o ticket 80mm. Incluye QR,
-    CUF y todos los datos normativos requeridos.
+  <Card title="obtenerFacturaPorCuf" icon="qrcode">
+    Obtiene una factura por su CUF (Codigo Unico de Factura),
+    el identificador unico ante el SIN.
   </Card>
-  <Card title="reenviarEmailFactura" icon="paper-plane">
-    Reenvia la factura por email al cliente o a otra direccion.
-    Util cuando no recibio el correo original.
+  <Card title="verificarEstadoFactura" icon="circle-check">
+    Verifica el estado actual de una factura directamente con el SIAT.
+    Estados: VALIDATED, REJECTED, CANCELLED, PENDING, CONTINGENCY.
+  </Card>
+  <Card title="crearNotaCreditoDebito" icon="file-circle-minus">
+    Emite nota de credito o debito contra una factura validada.
+    Devoluciones parciales o totales con validacion SIAT sector 24.
+  </Card>
+  <Card title="resumenFacturacion" icon="chart-pie">
+    Dashboard de facturacion: total facturas, montos, estados,
+    facturas recientes y metricas del periodo.
   </Card>
 </CardGroup>
 
@@ -180,25 +190,25 @@ Herramientas de soporte para operaciones fiscales y diagnostico.
     Valida formato NIT segun algoritmo del SIN. Detecta errores
     de digitacion antes de emitir factura.
   </Card>
-  <Card title="consultarNit" icon="building-columns">
-    Consulta un NIT contra el SIAT para obtener razon social.
-    Verifica que este activo y habilitado.
+  <Card title="historialCliente" icon="clock-rotate-left">
+    Historial de facturacion de un cliente por NIT. Razon social,
+    email, telefono y cantidad de facturas emitidas.
   </Card>
-  <Card title="sincronizarCatalogos" icon="arrows-rotate">
-    Sincroniza catalogos SIAT: actividades economicas, productos,
-    tipos de documento, motivos de anulacion.
-  </Card>
-  <Card title="verificarComunicacion" icon="tower-broadcast">
-    Diagnostica conectividad con el SIAT en tiempo real.
-    Detecta si debe activarse el modo contingencia.
-  </Card>
-  <Card title="consultarNormativa" icon="book-open">
-    Consulta normativa tributaria usando RAG con Qdrant.
+  <Card title="buscarNormativa" icon="book-open">
+    Busqueda semantica (RAG) en normativa tributaria SIAT.
     Responde preguntas sobre regulaciones y requisitos fiscales.
   </Card>
-  <Card title="obtenerEstadoSistema" icon="heart-pulse">
-    Estado del sistema: conexion SIAT, BD, servicios,
-    version de catalogos y metricas de salud.
+  <Card title="erroresComunesSiat" icon="circle-exclamation">
+    Lista errores frecuentes del SIAT con codigos, descripciones
+    y soluciones recomendadas.
+  </Card>
+  <Card title="buscarContingencias" icon="tower-broadcast">
+    Busqueda RAG en historial de contingencias. Caidas SIAT,
+    duracion, patrones y puntos de venta afectados.
+  </Card>
+  <Card title="calcularMontoLiteral" icon="spell-check">
+    Convierte un monto numerico a texto literal en bolivianos.
+    Requerido por normativa SIAT en cada factura.
   </Card>
 </CardGroup>
 
@@ -292,7 +302,7 @@ Asi se ve una sesion real usando MCP desde Claude Desktop:
     al MCP Server. **Listo en 2 minutos.**
   </Card>
   <Card title="Referencia de herramientas" icon="wrench" href="/mcp/tools">
-    Documentacion detallada de las 12 herramientas: parametros,
+    Documentacion detallada de las 14 herramientas: parametros,
     schemas, codigos de error y ejemplos reales.
   </Card>
 </CardGroup>

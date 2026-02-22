@@ -56,7 +56,7 @@ Diseñada para desarrolladores, equipos de producto y empresas que necesitan **f
     usando Retrieval-Augmented Generation. Resuelve errores SIAT, valida
     datos fiscales y responde consultas tecnicas al instante.
   </Card>
-  <Card title="MCP Server — 12 herramientas" icon="plug" color="#10b981">
+  <Card title="MCP Server — 14 herramientas" icon="plug" color="#10b981">
     **NUEVO** — Conecta Claude, Cursor, VS Code o cualquier AI directamente a
     facturacion electronica via Model Context Protocol. Emite facturas con
     lenguaje natural. El futuro de la integracion ya esta aqui.
@@ -81,7 +81,7 @@ Diseñada para desarrolladores, equipos de producto y empresas que necesitan **f
   </div>
 </div>
 
-Con el MCP Server de CUCU, tu asistente AI tiene acceso a **12 herramientas** que cubren todo el ciclo de facturacion: emision, anulacion, consulta, verificacion de NIT, sincronizacion SIAT y mas. Es la forma mas rapida y natural de integrar facturacion electronica en tu flujo de trabajo.
+Con el MCP Server de CUCU, tu asistente AI tiene acceso a **14 herramientas** que cubren todo el ciclo de facturacion: emision, anulacion, notas de credito/debito, consulta, verificacion de NIT y mas. Es la forma mas rapida y natural de integrar facturacion electronica en tu flujo de trabajo.
 
 <Card title="Descubre MCP Server" icon="plug" href="/mcp/introduction">
   Aprende como conectar tu AI a facturacion electronica en 2 minutos.
@@ -107,16 +107,22 @@ Con el MCP Server de CUCU, tu asistente AI tiene acceso a **12 herramientas** qu
     digital, el CUF, la validacion SIAT, la generacion del PDF y el envio por email.
 
     ```bash
-    curl -X POST https://sandbox.cucu.bo/api/v1/facturas \
+    curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
       -H "X-API-Key: YOUR_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "nitCliente": "1234567",
-        "razonSocial": "EMPRESA TEST S.R.L.",
-        "detalle": [{
-          "descripcion": "Servicio de consultoria",
-          "cantidad": 1,
-          "precioUnitario": 500.00
+        "pointOfSaleId": "TU_PUNTO_DE_VENTA_UUID",
+        "clientDocumentType": 5,
+        "clientDocumentNumber": "1234567",
+        "clientBusinessName": "EMPRESA TEST S.R.L.",
+        "paymentMethodCode": 1,
+        "details": [{
+          "activityEconomic": "620100",
+          "codeProductSin": "83141",
+          "description": "Servicio de consultoria",
+          "quantity": 1,
+          "unitMeasure": 58,
+          "priceUnit": 500.00
         }]
       }'
     ```
@@ -142,7 +148,7 @@ Con el MCP Server de CUCU, tu asistente AI tiene acceso a **12 herramientas** qu
     codigos de error, paginacion y ejemplos de request/response.
   </Card>
   <Card title="MCP Server" icon="plug" href="/mcp/introduction">
-    Conecta tu AI directamente a facturacion. 12 herramientas MCP
+    Conecta tu AI directamente a facturacion. 14 herramientas MCP
     para emitir, anular y consultar facturas con lenguaje natural.
   </Card>
   <Card title="Precios" icon="credit-card" href="/pricing">
