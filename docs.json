@@ -20,7 +20,7 @@
     }
   ],
   "topbarCtaButton": {
-    "name": "Empezar Gratis",
+    "name": "Activar Plan",
     "url": "https://app.cucu.bo/signup",
     "style": "roundedRectangle"
   },
@@ -178,6 +178,12 @@
     "suggestEdit": true,
     "raiseIssue": true
   },
+  "redirects": [
+    {
+      "source": "/overview",
+      "destination": "/introduction"
+    }
+  ],
   "api": {
     "baseUrl": "https://sandbox.cucu.bo",
     "auth": {
