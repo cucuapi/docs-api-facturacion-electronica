@@ -137,7 +137,6 @@
         "tab": "MCP",
         "icon": "microchip",
         "pages": [
-          "mcp/introduction",
           "mcp/setup",
           "mcp/tools"
         ]
@@ -182,6 +181,10 @@
     {
       "source": "/overview",
       "destination": "/introduction"
+    },
+    {
+      "source": "/mcp/introduction",
+      "destination": "/mcp/setup"
     }
   ],
   "api": {
