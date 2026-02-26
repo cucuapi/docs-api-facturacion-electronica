@@ -172,16 +172,16 @@ La API usa versionado en la URL: `/api/v1/`. Cambios breaking se anuncian con an
 El ciclo completo de facturacion electronica.
 
 <CardGroup cols={2}>
-  <Card title="Crear Factura" icon="file-invoice" href="/api-reference/create-invoice">
+  <Card title="Crear Factura" icon="file-invoice" href="/api/create-invoice">
     Emite una factura electronica validada por el SIAT. Firma digital, CUF, PDF/XML y email automatico.
   </Card>
-  <Card title="Listar Facturas" icon="list" href="/api-reference/list-invoices">
+  <Card title="Listar Facturas" icon="list" href="/api/list-invoices">
     Lista facturas con filtros por fecha, estado, NIT y numero. Paginacion incluida.
   </Card>
-  <Card title="Obtener Factura" icon="magnifying-glass" href="/api-reference/get-invoice">
+  <Card title="Obtener Factura" icon="magnifying-glass" href="/api/get-invoice">
     Detalle completo de una factura: datos fiscales, CUF, estado SIAT, items y montos.
   </Card>
-  <Card title="Anular Factura" icon="ban" href="/api-reference/cancel-invoice">
+  <Card title="Anular Factura" icon="ban" href="/api/cancel-invoice">
     Anula una factura ante el SIAT. Operacion irreversible con motivo justificado.
   </Card>
 </CardGroup>
@@ -191,10 +191,10 @@ El ciclo completo de facturacion electronica.
 Documentos de ajuste fiscal para devoluciones parciales o totales.
 
 <CardGroup cols={2}>
-  <Card title="Crear Nota" icon="file-circle-minus" href="/api-reference/credit-note">
+  <Card title="Crear Nota" icon="file-circle-minus" href="/api/credit-note">
     Emite una nota de credito o debito contra una factura validada. Endpoint dedicado con calculo automatico de montos.
   </Card>
-  <Card title="Anular Nota" icon="file-circle-xmark" href="/api-reference/cancel-note">
+  <Card title="Anular Nota" icon="file-circle-xmark" href="/api/cancel-note">
     Anula una nota de credito/debito emitida. Operacion irreversible ante el SIAT.
   </Card>
 </CardGroup>
@@ -202,28 +202,28 @@ Documentos de ajuste fiscal para devoluciones parciales o totales.
 ### Utilidades y Soporte
 
 <CardGroup cols={2}>
-  <Card title="Estado de Factura" icon="circle-check" href="/api-reference/invoice-status">
+  <Card title="Estado de Factura" icon="circle-check" href="/api/invoice-status">
     Verifica el estado actual de una factura directamente con el SIAT.
   </Card>
-  <Card title="Reenviar Email" icon="paper-plane" href="/api-reference/resend-email">
+  <Card title="Reenviar Email" icon="paper-plane" href="/api/resend-email">
     Reenvia la factura por email al cliente o a otra direccion.
   </Card>
-  <Card title="Contingencia" icon="triangle-exclamation" href="/api-reference/events">
+  <Card title="Contingencia" icon="triangle-exclamation" href="/api/events">
     Manejo de eventos offline cuando el SIAT no esta disponible.
   </Card>
-  <Card title="Codigos SIAT" icon="barcode" href="/api-reference/codes">
+  <Card title="Codigos SIAT" icon="barcode" href="/api/codes">
     Verificacion de NIT, CUFD y comunicacion con el SIAT.
   </Card>
-  <Card title="Catalogos" icon="book" href="/api-reference/catalogs">
+  <Card title="Catalogos" icon="book" href="/api/catalogs">
     Sincronizacion y consulta de catalogos del SIN.
   </Card>
-  <Card title="Acceso publico" icon="globe" href="/api-reference/public-access">
+  <Card title="Acceso publico" icon="globe" href="/api/public-access">
     Descarga publica de PDF, XML, ticket y pagina de verificacion por CUF.
   </Card>
-  <Card title="AI y RAG" icon="brain" href="/api-reference/ai">
+  <Card title="AI y RAG" icon="brain" href="/api/ai">
     Chat inteligente, validacion AI y resolucion de errores SIAT.
   </Card>
-  <Card title="Storage" icon="cloud-arrow-up" href="/api-reference/storage">
+  <Card title="Storage" icon="cloud-arrow-up" href="/api/storage">
     Gestion de archivos en S3: logo empresa, certificado digital.
   </Card>
 </CardGroup>
@@ -237,7 +237,7 @@ Todos los tipos de documento (excepto notas credito/debito) usan el endpoint uni
 | `codigoDocumentoSector` | `invoiceType` | Documento Sector |
 |---|---|---|
 | `1` | `ELECTRONIC_SALE` | Compra Venta |
-| `2` | `NOTE_CREDIT_DEBIT` | [Nota Credito-Debito](/api-reference/credit-note) |
+| `2` | `NOTE_CREDIT_DEBIT` | [Nota Credito-Debito](/api/credit-note) |
 | `3` | `ELECTRONIC_EXPORT` | Exportacion |
 | `4` | `ELECTRONIC_FREE_ZONE` | Zona Franca |
 | `5` | `ELECTRONIC_DUTY_FREE` | Tasa Cero |
@@ -253,10 +253,10 @@ Todos los tipos de documento (excepto notas credito/debito) usan el endpoint uni
 | `24` | `ELECTRONIC_INSURANCE` | Seguros |
 
 <Info>
-  Las notas de credito/debito usan un [endpoint dedicado](/api-reference/credit-note): `POST /api/v1/invoices/{id}/credit-note`. Los demas tipos usan el endpoint unificado `POST /api/v1/invoices`.
+  Las notas de credito/debito usan un [endpoint dedicado](/api/credit-note): `POST /api/v1/invoices/{id}/credit-note`. Los demas tipos usan el endpoint unificado `POST /api/v1/invoices`.
 </Info>
 
-Cada tipo de documento sector puede requerir campos adicionales en el request body. Ver la referencia de cada sector en la seccion [Documentos Sector](/api-reference/sectors/sale) para los campos especificos.
+Cada tipo de documento sector puede requerir campos adicionales en el request body. Ver la referencia de cada sector en la seccion [Documentos Sector](/api/sectors/sale) para los campos especificos.
 
 ---
 

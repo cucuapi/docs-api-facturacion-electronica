@@ -27,7 +27,7 @@ POST /api/v1/invoices/{originalInvoiceId}/credit-note
   Usa el endpoint dedicado que obtiene automaticamente los datos de la factura original (cliente, CUF, montos, items).
 </Info>
 
-Ver la referencia completa del endpoint en [Crear Nota Credito/Debito](/api-reference/credit-note).
+Ver la referencia completa del endpoint en [Crear Nota Credito/Debito](/api/credit-note).
 
 ## Como funciona
 
@@ -145,7 +145,7 @@ Para anular una nota de credito/debito emitida:
 POST /api/v1/invoices/{noteId}/cancel-note?motivo=1
 ```
 
-Ver [Anular Nota Credito/Debito](/api-reference/cancel-note) para la referencia completa.
+Ver [Anular Nota Credito/Debito](/api/cancel-note) para la referencia completa.
 
 <Warning>
   La factura original debe estar en estado `VALIDATED`. No se puede emitir una nota sobre una factura rechazada o ya anulada.

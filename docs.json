@@ -51,84 +51,84 @@
           {
             "group": "General",
             "pages": [
-              "api-reference/overview"
+              "api/overview"
             ]
           },
           {
             "group": "Facturas",
             "icon": "file-invoice",
             "pages": [
-              "api-reference/create-invoice",
-              "api-reference/list-invoices",
-              "api-reference/get-invoice",
-              "api-reference/cancel-invoice",
-              "api-reference/credit-note",
-              "api-reference/cancel-note",
-              "api-reference/invoice-status",
-              "api-reference/resend-email"
+              "api/create-invoice",
+              "api/list-invoices",
+              "api/get-invoice",
+              "api/cancel-invoice",
+              "api/credit-note",
+              "api/cancel-note",
+              "api/invoice-status",
+              "api/resend-email"
             ]
           },
           {
             "group": "Documentos Sector",
             "icon": "file-lines",
             "pages": [
-              "api-reference/sectors/sale",
-              "api-reference/sectors/note-credit-debit",
-              "api-reference/sectors/export",
-              "api-reference/sectors/free-zone",
-              "api-reference/sectors/duty-free",
-              "api-reference/sectors/education",
-              "api-reference/sectors/health-service",
-              "api-reference/sectors/basic-service",
-              "api-reference/sectors/airline",
-              "api-reference/sectors/hotel",
-              "api-reference/sectors/hospital",
-              "api-reference/sectors/games-luck",
-              "api-reference/sectors/telecom",
-              "api-reference/sectors/financial",
-              "api-reference/sectors/insurance"
+              "api/sectors/sale",
+              "api/sectors/note-credit-debit",
+              "api/sectors/export",
+              "api/sectors/free-zone",
+              "api/sectors/duty-free",
+              "api/sectors/education",
+              "api/sectors/health-service",
+              "api/sectors/basic-service",
+              "api/sectors/airline",
+              "api/sectors/hotel",
+              "api/sectors/hospital",
+              "api/sectors/games-luck",
+              "api/sectors/telecom",
+              "api/sectors/financial",
+              "api/sectors/insurance"
             ]
           },
           {
             "group": "Contingencia",
             "icon": "triangle-exclamation",
             "pages": [
-              "api-reference/events"
+              "api/events"
             ]
           },
           {
             "group": "Codigos SIAT",
             "icon": "barcode",
             "pages": [
-              "api-reference/codes"
+              "api/codes"
             ]
           },
           {
             "group": "Catalogos",
             "icon": "book",
             "pages": [
-              "api-reference/catalogs"
+              "api/catalogs"
             ]
           },
           {
             "group": "Acceso Publico",
             "icon": "globe",
             "pages": [
-              "api-reference/public-access"
+              "api/public-access"
             ]
           },
           {
             "group": "AI",
             "icon": "robot",
             "pages": [
-              "api-reference/ai"
+              "api/ai"
             ]
           },
           {
             "group": "Storage",
             "icon": "cloud-arrow-up",
             "pages": [
-              "api-reference/storage"
+              "api/storage"
             ]
           }
         ]
@@ -185,6 +185,10 @@
     {
       "source": "/mcp/introduction",
       "destination": "/mcp/setup"
+    },
+    {
+      "source": "/api-reference/:slug*",
+      "destination": "/api/:slug*"
     }
   ],
   "api": {

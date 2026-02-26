@@ -1,27 +1,26 @@
 ---
-title: "Exportacion"
-sidebarTitle: "Exportacion"
-description: "Factura de exportacion de bienes y servicios. Sector 3."
+title: "Zona Franca"
+sidebarTitle: "Zona Franca"
+description: "Factura para operaciones en zonas francas. Sector 4."
 ---
 
-Para operaciones de exportacion de Bolivia al exterior. Tasa IVA cero.
+Para empresas que operan dentro de zonas francas comerciales o industriales de Bolivia.
 
 ## Datos del sector
 
 | Campo | Valor |
 |-------|-------|
-| `codigoDocumentoSector` | `3` |
-| `invoiceType` electronica | `ELECTRONIC_EXPORT` |
-| `invoiceType` computarizada | `COMPUTERIZED_EXPORT` |
+| `codigoDocumentoSector` | `4` |
+| `invoiceType` | `ELECTRONIC_FREE_ZONE` |
 | WSDL SIAT | `ServicioFacturacionCompraVenta` |
 
 ## Campos adicionales
 
-### Detalle
+### Cabecera
 
 | Campo | Tipo | Req | Descripcion |
 |-------|------|-----|-------------|
-| `details[].codeNandina` | string | Si | Codigo arancelario Nandina del producto exportado |
+| `receptionPartyNumber` | integer | Si | Numero de parte de recepcion asignado por la zona franca |
 
 ## Ejemplo
 
@@ -31,22 +30,21 @@ curl -X POST https://sandbox.cucu.bo/api/v1/invoices \
   -H "Content-Type: application/json" \
   -H "X-API-Key: YOUR_API_KEY" \
   -d '{
-    "invoiceType": "ELECTRONIC_EXPORT",
+    "invoiceType": "ELECTRONIC_FREE_ZONE",
     "pointOfSaleId": "660e8400-e29b-41d4-a716-446655440004",
     "clientDocumentType": 5,
     "clientDocumentNumber": "99001",
-    "clientBusinessName": "IMPORTADORA INTERNACIONAL LLC",
+    "clientBusinessName": "ZONA FRANCA COMERCIAL ORURO S.A.",
     "paymentMethodCode": 1,
-    "exchangeRate": 6.96,
+    "receptionPartyNumber": 12345,
     "details": [
       {
         "activityEconomic": "620100",
         "codeProductSin": "83141",
-        "description": "Quinua real organica - exportacion",
-        "quantity": 1000,
-        "unitMeasure": 2,
-        "priceUnit": 15.00,
-        "codeNandina": "1008509000"
+        "description": "Mercaderia importada - zona franca",
+        "quantity": 50,
+        "unitMeasure": 1,
+        "priceUnit": 120.00
       }
     ]
   }'
@@ -60,21 +58,20 @@ const response = await fetch('https://sandbox.cucu.bo/api/v1/invoices', {
     'X-API-Key': 'YOUR_API_KEY'
   },
   body: JSON.stringify({
-    invoiceType: 'ELECTRONIC_EXPORT',
+    invoiceType: 'ELECTRONIC_FREE_ZONE',
     pointOfSaleId: '660e8400-e29b-41d4-a716-446655440004',
     clientDocumentType: 5,
     clientDocumentNumber: '99001',
-    clientBusinessName: 'IMPORTADORA INTERNACIONAL LLC',
+    clientBusinessName: 'ZONA FRANCA COMERCIAL ORURO S.A.',
     paymentMethodCode: 1,
-    exchangeRate: 6.96,
+    receptionPartyNumber: 12345,
     details: [{
       activityEconomic: '620100',
       codeProductSin: '83141',
-      description: 'Quinua real organica - exportacion',
-      quantity: 1000,
-      unitMeasure: 2,
-      priceUnit: 15.00,
-      codeNandina: '1008509000'
+      description: 'Mercaderia importada - zona franca',
+      quantity: 50,
+      unitMeasure: 1,
+      priceUnit: 120.00
     }]
   })
 });
@@ -90,21 +87,20 @@ response = requests.post(
         'X-API-Key': 'YOUR_API_KEY'
     },
     json={
-        'invoiceType': 'ELECTRONIC_EXPORT',
+        'invoiceType': 'ELECTRONIC_FREE_ZONE',
         'pointOfSaleId': '660e8400-e29b-41d4-a716-446655440004',
         'clientDocumentType': 5,
         'clientDocumentNumber': '99001',
-        'clientBusinessName': 'IMPORTADORA INTERNACIONAL LLC',
+        'clientBusinessName': 'ZONA FRANCA COMERCIAL ORURO S.A.',
         'paymentMethodCode': 1,
-        'exchangeRate': 6.96,
+        'receptionPartyNumber': 12345,
         'details': [{
             'activityEconomic': '620100',
             'codeProductSin': '83141',
-            'description': 'Quinua real organica - exportacion',
-            'quantity': 1000,
-            'unitMeasure': 2,
-            'priceUnit': 15.00,
-            'codeNandina': '1008509000'
+            'description': 'Mercaderia importada - zona franca',
+            'quantity': 50,
+            'unitMeasure': 1,
+            'priceUnit': 120.00
         }]
     }
 )
@@ -112,5 +108,5 @@ response = requests.post(
 </CodeGroup>
 
 <Info>
-  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+  Ver [Crear Factura](/api/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
 </Info>

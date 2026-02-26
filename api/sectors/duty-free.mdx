@@ -16,7 +16,7 @@ Para operaciones con tasa IVA cero: exportacion de servicios, diplomticos, organ
 
 ## Campos adicionales
 
-Este sector no requiere campos adicionales mas alla de los [campos estandar](/api-reference/create-invoice#request-body).
+Este sector no requiere campos adicionales mas alla de los [campos estandar](/api/create-invoice#request-body).
 
 <Warning>
   El tipo de documento del cliente (`clientDocumentType`) para tasa cero debe ser `5` (NIT) y el numero de documento NO puede ser `0`. Use un numero valido como `99001`.
@@ -105,5 +105,5 @@ response = requests.post(
 </CodeGroup>
 
 <Info>
-  Ver [Crear Factura](/api-reference/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
+  Ver [Crear Factura](/api/create-invoice) para la referencia completa de campos estandar, response y codigos de error.
 </Info>

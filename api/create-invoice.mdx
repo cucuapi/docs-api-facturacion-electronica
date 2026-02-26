@@ -18,7 +18,7 @@ Crea una nueva factura electronica, la firma digitalmente, la envia al SIAT para
 
 | Campo | Tipo | Req | Descripcion |
 |-------|------|-----|-------------|
-| `invoiceType` | string | Si | Tipo de factura que determina el documento sector y modalidad. Default: `ELECTRONIC_SALE`. Ver [Documentos Sector](/api-reference/overview#tipos-de-documento-sector) para todos los valores. |
+| `invoiceType` | string | Si | Tipo de factura que determina el documento sector y modalidad. Default: `ELECTRONIC_SALE`. Ver [Documentos Sector](/api/overview#tipos-de-documento-sector) para todos los valores. |
 | `pointOfSaleId` | string | Si | UUID del punto de venta. Ejemplo: `660e8400-e29b-41d4-a716-446655440004` |
 | `clientDocumentType` | integer | Si | Tipo de documento del cliente. Valores: `1` (CI), `2` (CEX), `3` (PAS), `4` (OD), `5` (NIT) |
 | `clientDocumentNumber` | string | Si | Numero de documento del cliente (max 50 caracteres) |
