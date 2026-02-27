@@ -1,60 +1,35 @@
 ---
 title: "Referencia de Tools"
 sidebarTitle: "Tools"
-description: "Referencia completa de las 14 herramientas MCP disponibles en CUCU."
+description: "Referencia completa de las 14 herramientas MCP disponibles en CUCU. Parametros, schemas, ejemplos y codigos de error."
+---
+
+## Resumen
+
+| Herramienta | Auth | Descripcion |
+|------------|------|-------------|
+| [`crearFactura`](#crearFactura) | Si | Emitir factura electronica completa |
+| [`listarFacturas`](#listarFacturas) | Si | Listar facturas paginadas |
+| [`obtenerFactura`](#obtenerFactura) | Si | Detalle de factura por UUID |
+| [`obtenerFacturaPorCuf`](#obtenerFacturaPorCuf) | Si | Detalle de factura por CUF |
+| [`anularFactura`](#anularFactura) | Si | Anular factura ante el SIAT |
+| [`verificarEstadoFactura`](#verificarEstadoFactura) | Si | Estado actual en el SIAT |
+| [`crearNotaCreditoDebito`](#crearNotaCreditoDebito) | Si | Emitir nota credito/debito |
+| [`resumenFacturacion`](#resumenFacturacion) | Si | Dashboard de facturacion |
+| [`verificarFormatoNit`](#verificarFormatoNit) | No | Validar formato NIT |
+| [`historialCliente`](#historialCliente) | Si | Historial de facturacion por NIT |
+| [`buscarNormativa`](#buscarNormativa) | No | RAG normativa SIAT |
+| [`erroresComunesSiat`](#erroresComunesSiat) | No | Errores comunes y soluciones |
+| [`buscarContingencias`](#buscarContingencias) | No | RAG contingencias |
+| [`calcularMontoLiteral`](#calcularMontoLiteral) | No | Monto numerico a texto literal |
+
 ---
 
 ## Herramientas de Facturacion
 
-### listarFacturas
+### crearFactura {#crearFactura}
 
-Lista facturas emitidas por el tenant autenticado, paginadas y ordenadas por fecha de emision descendente.
-
-| Parametro | Tipo | Requerido | Descripcion |
-|-----------|------|-----------|-------------|
-| `page` | int | No | Pagina (inicia en 0, default: 0) |
-| `size` | int | No | Elementos por pagina (max 50, default: 10) |
-
-**Requiere autenticacion:** Si
-
-**Ejemplo de uso con AI:**
-> "Lista mis ultimas 5 facturas"
-
----
-
-### obtenerFactura
-
-Obtiene los detalles completos de una factura por UUID, incluyendo datos del cliente, montos, estado SIAT, CUF y codigo QR.
-
-| Parametro | Tipo | Requerido | Descripcion |
-|-----------|------|-----------|-------------|
-| `id` | String | Si | UUID de la factura |
-
-**Requiere autenticacion:** Si
-
-**Ejemplo:**
-> "Muestra los detalles de la factura a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-
----
-
-### obtenerFacturaPorCuf
-
-Obtiene los detalles de una factura por su CUF (Codigo Unico de Factura), el identificador unico ante el SIN.
-
-| Parametro | Tipo | Requerido | Descripcion |
-|-----------|------|-----------|-------------|
-| `cuf` | String | Si | Codigo Unico de Factura |
-
-**Requiere autenticacion:** Si
-
-**Ejemplo:**
-> "Busca la factura con CUF 2872F729450..."
-
----
-
-### crearFactura
-
-Crea y emite una factura electronica validada por el SIAT. Acepta un JSON con la estructura de `CreateInvoiceRequest`.
+Crea y emite una factura electronica validada por el SIAT. Firma digital, CUF, validacion fiscal, generacion de PDF/XML y envio de email al cliente — todo en una sola llamada.
 
 | Parametro | Tipo | Requerido | Descripcion |
 |-----------|------|-----------|-------------|
@@ -62,7 +37,11 @@ Crea y emite una factura electronica validada por el SIAT. Acepta un JSON con la
 
 **Requiere autenticacion:** Si
 
-**Estructura del JSON:**
+**Ejemplo de uso con AI:**
+> "Emite una factura a DEMO S.R.L. con NIT 99001 por Bs. 500 de servicio de desarrollo"
+
+<Expandable title="Estructura del JSON de request">
+
 ```json
 {
   "pointOfSaleId": "UUID del POS",
@@ -82,12 +61,108 @@ Crea y emite una factura electronica validada por el SIAT. Acepta un JSON con la
 }
 ```
 
-**Ejemplo:**
-> "Emite una factura a DEMO S.R.L. con NIT 99001 por Bs. 500 de servicio de desarrollo"
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| `pointOfSaleId` | UUID | Identificador del punto de venta registrado en SIAT |
+| `clientDocumentType` | int | `5` = NIT, `1` = CI, `4` = Extranjero |
+| `clientDocumentNumber` | String | Numero de documento del cliente |
+| `clientBusinessName` | String | Razon social o nombre completo |
+| `clientEmail` | String | Email para envio automatico de factura |
+| `paymentMethodCode` | int | `1` = Efectivo, `2` = Tarjeta, `6` = Transferencia |
+| `details` | Array | Lista de items (minimo 1) |
+| `details[].activityEconomic` | String | Codigo CAEB del SIN |
+| `details[].codeProductSin` | String | Codigo producto/servicio catalogo SIN |
+| `details[].description` | String | Descripcion libre del item |
+| `details[].quantity` | Number | Cantidad (acepta decimales) |
+| `details[].unitMeasure` | int | `58` = Servicio, `1` = Unidad, `57` = Pieza |
+| `details[].priceUnit` | Number | Precio unitario en bolivianos |
+
+</Expandable>
+
+<Expandable title="Estructura de la respuesta">
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "invoiceNumber": 42,
+    "cuf": "2872F7294502332E637FABFBC3654EA82202AD48E0969F14EBEB8AF74",
+    "state": "VALIDATED",
+    "clientBusinessName": "EMPRESA S.R.L.",
+    "amountTotal": 500.00,
+    "literal": "Quinientos 00/100 Bolivianos",
+    "emissionDate": "2026-02-26T12:00:00",
+    "emissionType": "NORMAL",
+    "pdfUrl": "https://sandbox.cucu.bo/api/v1/public/invoice/{cuf}/pdf",
+    "xmlUrl": "https://sandbox.cucu.bo/api/v1/public/invoice/{cuf}/xml"
+  }
+}
+```
+
+| Campo | Descripcion |
+|-------|-------------|
+| `id` | UUID interno de la factura en CUCU |
+| `invoiceNumber` | Numero secuencial dentro del punto de venta |
+| `cuf` | Codigo Unico de Facturacion — identificador ante el SIN |
+| `state` | `VALIDATED`, `REJECTED`, `ANNULLED` |
+| `amountTotal` | Monto total en bolivianos |
+| `literal` | Monto en texto literal (requerido por normativa) |
+| `emissionType` | `NORMAL` (online) o `CONTINGENCY` (offline) |
+| `pdfUrl` | URL publica para descargar el PDF |
+| `xmlUrl` | URL publica para descargar el XML firmado |
+
+</Expandable>
 
 ---
 
-### anularFactura
+### listarFacturas {#listarFacturas}
+
+Lista facturas emitidas por el tenant autenticado, paginadas y ordenadas por fecha de emision descendente.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `page` | int | No | Pagina (inicia en 0, default: 0) |
+| `size` | int | No | Elementos por pagina (max 50, default: 10) |
+
+**Requiere autenticacion:** Si
+
+**Ejemplo de uso con AI:**
+> "Lista mis ultimas 5 facturas"
+
+---
+
+### obtenerFactura {#obtenerFactura}
+
+Obtiene los detalles completos de una factura por UUID, incluyendo datos del cliente, montos, estado SIAT, CUF y codigo QR.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `id` | String | Si | UUID de la factura |
+
+**Requiere autenticacion:** Si
+
+**Ejemplo de uso con AI:**
+> "Muestra los detalles de la factura a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+
+---
+
+### obtenerFacturaPorCuf {#obtenerFacturaPorCuf}
+
+Obtiene los detalles de una factura por su CUF (Codigo Unico de Factura), el identificador unico ante el SIN.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `cuf` | String | Si | Codigo Unico de Factura |
+
+**Requiere autenticacion:** Si
+
+**Ejemplo de uso con AI:**
+> "Busca la factura con CUF 2872F729450..."
+
+---
+
+### anularFactura {#anularFactura}
 
 Anula una factura electronica emitida. La anulacion es **irreversible** ante el SIAT.
 
@@ -98,12 +173,12 @@ Anula una factura electronica emitida. La anulacion es **irreversible** ante el 
 
 **Requiere autenticacion:** Si
 
-**Ejemplo:**
+**Ejemplo de uso con AI:**
 > "Anula la factura a1b2c3d4... por error de datos"
 
 ---
 
-### verificarEstadoFactura
+### verificarEstadoFactura {#verificarEstadoFactura}
 
 Verifica el estado actual de una factura directamente con el SIAT. Estados posibles: VALIDATED, REJECTED, CANCELLED, PENDING, CONTINGENCY.
 
@@ -113,14 +188,14 @@ Verifica el estado actual de una factura directamente con el SIAT. Estados posib
 
 **Requiere autenticacion:** Si
 
-**Ejemplo:**
+**Ejemplo de uso con AI:**
 > "Verifica el estado de la factura a1b2c3d4... en el SIAT"
 
 ---
 
-### crearNotaCreditoDebito
+### crearNotaCreditoDebito {#crearNotaCreditoDebito}
 
-Crea y emite una Nota de Credito o Debito contra una factura original validada. La nota se envia al SIAT para validacion.
+Crea y emite una Nota de Credito o Debito contra una factura original validada. La nota se envia al SIAT para validacion con documento sector 24.
 
 | Parametro | Tipo | Requerido | Descripcion |
 |-----------|------|-----------|-------------|
@@ -128,7 +203,11 @@ Crea y emite una Nota de Credito o Debito contra una factura original validada. 
 
 **Requiere autenticacion:** Si
 
-**Estructura del JSON:**
+**Ejemplo de uso con AI:**
+> "Emite una nota de credito contra la factura a1b2c3d4... por devolucion de Bs. 100"
+
+<Expandable title="Estructura del JSON de request">
+
 ```json
 {
   "pointOfSaleId": "UUID del POS",
@@ -146,12 +225,19 @@ Crea y emite una Nota de Credito o Debito contra una factura original validada. 
 }
 ```
 
-**Ejemplo:**
-> "Emite una nota de credito contra la factura a1b2c3d4... por devolucion de Bs. 100"
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| `pointOfSaleId` | UUID | Punto de venta registrado en SIAT |
+| `originalInvoiceId` | UUID | Factura original contra la que se emite la nota |
+| `notaType` | String | `CREDITO` (devolucion) o `DEBITO` (cargo adicional) |
+| `paymentMethodCode` | int | Metodo de pago |
+| `returnedDetails` | Array | Items devueltos o cargados |
+
+</Expandable>
 
 ---
 
-### resumenFacturacion
+### resumenFacturacion {#resumenFacturacion}
 
 Obtiene un resumen tipo dashboard de la facturacion del tenant: total facturas, montos, estados, facturas recientes.
 
@@ -161,29 +247,14 @@ Obtiene un resumen tipo dashboard de la facturacion del tenant: total facturas, 
 
 **Requiere autenticacion:** Si
 
-**Ejemplo:**
+**Ejemplo de uso con AI:**
 > "Dame un resumen de mi facturacion"
 
 ---
 
 ## Herramientas de Utilidades SIAT
 
-### buscarNormativa
-
-Busqueda semantica (RAG) en la normativa oficial del SIAT sobre facturacion electronica boliviana.
-
-| Parametro | Tipo | Requerido | Descripcion |
-|-----------|------|-----------|-------------|
-| `consulta` | String | Si | Pregunta o termino de busqueda |
-
-**Requiere autenticacion:** No
-
-**Ejemplo:**
-> "Como funciona el CUFD segun la normativa?"
-
----
-
-### verificarFormatoNit
+### verificarFormatoNit {#verificarFormatoNit}
 
 Valida el formato de un NIT boliviano. Los NITs validos tienen 7-15 digitos. El NIT 0 es valido (consumidor final).
 
@@ -193,12 +264,12 @@ Valida el formato de un NIT boliviano. Los NITs validos tienen 7-15 digitos. El 
 
 **Requiere autenticacion:** No
 
-**Ejemplo:**
+**Ejemplo de uso con AI:**
 > "Verifica si el NIT 1023456789 es valido"
 
 ---
 
-### historialCliente
+### historialCliente {#historialCliente}
 
 Obtiene el historial de facturacion de un cliente por NIT. Muestra razon social, email, telefono y cantidad de facturas emitidas.
 
@@ -208,12 +279,27 @@ Obtiene el historial de facturacion de un cliente por NIT. Muestra razon social,
 
 **Requiere autenticacion:** Si
 
-**Ejemplo:**
+**Ejemplo de uso con AI:**
 > "Cual es el historial de facturacion del cliente con NIT 99001?"
 
 ---
 
-### erroresComunesSiat
+### buscarNormativa {#buscarNormativa}
+
+Busqueda semantica (RAG) en la normativa oficial del SIAT sobre facturacion electronica boliviana.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `consulta` | String | Si | Pregunta o termino de busqueda |
+
+**Requiere autenticacion:** No
+
+**Ejemplo de uso con AI:**
+> "Como funciona el CUFD segun la normativa?"
+
+---
+
+### erroresComunesSiat {#erroresComunesSiat}
 
 Lista los errores mas comunes del SIAT con sus codigos, descripciones y soluciones recomendadas.
 
@@ -223,12 +309,12 @@ Lista los errores mas comunes del SIAT con sus codigos, descripciones y solucion
 
 **Requiere autenticacion:** No
 
-**Ejemplo:**
+**Ejemplo de uso con AI:**
 > "Cuales son los errores mas comunes del SIAT?"
 
 ---
 
-### buscarContingencias
+### buscarContingencias {#buscarContingencias}
 
 Busqueda semantica (RAG) en el historial de contingencias y eventos significativos. Encuentra caidas del SIAT, puntos de venta con problemas, duracion y patrones.
 
@@ -238,12 +324,12 @@ Busqueda semantica (RAG) en el historial de contingencias y eventos significativ
 
 **Requiere autenticacion:** No
 
-**Ejemplo:**
+**Ejemplo de uso con AI:**
 > "Cuantas caidas del SIAT hubo este mes?"
 
 ---
 
-### calcularMontoLiteral
+### calcularMontoLiteral {#calcularMontoLiteral}
 
 Convierte un monto numerico a su representacion en texto literal (requerido por el SIAT en cada factura).
 
@@ -255,26 +341,72 @@ Convierte un monto numerico a su representacion en texto literal (requerido por 
 
 **Retorno ejemplo:** `"Quinientos 50/100 Bolivianos"`
 
-**Ejemplo:**
+**Ejemplo de uso con AI:**
 > "Convierte 1500.75 a texto literal"
 
 ---
 
-## Resumen
+## Conceptos clave
 
-| Herramienta | Auth | Descripcion corta |
-|------------|------|-------------------|
-| `listarFacturas` | Si | Listar facturas paginadas |
-| `obtenerFactura` | Si | Detalle por UUID |
-| `obtenerFacturaPorCuf` | Si | Detalle por CUF |
-| `crearFactura` | Si | Emitir factura |
-| `anularFactura` | Si | Anular factura |
-| `verificarEstadoFactura` | Si | Estado SIAT |
-| `crearNotaCreditoDebito` | Si | Emitir nota credito/debito |
-| `resumenFacturacion` | Si | Dashboard facturacion |
-| `buscarNormativa` | No | RAG normativa SIAT |
-| `verificarFormatoNit` | No | Validar formato NIT |
-| `historialCliente` | Si | Historial por NIT |
-| `erroresComunesSiat` | No | Errores comunes |
-| `buscarContingencias` | No | RAG contingencias |
-| `calcularMontoLiteral` | No | Monto a literal |
+<AccordionGroup>
+  <Accordion title="CUF — Codigo Unico de Facturacion">
+    El CUF es un codigo alfanumerico de ~50 caracteres generado por el SIAT que identifica univocamente
+    cada factura electronica ante el SIN. Es el equivalente a un "DNI" de la factura.
+
+    - Se genera al momento de emision y no cambia
+    - Es necesario para anulaciones, consultas y descargas publicas
+    - Los endpoints publicos `/public/invoice/{cuf}/pdf` y `/public/invoice/{cuf}/xml` usan el CUF como identificador
+    - Ejemplo: `2872F7294502332E637FABFBC3654EA82202AD48E0969F14EBEB8AF74`
+  </Accordion>
+
+  <Accordion title="Contingencia — Facturacion offline">
+    Cuando el SIAT no esta disponible (caida, mantenimiento, problemas de red), CUCU activa
+    el modo contingencia automaticamente:
+
+    1. La factura se emite localmente con un CUF temporal
+    2. Se almacena en la base de datos con estado `CONTINGENCY`
+    3. Cuando el SIAT vuelve, CUCU sincroniza automaticamente las facturas pendientes
+    4. El CUF temporal se reemplaza por el CUF definitivo del SIAT
+
+    El AI no necesita hacer nada especial — la contingencia es transparente.
+  </Accordion>
+
+  <Accordion title="NIT — Formato y validacion">
+    El NIT (Numero de Identificacion Tributaria) boliviano tiene estas reglas:
+
+    - **Longitud:** 7 a 15 digitos (solo numeros)
+    - **NIT 0:** Valido — representa "consumidor final" (Sin nombre)
+    - **Validacion:** Usa `verificarFormatoNit` antes de emitir para evitar rechazos del SIAT
+    - **Documento tipo 5:** En `clientDocumentType`, el valor `5` = NIT
+    - Los NITs se validan contra el algoritmo oficial del SIN (modulo 11)
+  </Accordion>
+
+  <Accordion title="Codigos de producto SIN">
+    Cada item en una factura requiere un `codeProductSin` del catalogo oficial del SIN.
+    Ejemplos comunes:
+
+    | Codigo | Descripcion |
+    |--------|-------------|
+    | `83141` | Servicios de consultoria en tecnologia |
+    | `86101` | Servicios de consultoria en gestion |
+    | `46211` | Venta de software |
+    | `73119` | Servicios de publicidad |
+    | `85960` | Servicios de capacitacion |
+
+    Usa la herramienta `buscarNormativa` para consultar codigos especificos.
+  </Accordion>
+
+  <Accordion title="Unidades de medida SIAT">
+    El campo `unitMeasure` usa codigos numericos del catalogo SIN:
+
+    | Codigo | Descripcion |
+    |--------|-------------|
+    | `1` | Unidad |
+    | `2` | Kilogramo |
+    | `14` | Metro |
+    | `57` | Pieza |
+    | `58` | Servicio |
+
+    La unidad mas comun para servicios es `58`. Para productos fisicos, usa la unidad que corresponda.
+  </Accordion>
+</AccordionGroup>

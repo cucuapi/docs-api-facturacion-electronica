@@ -1,0 +1,268 @@
+---
+title: "MCP Avanzado"
+sidebarTitle: "Avanzado"
+description: "Produccion, dual environments, autenticacion, protocolos de transporte, clientes custom y troubleshooting."
+---
+
+## Pasar a produccion
+
+Cuando estes listo para emitir facturas reales, solo necesitas cambiar dos cosas en tu configuracion MCP:
+
+<Steps>
+  <Step title="Cambia la URL">
+    Reemplaza `sandbox.cucu.bo` por `api.cucu.bo`:
+
+    ```diff
+    - "url": "https://sandbox.cucu.bo/mcp"
+    + "url": "https://api.cucu.bo/mcp"
+    ```
+  </Step>
+  <Step title="Cambia la API Key">
+    Reemplaza tu key sandbox (`sk_test_...`) por tu key de produccion (`sk_live_...`):
+
+    ```diff
+    - "X-API-Key": "sk_test_..."
+    + "X-API-Key": "sk_live_..."
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+  **Las facturas en produccion son fiscalmente validas.** Se registran ante el SIN y tienen
+  efecto tributario real. Asegurate de haber completado:
+
+  - Registro de tu NIT y certificado digital (.pfx) en el dashboard
+  - Sincronizacion de catalogos SIAT de produccion
+  - Configuracion de sucursal(es) y punto(s) de venta reales
+  - Pruebas exhaustivas en sandbox antes de migrar
+</Warning>
+
+---
+
+## Dual environments
+
+Puedes ejecutar sandbox y produccion en paralelo desde el mismo editor. Solo necesitas nombrar los servidores diferente:
+
+```json claude_desktop_config.json
+{
+  "mcpServers": {
+    "cucu-sandbox": {
+      "url": "https://sandbox.cucu.bo/mcp",
+      "headers": {
+        "X-API-Key": "sk_test_..."
+      }
+    },
+    "cucu-produccion": {
+      "url": "https://api.cucu.bo/mcp",
+      "headers": {
+        "X-API-Key": "sk_live_..."
+      }
+    }
+  }
+}
+```
+
+Cuando le pidas al AI emitir una factura, especifica cual ambiente usar:
+- _"Emite una factura de prueba en sandbox"_ → usa `cucu-sandbox`
+- _"Emite una factura real en produccion"_ → usa `cucu-produccion`
+
+<Tip>
+  El AI distingue entre ambos servidores por nombre. Si nombras uno `cucu-sandbox` y otro `cucu-produccion`,
+  el modelo sabra cual usar segun el contexto de tu instruccion.
+</Tip>
+
+---
+
+## Autenticacion
+
+El MCP Server usa **exactamente la misma autenticacion** que la API REST: el header `X-API-Key`.
+
+Cada request MCP se autentica y ejecuta dentro del contexto del tenant asociado a tu API Key. Esto significa:
+
+- **Aislamiento total** — Tu AI solo puede acceder a los datos de tu tenant (empresas, sucursales, facturas)
+- **Mismos permisos** — Los permisos de la API Key aplican igual en MCP y REST
+- **Misma key** — No necesitas una key separada para MCP; la misma key funciona en ambos canales
+- **Auditoria** — Todas las operaciones MCP se registran en el log de actividad de tu tenant
+
+```
+Header requerido en cada request:
+X-API-Key: sk_test_Tu_API_Key_Aqui
+```
+
+<Warning>
+  **Nunca compartas tu API Key.** Si configuras MCP en un equipo compartido, cada desarrollador
+  debe usar su propia key. Las keys comprometidas pueden revocarse desde el dashboard en
+  [app.cucu.bo](https://app.cucu.bo).
+</Warning>
+
+---
+
+## Protocolos de transporte
+
+El MCP Server de CUCU soporta dos protocolos:
+
+### Streamable HTTP (recomendado)
+
+El protocolo estandar de MCP. Un solo endpoint HTTP que maneja requests y responses.
+
+| Propiedad | Valor |
+|-----------|-------|
+| **Endpoint sandbox** | `https://sandbox.cucu.bo/mcp` |
+| **Endpoint produccion** | `https://api.cucu.bo/mcp` |
+| **Metodo** | `POST` |
+| **Content-Type** | `application/json` |
+| **Clientes** | Claude Desktop, Cursor, Windsurf, VS Code, Claude Code |
+
+### Legacy SSE (Server-Sent Events)
+
+Protocolo de compatibilidad para clientes que aun no soportan Streamable HTTP.
+
+| Propiedad | Valor |
+|-----------|-------|
+| **Endpoint sandbox** | `https://sandbox.cucu.bo/mcp/sse` |
+| **Endpoint produccion** | `https://api.cucu.bo/mcp/sse` |
+| **Clientes** | Continue.dev, clientes legacy |
+
+<Note>
+  **Streamable HTTP** es el protocolo recomendado. Es mas eficiente, tiene mejor manejo de errores
+  y es soportado por todos los clientes modernos.
+  El endpoint SSE existe por compatibilidad con clientes legacy como versiones antiguas de Continue.dev.
+</Note>
+
+---
+
+## Clientes custom
+
+Cualquier aplicacion que implemente el protocolo MCP puede conectarse al servidor de CUCU. Lo minimo que necesitas:
+
+1. **Endpoint:** `POST https://sandbox.cucu.bo/mcp` (o `api.cucu.bo` para produccion)
+2. **Header:** `X-API-Key: tu_api_key`
+3. **Protocolo:** JSON-RPC 2.0 sobre HTTP (Streamable HTTP) o SSE
+
+Ejemplo de handshake inicial:
+
+```json
+// Request: initialize
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2025-03-26",
+    "capabilities": {},
+    "clientInfo": {
+      "name": "mi-cliente-custom",
+      "version": "1.0.0"
+    }
+  }
+}
+```
+
+```json
+// Request: tools/list
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/list"
+}
+```
+
+```json
+// Request: tools/call
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "verificarFormatoNit",
+    "arguments": {
+      "nit": "1023456789"
+    }
+  }
+}
+```
+
+<Tip>
+  Consulta la [especificacion MCP](https://modelcontextprotocol.io/specification) para detalles
+  completos del protocolo JSON-RPC.
+</Tip>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Error: Invalid API Key / 401 Unauthorized">
+    **Causa:** La API Key es invalida, esta expirada o no se esta enviando correctamente.
+
+    **Solucion:**
+    1. Verifica que la key comience con `sk_test_` (sandbox) o `sk_live_` (produccion)
+    2. Asegurate de que el header se llame exactamente `X-API-Key` (con mayusculas)
+    3. Verifica que no haya espacios en blanco al inicio o final de la key
+    4. Genera una nueva key desde [app.cucu.bo](https://app.cucu.bo) si es necesario
+  </Accordion>
+
+  <Accordion title="Error: Connection refused / ECONNREFUSED">
+    **Causa:** El cliente no puede conectarse al servidor MCP.
+
+    **Solucion:**
+    1. Verifica tu conexion a internet
+    2. Confirma que la URL sea correcta: `https://sandbox.cucu.bo/mcp` (no HTTP, no trailing slash extra)
+    3. Si usas VPN o proxy corporativo, verifica que no bloquee conexiones a `*.cucu.bo`
+    4. Prueba acceder a `https://sandbox.cucu.bo/health` desde tu navegador para confirmar que el servidor esta disponible
+  </Accordion>
+
+  <Accordion title="Error: CORS / Blocked by browser policy">
+    **Causa:** Algunos clientes MCP basados en web pueden tener restricciones CORS.
+
+    **Solucion:**
+    El MCP Server de CUCU permite CORS desde todos los origenes para clientes MCP. Si ves este error:
+    1. Asegurate de usar la URL `/mcp` y no `/api/v1/...` (son endpoints diferentes)
+    2. Actualiza tu cliente MCP a la ultima version
+    3. Si usas un cliente custom, verifica que envie los headers correctos
+  </Accordion>
+
+  <Accordion title="Error: Timeout / La herramienta tarda demasiado">
+    **Causa:** Algunas operaciones como `crearFactura` dependen del tiempo de respuesta del SIAT.
+
+    **Solucion:**
+    1. El SIAT piloto puede tardar hasta 10 segundos en horas pico — esto es normal
+    2. Si el timeout persiste, usa `verificarComunicacion` para diagnosticar el estado del SIAT
+    3. Aumenta el timeout de tu cliente MCP si es configurable (recomendado: 30 segundos)
+    4. Si el SIAT esta caido, CUCU activara contingencia automaticamente en la siguiente llamada
+  </Accordion>
+
+  <Accordion title="Las herramientas no aparecen en mi cliente">
+    **Causa:** El cliente MCP no detecto el servidor o no completo el handshake.
+
+    **Solucion:**
+    1. Reinicia tu editor completamente (no solo recargar la ventana)
+    2. Verifica que el archivo de configuracion este en la ubicacion correcta para tu cliente
+    3. Revisa que el JSON sea valido (sin comas finales, sin comillas faltantes)
+    4. En Claude Desktop, verifica el log en: `~/Library/Logs/Claude/mcp*.log` (macOS)
+    5. En Cursor, revisa el panel de MCP para ver mensajes de error
+  </Accordion>
+
+  <Accordion title="Error: Wrong URL format / serverUrl vs url">
+    **Causa:** Cada cliente MCP usa un formato de configuracion ligeramente diferente.
+
+    **Solucion:**
+    Verifica que uses la propiedad correcta para tu cliente:
+    - **Claude Desktop:** `"url"` dentro de `"mcpServers"`
+    - **Cursor:** `"url"` dentro de `"mcpServers"`
+    - **Windsurf:** `"serverUrl"` (no `"url"`) dentro de `"mcpServers"`
+    - **VS Code:** `"url"` dentro de `"servers"` con `"type": "http"`
+    - **Claude Code:** `"url"` dentro de `"mcpServers"` con `"type": "url"`
+  </Accordion>
+</AccordionGroup>
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Referencia de Tools" icon="wrench" href="/mcp/tools">
+    Documentacion detallada de las 14 herramientas: parametros, schemas y ejemplos.
+  </Card>
+  <Card title="API REST" icon="code" href="/api/overview">
+    Si prefieres integracion REST tradicional, consulta la referencia completa de endpoints.
+  </Card>
+</CardGroup>

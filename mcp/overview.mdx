@@ -1,7 +1,7 @@
 ---
 title: "MCP Server"
-sidebarTitle: "Introduccion"
-description: "Conecta Claude, Cursor o cualquier AI directamente a facturacion electronica. El futuro de la integracion."
+sidebarTitle: "Overview"
+description: "Conecta Claude, Cursor o cualquier AI directamente a facturacion electronica boliviana. 14 herramientas MCP, lenguaje natural, zero codigo."
 ---
 
 <div style={{textAlign: 'center', marginBottom: '8px'}}>
@@ -32,9 +32,7 @@ description: "Conecta Claude, Cursor o cualquier AI directamente a facturacion e
 
 ---
 
-## Que es MCP?
-
-El **Model Context Protocol** es un estandar abierto creado por [Anthropic](https://anthropic.com) que permite a los modelos de AI interactuar con herramientas externas de forma segura y tipada.
+## Como funciona
 
 <Steps>
   <Step title="Tu le pides al AI en lenguaje natural">
@@ -147,35 +145,35 @@ El **Model Context Protocol** es un estandar abierto creado por [Anthropic](http
 El ciclo completo de facturacion electronica en 8 herramientas.
 
 <CardGroup cols={2}>
-  <Card title="crearFactura" icon="file-invoice">
+  <Card title="crearFactura" icon="file-invoice" href="/mcp/tools#crearFactura">
     Emite una factura electronica completa. Firma digital, CUF, validacion SIAT,
     PDF/XML y email al cliente. Soporta contingencia automatica.
   </Card>
-  <Card title="listarFacturas" icon="list">
+  <Card title="listarFacturas" icon="list" href="/mcp/tools#listarFacturas">
     Lista facturas con filtros por fecha, estado, NIT, numero.
     Paginacion incluida. Ideal para reportes y conciliaciones.
   </Card>
-  <Card title="obtenerFactura" icon="magnifying-glass">
+  <Card title="obtenerFactura" icon="magnifying-glass" href="/mcp/tools#obtenerFactura">
     Detalle completo de una factura: datos fiscales, CUF, estado SIAT,
     items, montos, impuestos y metadata.
   </Card>
-  <Card title="anularFactura" icon="ban">
+  <Card title="anularFactura" icon="ban" href="/mcp/tools#anularFactura">
     Anula una factura ante el SIAT con motivo del catalogo SIN.
     Registra la anulacion y notifica al cliente.
   </Card>
-  <Card title="obtenerFacturaPorCuf" icon="qrcode">
+  <Card title="obtenerFacturaPorCuf" icon="qrcode" href="/mcp/tools#obtenerFacturaPorCuf">
     Obtiene una factura por su CUF (Codigo Unico de Factura),
     el identificador unico ante el SIN.
   </Card>
-  <Card title="verificarEstadoFactura" icon="circle-check">
+  <Card title="verificarEstadoFactura" icon="circle-check" href="/mcp/tools#verificarEstadoFactura">
     Verifica el estado actual de una factura directamente con el SIAT.
     Estados: VALIDATED, REJECTED, CANCELLED, PENDING, CONTINGENCY.
   </Card>
-  <Card title="crearNotaCreditoDebito" icon="file-circle-minus">
+  <Card title="crearNotaCreditoDebito" icon="file-circle-minus" href="/mcp/tools#crearNotaCreditoDebito">
     Emite nota de credito o debito contra una factura validada.
     Devoluciones parciales o totales con validacion SIAT sector 24.
   </Card>
-  <Card title="resumenFacturacion" icon="chart-pie">
+  <Card title="resumenFacturacion" icon="chart-pie" href="/mcp/tools#resumenFacturacion">
     Dashboard de facturacion: total facturas, montos, estados,
     facturas recientes y metricas del periodo.
   </Card>
@@ -186,27 +184,27 @@ El ciclo completo de facturacion electronica en 8 herramientas.
 Herramientas de soporte para operaciones fiscales y diagnostico.
 
 <CardGroup cols={2}>
-  <Card title="verificarFormatoNit" icon="check-double">
+  <Card title="verificarFormatoNit" icon="check-double" href="/mcp/tools#verificarFormatoNit">
     Valida formato NIT segun algoritmo del SIN. Detecta errores
     de digitacion antes de emitir factura.
   </Card>
-  <Card title="historialCliente" icon="clock-rotate-left">
+  <Card title="historialCliente" icon="clock-rotate-left" href="/mcp/tools#historialCliente">
     Historial de facturacion de un cliente por NIT. Razon social,
     email, telefono y cantidad de facturas emitidas.
   </Card>
-  <Card title="buscarNormativa" icon="book-open">
+  <Card title="buscarNormativa" icon="book-open" href="/mcp/tools#buscarNormativa">
     Busqueda semantica (RAG) en normativa tributaria SIAT.
     Responde preguntas sobre regulaciones y requisitos fiscales.
   </Card>
-  <Card title="erroresComunesSiat" icon="circle-exclamation">
+  <Card title="erroresComunesSiat" icon="circle-exclamation" href="/mcp/tools#erroresComunesSiat">
     Lista errores frecuentes del SIAT con codigos, descripciones
     y soluciones recomendadas.
   </Card>
-  <Card title="buscarContingencias" icon="tower-broadcast">
+  <Card title="buscarContingencias" icon="tower-broadcast" href="/mcp/tools#buscarContingencias">
     Busqueda RAG en historial de contingencias. Caidas SIAT,
     duracion, patrones y puntos de venta afectados.
   </Card>
-  <Card title="calcularMontoLiteral" icon="spell-check">
+  <Card title="calcularMontoLiteral" icon="spell-check" href="/mcp/tools#calcularMontoLiteral">
     Convierte un monto numerico a texto literal en bolivianos.
     Requerido por normativa SIAT en cada factura.
   </Card>
@@ -279,6 +277,15 @@ Asi se ve una sesion real usando MCP desde Claude Desktop:
 
 ---
 
+## Endpoints
+
+| Protocolo | Sandbox | Produccion | Recomendado |
+|-----------|---------|------------|-------------|
+| **Streamable HTTP** | `https://sandbox.cucu.bo/mcp` | `https://api.cucu.bo/mcp` | Si — todos los clientes modernos |
+| **Legacy SSE** | `https://sandbox.cucu.bo/mcp/sse` | `https://api.cucu.bo/mcp/sse` | Solo si tu cliente no soporta Streamable HTTP |
+
+---
+
 ## Clientes compatibles
 
 | Cliente | Plataforma | Protocolo | Estado |
@@ -291,23 +298,22 @@ Asi se ve una sesion real usando MCP desde Claude Desktop:
 | **Continue.dev** | VS Code, JetBrains | SSE | Soportado |
 | **Clientes custom** | Cualquiera | Streamable HTTP / SSE | Soportado |
 
-<Tip>
-  Si tu cliente solo soporta SSE (legacy), usa el endpoint `/mcp/sse` en lugar de `/mcp`.
-  Ambos protocolos usan la misma autenticacion y herramientas.
-</Tip>
-
 ---
 
 ## Siguiente paso
 
-<CardGroup cols={2}>
-  <Card title="Configurar MCP" icon="gear" href="/mcp/setup">
-    Conecta Claude Desktop, Cursor, Windsurf, VS Code o Claude Code
-    al MCP Server. **Listo en 2 minutos.**
+<CardGroup cols={3}>
+  <Card title="Quickstart" icon="rocket" href="/mcp/quickstart">
+    Conecta tu editor al MCP Server en 2 minutos.
+    Paso a paso para 5 clientes.
   </Card>
-  <Card title="Referencia de herramientas" icon="wrench" href="/mcp/tools">
-    Documentacion detallada de las 14 herramientas: parametros,
-    schemas, codigos de error y ejemplos reales.
+  <Card title="Referencia de Tools" icon="wrench" href="/mcp/tools">
+    Documentacion detallada de las 14 herramientas:
+    parametros, schemas y ejemplos.
+  </Card>
+  <Card title="Avanzado" icon="gear" href="/mcp/advanced">
+    Produccion, dual environments, troubleshooting
+    y clientes custom.
   </Card>
 </CardGroup>
 

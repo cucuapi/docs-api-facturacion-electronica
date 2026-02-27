@@ -136,9 +136,16 @@
       {
         "tab": "MCP",
         "icon": "microchip",
-        "pages": [
-          "mcp/setup",
-          "mcp/tools"
+        "groups": [
+          {
+            "group": "MCP Server",
+            "pages": [
+              "mcp/overview",
+              "mcp/quickstart",
+              "mcp/tools",
+              "mcp/advanced"
+            ]
+          }
         ]
       },
       {
@@ -184,7 +191,11 @@
     },
     {
       "source": "/mcp/introduction",
-      "destination": "/mcp/setup"
+      "destination": "/mcp/overview"
+    },
+    {
+      "source": "/mcp/setup",
+      "destination": "/mcp/quickstart"
     },
     {
       "source": "/api-reference/:slug*",

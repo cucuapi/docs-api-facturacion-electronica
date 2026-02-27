@@ -168,7 +168,7 @@ background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 8px 24px rgba(99
     hdr.className = 'hdr';
     hdr.innerHTML = '<img src="/logo/cucu-prefer-saluda.gif" alt="CUCU te saluda"/>' +
       '<h3>Empieza a facturar hoy</h3>' +
-      '<p>Elige tu plan. Sandbox gratis, produccion desde Bs. 280/mes</p>';
+      '<p>Elige tu plan. Sandbox incluido, produccion desde Bs. 280/mes</p>';
     el.appendChild(hdr);
 
     var plans = document.createElement('div');
@@ -188,8 +188,8 @@ background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 8px 24px rgba(99
 
     var ftr = document.createElement('div');
     ftr.className = 'ftr';
-    ftr.innerHTML = '<a href="https://app.cucu.bo/signup">Obtener API Key gratuita &rarr;</a>' +
-      '<div class="sub">Sin tarjeta de credito &middot; Sandbox ilimitado</div>';
+    ftr.innerHTML = '<a href="https://app.cucu.bo/signup">Activar Plan &rarr;</a>' +
+      '<div class="sub">Sandbox de desarrollo incluido</div>';
     el.appendChild(ftr);
 
     return el;
@@ -230,7 +230,7 @@ background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 8px 24px rgba(99
     mhdr.className = 'mhdr';
     mhdr.innerHTML = '<img src="/logo/cucu-prefer-saluda.gif" alt="CUCU"/>' +
       '<h3>Empieza a facturar hoy</h3>' +
-      '<p>Sandbox gratis, produccion desde Bs. 280/mes</p>';
+      '<p>Sandbox incluido, produccion desde Bs. 280/mes</p>';
     sh.appendChild(mhdr);
 
     PLANS.forEach(function (p) {
@@ -247,8 +247,8 @@ background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 8px 24px rgba(99
 
     var mftr = document.createElement('div');
     mftr.className = 'mftr';
-    mftr.innerHTML = '<a href="https://app.cucu.bo/signup">Obtener API Key &rarr;</a>' +
-      '<div class="sub">Sin tarjeta &middot; Sandbox ilimitado</div>';
+    mftr.innerHTML = '<a href="https://app.cucu.bo/signup">Activar Plan &rarr;</a>' +
+      '<div class="sub">Sandbox de desarrollo incluido</div>';
     sh.appendChild(mftr);
 
     ov.appendChild(sh);
