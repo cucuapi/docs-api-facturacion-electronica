@@ -7,9 +7,9 @@
 
   var API = 'https://app.cucu.bo/api/public/plans?serviceType=API';
   var PLANS = [
-    { name: 'Junior', price: 'Bs. 280', per: 'Bs. 0.98/factura', popular: false, url: 'https://app.cucu.bo/checkout?plan=junior&billing=monthly' },
-    { name: 'Semi-Senior', price: 'Bs. 350', per: 'Bs. 0.52/factura', popular: false, url: 'https://app.cucu.bo/checkout?plan=semi-senior&billing=monthly' },
-    { name: 'Senior', price: 'Bs. 420', per: 'Bs. 0.35/factura', popular: true, url: 'https://app.cucu.bo/checkout?plan=senior&billing=monthly' }
+    { name: 'Junior', price: 'Bs. 280', per: 'Bs. 0.98/factura', popular: false, url: 'https://app.cucu.bo/checkout?plan=api-junior&billing=monthly' },
+    { name: 'Semi-Senior', price: 'Bs. 350', per: 'Bs. 0.52/factura', popular: false, url: 'https://app.cucu.bo/checkout?plan=api-semi-senior&billing=monthly' },
+    { name: 'Senior', price: 'Bs. 420', per: 'Bs. 0.35/factura', popular: true, url: 'https://app.cucu.bo/checkout?plan=api-senior&billing=monthly' }
   ];
 
   function fetchPricing() {
@@ -23,7 +23,7 @@
               price: p.formattedPrices ? p.formattedPrices.monthly : ('Bs. ' + p.prices.monthly),
               per: p.formattedPrices ? (p.formattedPrices.usage + '/factura') : ('Bs. ' + p.usagePrice + '/factura'),
               popular: p.isPopular,
-              url: 'https://app.cucu.bo/checkout?plan=' + p.slug + '&billing=monthly'
+              url: 'https://app.cucu.bo/checkout?plan=api-' + p.slug + '&billing=monthly'
             };
           });
         }
@@ -188,7 +188,7 @@ background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 8px 24px rgba(99
 
     var ftr = document.createElement('div');
     ftr.className = 'ftr';
-    ftr.innerHTML = '<a href="https://app.cucu.bo/signup">Activar Plan &rarr;</a>' +
+    ftr.innerHTML = '<a href="https://app.cucu.bo/checkout?plan=api-senior&billing=monthly">Activar Plan &rarr;</a>' +
       '<div class="sub">Sandbox de desarrollo incluido</div>';
     el.appendChild(ftr);
 
@@ -247,7 +247,7 @@ background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 8px 24px rgba(99
 
     var mftr = document.createElement('div');
     mftr.className = 'mftr';
-    mftr.innerHTML = '<a href="https://app.cucu.bo/signup">Activar Plan &rarr;</a>' +
+    mftr.innerHTML = '<a href="https://app.cucu.bo/checkout?plan=api-senior&billing=monthly">Activar Plan &rarr;</a>' +
       '<div class="sub">Sandbox de desarrollo incluido</div>';
     sh.appendChild(mftr);
 

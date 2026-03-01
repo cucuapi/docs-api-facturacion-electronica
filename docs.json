@@ -21,7 +21,7 @@
   ],
   "topbarCtaButton": {
     "name": "Activar Plan",
-    "url": "https://app.cucu.bo/signup",
+    "url": "https://app.cucu.bo/checkout?plan=api-senior&billing=monthly",
     "style": "roundedRectangle"
   },
   "navigation": {
