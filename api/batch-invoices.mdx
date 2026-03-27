@@ -1,0 +1,111 @@
+---
+title: "Crear Facturas en Lote"
+sidebarTitle: "Batch"
+description: "Crea multiples facturas en una sola llamada. Maximo 20 facturas por request."
+api: "POST /api/v1/invoices/batch"
+---
+
+## Creacion masiva de facturas
+
+Emite hasta 20 facturas en una sola llamada. Cada factura se procesa de forma independiente — si una falla, las demas continuan (exito parcial).
+
+### Request
+
+```bash
+curl -X POST "https://sandbox.cucu.bo/api/v1/invoices/batch" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "invoices": [
+      {
+        "pointOfSaleId": "POS_UUID",
+        "clientDocumentType": 5,
+        "clientDocumentNumber": "123456789",
+        "clientBusinessName": "CLIENTE A S.R.L.",
+        "paymentMethodCode": 1,
+        "details": [{
+          "activityCode": "620100",
+          "sinProductCode": 83141,
+          "description": "Servicio A",
+          "quantity": 1,
+          "unitMeasure": 58,
+          "unitPrice": 200.00,
+          "discount": 0
+        }]
+      },
+      {
+        "pointOfSaleId": "POS_UUID",
+        "clientDocumentType": 5,
+        "clientDocumentNumber": "987654321",
+        "clientBusinessName": "CLIENTE B S.R.L.",
+        "paymentMethodCode": 1,
+        "details": [{
+          "activityCode": "620100",
+          "sinProductCode": 83141,
+          "description": "Servicio B",
+          "quantity": 2,
+          "unitMeasure": 58,
+          "unitPrice": 150.00,
+          "discount": 0
+        }]
+      }
+    ]
+  }'
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "total": 2,
+    "successful": 2,
+    "failed": 0,
+    "results": [
+      {
+        "index": 0,
+        "success": true,
+        "invoiceId": "uuid-1",
+        "invoiceNumber": 43,
+        "cuf": "ABC123..."
+      },
+      {
+        "index": 1,
+        "success": true,
+        "invoiceId": "uuid-2",
+        "invoiceNumber": 44,
+        "cuf": "DEF456..."
+      }
+    ]
+  }
+}
+```
+
+### Limites
+
+| Parametro | Valor |
+|-----------|-------|
+| Maximo facturas por request | 20 |
+| Timeout por factura | 30 segundos |
+| Comportamiento en error | Exito parcial (las exitosas se emiten, las fallidas se reportan) |
+
+### Ejemplo con error parcial
+
+```json
+{
+  "success": true,
+  "data": {
+    "total": 3,
+    "successful": 2,
+    "failed": 1,
+    "results": [
+      {"index": 0, "success": true, "invoiceId": "uuid-1", "invoiceNumber": 43},
+      {"index": 1, "success": false, "error": "NIT invalido: ABC"},
+      {"index": 2, "success": true, "invoiceId": "uuid-3", "invoiceNumber": 44}
+    ]
+  }
+}
+```
+
+> Las facturas exitosas se emiten ante el SIAT independientemente de las fallidas. No hay rollback global.

@@ -60,12 +60,15 @@
             "pages": [
               "api/create-invoice",
               "api/list-invoices",
+              "api/search-invoices",
               "api/get-invoice",
               "api/cancel-invoice",
               "api/credit-note",
               "api/cancel-note",
               "api/invoice-status",
-              "api/resend-email"
+              "api/batch-invoices",
+              "api/resend-email",
+              "api/dashboard"
             ]
           },
           {

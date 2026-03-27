@@ -1,7 +1,7 @@
 ---
 title: "Referencia de Tools"
 sidebarTitle: "Tools"
-description: "Referencia completa de las 14 herramientas MCP disponibles en CUCU. Parametros, schemas, ejemplos y codigos de error."
+description: "Referencia completa de las 15 herramientas MCP disponibles en CUCU. Parametros, schemas, ejemplos y codigos de error."
 ---
 
 ## Resumen
@@ -16,6 +16,7 @@ description: "Referencia completa de las 14 herramientas MCP disponibles en CUCU
 | [`verificarEstadoFactura`](#verificarEstadoFactura) | Si | Estado actual en el SIAT |
 | [`crearNotaCreditoDebito`](#crearNotaCreditoDebito) | Si | Emitir nota credito/debito |
 | [`resumenFacturacion`](#resumenFacturacion) | Si | Dashboard de facturacion |
+| [`descargarDocumento`](#descargarDocumento) | Si | Descargar PDF, ticket o XML como base64 |
 | [`verificarFormatoNit`](#verificarFormatoNit) | No | Validar formato NIT |
 | [`historialCliente`](#historialCliente) | Si | Historial de facturacion por NIT |
 | [`buscarNormativa`](#buscarNormativa) | No | RAG normativa SIAT |
@@ -249,6 +250,47 @@ Obtiene un resumen tipo dashboard de la facturacion del tenant: total facturas, 
 
 **Ejemplo de uso con AI:**
 > "Dame un resumen de mi facturacion"
+
+---
+
+### descargarDocumento {#descargarDocumento}
+
+Descarga el PDF (A4 o ticket) o XML de una factura como contenido base64. Busca primero en S3 (CDN), si no existe genera el documento al vuelo.
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `cuf` | String | Si | Codigo Unico de Factura |
+| `formato` | String | Si | `a4` (PDF A4), `ticket` (PDF 80mm) o `xml` |
+
+**Requiere autenticacion:** Si
+
+**Ejemplo de uso con AI:**
+> "Descarga el PDF de la factura con CUF 2872F729..."
+
+<Expandable title="Estructura de la respuesta">
+
+```json
+{
+  "success": true,
+  "invoiceNumber": 42,
+  "cuf": "2872F729...",
+  "formato": "a4",
+  "fileName": "factura_591164023_42.pdf",
+  "mimeType": "application/pdf",
+  "sizeBytes": 45230,
+  "contentBase64": "JVBERi0xLjQK..."
+}
+```
+
+| Campo | Descripcion |
+|-------|-------------|
+| `formato` | Formato solicitado: `a4`, `ticket` o `xml` |
+| `fileName` | Nombre sugerido para guardar el archivo |
+| `mimeType` | `application/pdf` o `application/xml` |
+| `sizeBytes` | Tamano del documento en bytes |
+| `contentBase64` | Contenido del documento codificado en base64 |
+
+</Expandable>
 
 ---
 

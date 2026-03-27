@@ -1,0 +1,70 @@
+---
+title: "Buscar Facturas"
+sidebarTitle: "Buscar"
+description: "Busca facturas con filtros avanzados: estado, fechas, cliente, numero de factura."
+api: "GET /api/v1/invoices/search"
+---
+
+## Busqueda avanzada de facturas
+
+Busca facturas usando filtros combinados. Retorna resultados paginados ordenados por fecha de emision descendente.
+
+### Request
+
+```bash
+curl "https://sandbox.cucu.bo/api/v1/invoices/search?state=VALIDATED&from=2026-01-01&to=2026-03-31&page=0&size=20" \
+  -H "X-API-Key: YOUR_API_KEY"
+```
+
+### Parametros de query
+
+| Parametro | Tipo | Requerido | Descripcion |
+|-----------|------|-----------|-------------|
+| `state` | String | No | Filtrar por estado: `VALIDATED`, `CANCELLED`, `OFFLINE_PENDING`, `REJECTED` |
+| `from` | String | No | Fecha inicio (formato `YYYY-MM-DD`) |
+| `to` | String | No | Fecha fin (formato `YYYY-MM-DD`) |
+| `clientDocument` | String | No | NIT o documento del cliente |
+| `invoiceNumber` | Long | No | Numero de factura |
+| `page` | int | No | Pagina (inicia en 0, default: 0) |
+| `size` | int | No | Elementos por pagina (default: 20) |
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "content": [
+      {
+        "id": "uuid",
+        "invoiceNumber": 42,
+        "cuf": "2872F729...",
+        "siatState": "VALIDATED",
+        "clientBusinessName": "EMPRESA S.R.L.",
+        "clientDocumentNumber": "123456789",
+        "amountTotal": 500.00,
+        "emissionDate": "2026-03-15T10:30:00"
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total": 156
+  }
+}
+```
+
+### Ejemplos de uso
+
+```bash
+# Facturas validadas de marzo 2026
+curl "https://sandbox.cucu.bo/api/v1/invoices/search?state=VALIDATED&from=2026-03-01" \
+  -H "X-API-Key: YOUR_API_KEY"
+
+# Facturas de un cliente especifico
+curl "https://sandbox.cucu.bo/api/v1/invoices/search?clientDocument=123456789" \
+  -H "X-API-Key: YOUR_API_KEY"
+
+# Factura por numero
+curl "https://sandbox.cucu.bo/api/v1/invoices/search?invoiceNumber=42" \
+  -H "X-API-Key: YOUR_API_KEY"
+```

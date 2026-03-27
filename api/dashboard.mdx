@@ -1,0 +1,58 @@
+---
+title: "Dashboard"
+sidebarTitle: "Dashboard"
+description: "Resumen ejecutivo de facturacion: totales, montos, estados, tendencia mensual."
+api: "GET /api/v1/invoices/dashboard"
+---
+
+## Dashboard de facturacion
+
+Obtiene un resumen ejecutivo de la facturacion del tenant: totales, montos acumulados, desglose por estado y tendencia de los ultimos 6 meses.
+
+### Request
+
+```bash
+curl "https://sandbox.cucu.bo/api/v1/invoices/dashboard" \
+  -H "X-API-Key: YOUR_API_KEY"
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "totalInvoices": 1250,
+    "thisMonth": {
+      "count": 156,
+      "amount": 45230.00
+    },
+    "thisYear": {
+      "amount": 380500.00
+    },
+    "byState": {
+      "VALIDATED": 1200,
+      "CANCELLED": 35,
+      "OFFLINE_PENDING": 2,
+      "REJECTED": 13
+    },
+    "monthlyTrend": [
+      {"month": "2025-10", "count": 98, "amount": 28500.00},
+      {"month": "2025-11", "count": 112, "amount": 32100.00},
+      {"month": "2025-12", "count": 130, "amount": 38900.00},
+      {"month": "2026-01", "count": 145, "amount": 41200.00},
+      {"month": "2026-02", "count": 148, "amount": 43800.00},
+      {"month": "2026-03", "count": 156, "amount": 45230.00}
+    ]
+  }
+}
+```
+
+| Campo | Descripcion |
+|-------|-------------|
+| `totalInvoices` | Total historico de facturas emitidas |
+| `thisMonth.count` | Facturas emitidas este mes |
+| `thisMonth.amount` | Monto total facturado este mes (Bs) |
+| `thisYear.amount` | Monto total facturado este anio (Bs) |
+| `byState` | Desglose por estado SIAT |
+| `monthlyTrend` | Ultimos 6 meses: cantidad y monto por mes |
