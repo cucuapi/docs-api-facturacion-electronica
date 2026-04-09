@@ -45,18 +45,6 @@
     ],
     "tabs": [
       {
-        "tab": "BCB API (Free)",
-        "icon": "dollar-sign",
-        "groups": [
-          {
-            "group": "BCB — Tipo de Cambio",
-            "pages": [
-              "bcb-api"
-            ]
-          }
-        ]
-      },
-      {
         "tab": "API REST",
         "icon": "square-terminal",
         "groups": [
@@ -170,6 +158,18 @@
           "guides/invoice-lifecycle",
           "guides/contingency",
           "guides/siat-requirements"
+        ]
+      },
+      {
+        "tab": "BCB API (Free)",
+        "icon": "dollar-sign",
+        "groups": [
+          {
+            "group": "Tipo de Cambio BCB",
+            "pages": [
+              "bcb-api"
+            ]
+          }
         ]
       }
     ],
