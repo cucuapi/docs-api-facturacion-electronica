@@ -37,6 +37,12 @@
         ]
       },
       {
+        "group": "Gratis",
+        "pages": [
+          "bcb-api"
+        ]
+      },
+      {
         "group": "Planes",
         "pages": [
           "pricing"

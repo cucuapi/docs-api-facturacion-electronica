@@ -1,0 +1,182 @@
+---
+title: "BCB API"
+sidebarTitle: "TC Referencial"
+description: "API gratuita del tipo de cambio referencial, oficial, UFV y mas indicadores del Banco Central de Bolivia. MCP + REST. Sin API key, sin registro."
+---
+
+<div style={{textAlign: 'center', marginBottom: '32px'}}>
+  <h1 style={{fontSize: '2.2rem', fontWeight: '900', lineHeight: '1.1', margin: '0 0 12px', letterSpacing: '-0.03em'}}>
+    <span style={{background: 'linear-gradient(135deg, #059669, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+      TC Referencial Bolivia
+    </span>
+  </h1>
+  <p style={{fontSize: '1.05rem', color: '#94a3b8', maxWidth: '540px', margin: '0 auto'}}>
+    Datos del Banco Central de Bolivia como MCP server y API REST.
+    Gratis. Sin API key. Sin registro.
+  </p>
+</div>
+
+<Note>
+  Servicio gratuito sin soporte ni garantia.
+  Fuente oficial: [bcb.gob.bo](https://www.bcb.gob.bo/).
+  Uso bajo su responsabilidad.
+</Note>
+
+---
+
+## MCP Server
+
+Conecta desde Claude, Cursor, VS Code o cualquier cliente MCP.
+
+### Configuracion
+
+```json
+{
+  "mcpServers": {
+    "bcb": {
+      "type": "http",
+      "url": "https://bcb.cucu.bo/mcp"
+    }
+  }
+}
+```
+
+<Tabs>
+  <Tab title="Claude Code">
+    Agrega al archivo `.mcp.json` en la raiz de tu proyecto:
+    ```json
+    {
+      "mcpServers": {
+        "bcb": {
+          "type": "http",
+          "url": "https://bcb.cucu.bo/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Cursor">
+    Settings → MCP Servers → Add:
+    - **Name:** `bcb`
+    - **Type:** `http`
+    - **URL:** `https://bcb.cucu.bo/mcp`
+  </Tab>
+  <Tab title="VS Code (Copilot)">
+    Agrega a `.vscode/mcp.json`:
+    ```json
+    {
+      "mcpServers": {
+        "bcb": {
+          "type": "http",
+          "url": "https://bcb.cucu.bo/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+Sin API key. Sin autenticacion. Solo conecta y usa.
+
+### Tools
+
+| Tool | Descripcion |
+|------|-------------|
+| `get_tc_referencial` | **TC referencial USD** — compra y venta. Usado para tarjetas de debito segun disposicion BCB. |
+| `get_tc_oficial` | TC oficial USD/BOB (Bs 6.86 / 6.96). |
+| `get_ufv` | Unidad de Fomento a la Vivienda del dia. |
+| `get_oro` | Cotizacion internacional del oro (USD/OTF). |
+| `get_inflacion` | IPC, inflacion mensual y anual. |
+| `get_tre` | Tasa de Referencia: MN, MVDOL, MN-UFV, ME. |
+| `get_all_indicators` | Todos los indicadores en JSON. |
+
+### Ejemplo de uso
+
+Una vez conectado, habla en lenguaje natural:
+
+```
+Tu: "cual es el tipo de cambio referencial hoy?"
+
+AI: El tipo de cambio referencial del dolar (BCB) es:
+    Compra: Bs 9.41
+    Venta:  Bs 9.61
+    Fecha:  2026-04-09
+```
+
+```
+Tu: "dame la UFV y el precio del oro"
+
+AI: UFV: Bs 3.19732
+    Oro:  $4,786.16 USD por onza troy fina
+```
+
+---
+
+## REST API
+
+Endpoints publicos. Sin autenticacion.
+
+**Base URL:** `https://bcb.cucu.bo`
+
+### TC Referencial USD
+
+<CodeGroup>
+```bash Request
+curl https://bcb.cucu.bo/api/v1/tc/usd
+```
+
+```json Response
+{
+  "tc_referencial_usd": {
+    "compra": 9.41,
+    "venta": 9.61,
+    "moneda": "USD/BOB",
+    "fecha": "2026-04-09"
+  },
+  "fuente": "Banco Central de Bolivia (bcb.gob.bo)"
+}
+```
+</CodeGroup>
+
+### Todos los endpoints
+
+| Metodo | Endpoint | Descripcion |
+|--------|----------|-------------|
+| `GET` | `/api/v1/tc/usd` | TC referencial USD (compra/venta) |
+| `GET` | `/api/v1/tc/oficial` | TC oficial |
+| `GET` | `/api/v1/tc/ufv` | UFV del dia |
+| `GET` | `/api/v1/tc/oro` | Cotizacion del oro |
+| `GET` | `/api/v1/tc/inflacion` | Indicadores de inflacion |
+| `GET` | `/api/v1/tc` | Todos los indicadores |
+| `GET` | `/health` | Health check |
+
+### Ejemplo: TC oficial
+
+<CodeGroup>
+```bash Request
+curl https://bcb.cucu.bo/api/v1/tc/oficial
+```
+
+```json Response
+{
+  "tc_oficial": {
+    "valor": 6.86,
+    "moneda": "USD/BOB",
+    "fecha": "2026-04-09"
+  },
+  "fuente": "Banco Central de Bolivia (bcb.gob.bo)"
+}
+```
+</CodeGroup>
+
+---
+
+## Limites
+
+| | |
+|---|---|
+| **Rate limit** | 120 requests/hora por IP |
+| **Cache** | 1 hora (el BCB actualiza una vez al dia) |
+| **Auth** | Ninguna — acceso libre |
+| **Soporte** | Ninguno — servicio gratuito |
+| **SLA** | Ninguno — best-effort |
