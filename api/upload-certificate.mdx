@@ -1,0 +1,153 @@
+---
+title: "Subir certificado digital"
+sidebarTitle: "Certificado digital"
+description: "Sube el certificado .crt y la llave privada .pem de tu empresa para firmar facturas electronicas."
+---
+
+## Subir certificado y llave privada
+
+`POST /api/v1/admin/company/{companyId}/sync-certificate`
+
+Sube por **multipart/form-data** el certificado digital (`.crt`) y la llave privada (`.pem`) de tu empresa. La API los almacena cifrados en la base de datos y los usa para firmar cada factura electronica (Modalidad 1).
+
+<Note>
+  Solo es necesario en **produccion**. En sandbox las facturas se emiten sin certificado real (validacion piloto del SIAT).
+</Note>
+
+| Parametro | Ubicacion | Tipo | Req | Descripcion |
+|-----------|-----------|------|-----|-------------|
+| `X-API-Key` | Header | string | Si | Tu API Key (`sk_live_...` o `sk_test_...`) |
+| `companyId` | Path | UUID | Si | ID de la empresa |
+| `cert` | Form (file) | binary | Opcional* | Archivo `.crt` (DER o PEM) |
+| `privateKey` | Form (file) | binary | Opcional* | Archivo `.pem` (PKCS8) |
+
+\* Debes enviar al menos uno de los dos. Puedes subir solo `cert`, solo `privateKey`, o ambos.
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://sandbox.cucu.bo/api/v1/admin/company/COMPANY_ID/sync-certificate \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -F "cert=@/ruta/cucu.crt" \
+  -F "privateKey=@/ruta/cucu.pem"
+```
+
+```javascript JavaScript
+const form = new FormData();
+form.append('cert', fs.createReadStream('/ruta/cucu.crt'));
+form.append('privateKey', fs.createReadStream('/ruta/cucu.pem'));
+
+const response = await fetch(
+  'https://sandbox.cucu.bo/api/v1/admin/company/COMPANY_ID/sync-certificate',
+  {
+    method: 'POST',
+    headers: { 'X-API-Key': 'YOUR_API_KEY' },
+    body: form
+  }
+);
+```
+
+```python Python
+import requests
+
+files = {
+    'cert': open('/ruta/cucu.crt', 'rb'),
+    'privateKey': open('/ruta/cucu.pem', 'rb')
+}
+response = requests.post(
+    'https://sandbox.cucu.bo/api/v1/admin/company/COMPANY_ID/sync-certificate',
+    headers={'X-API-Key': 'YOUR_API_KEY'},
+    files=files
+)
+```
+</CodeGroup>
+
+**Respuesta:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "uploaded": true,
+    "companyId": "34895a68-06de-47a2-bcac-ce5723b0b92b",
+    "nit": "1021293022",
+    "certUploaded": true,
+    "privateKeyUploaded": true,
+    "certificateSize": 1842,
+    "privateKeySize": 1704,
+    "certificateExpires": "Tue May 05 12:30:00 BOT 2026",
+    "certificateValid": true
+  }
+}
+```
+
+| Campo | Descripcion |
+|-------|-------------|
+| `uploaded` | Confirmacion de que la operacion fue exitosa |
+| `certUploaded` | `true` si se subio el `.crt` en esta peticion |
+| `privateKeyUploaded` | `true` si se subio el `.pem` en esta peticion |
+| `certificateExpires` | Fecha de expiracion del certificado actual de la empresa |
+| `certificateValid` | `true` si el certificado esta vigente hoy |
+
+## Verificar estado del certificado
+
+`GET /api/v1/admin/company/{companyId}/certificate-status`
+
+Devuelve si la empresa tiene certificado y llave privada cargados, y la vigencia.
+
+```bash
+curl https://sandbox.cucu.bo/api/v1/admin/company/COMPANY_ID/certificate-status \
+  -H "X-API-Key: YOUR_API_KEY"
+```
+
+**Respuesta:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "companyId": "34895a68-06de-47a2-bcac-ce5723b0b92b",
+    "nit": "1021293022",
+    "hasCertificate": true,
+    "hasPrivateKey": true,
+    "certificateExpires": "Tue May 05 12:30:00 BOT 2026",
+    "certificateValid": true,
+    "siatModality": 1,
+    "requiresSignature": true
+  }
+}
+```
+
+## Como obtener el `.crt` y el `.pem`
+
+El SIN entrega el certificado digital en formato `.p12` o `.pfx` con un password. Debes extraer dos archivos:
+
+- `cucu.crt` - certificado X.509 (formato DER o PEM)
+- `cucu.pem` - llave privada en formato PKCS8
+
+<CodeGroup>
+```bash openssl
+# Extraer certificado
+openssl pkcs12 -in cert.p12 -clcerts -nokeys -out cucu.crt
+
+# Extraer llave privada (PKCS8 sin password)
+openssl pkcs12 -in cert.p12 -nocerts -nodes -out cucu_temp.pem
+openssl pkcs8 -topk8 -nocrypt -in cucu_temp.pem -out cucu.pem
+rm cucu_temp.pem
+```
+</CodeGroup>
+
+<Warning>
+  La llave privada es **sensible**. Nunca la subas a Git, no la compartas por email y borra los archivos temporales tras subirla.
+</Warning>
+
+## Cuando renovar
+
+El certificado del SIN tiene una vigencia tipica de 1 ano. Cuando expire:
+
+1. Solicita uno nuevo en el SIN.
+2. Extrae `cucu.crt` y `cucu.pem` del nuevo `.p12`.
+3. Vuelve a llamar este endpoint con los archivos nuevos. Sobreescribe los anteriores.
+
+<Tip>
+  Programa una alerta 30 dias antes de la fecha en `certificateExpires` para evitar interrupciones.
+</Tip>

@@ -16,6 +16,8 @@ Un **NIT** (Numero de Identificacion Tributaria) activo en el Servicio de Impues
 
 Un **certificado digital** emitido por el SIN. Se usa para firmar digitalmente cada factura, garantizando su autenticidad.
 
+Una vez que tengas el `.crt` y el `.pem` extraidos del `.p12` del SIN, subelos a tu empresa via [POST /admin/company/{id}/sync-certificate](/api/upload-certificate).
+
 <Note>
   El certificado digital tiene fecha de vencimiento. Debe renovarse antes de que expire.
 </Note>

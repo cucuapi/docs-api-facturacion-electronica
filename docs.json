@@ -107,6 +107,13 @@
             ]
           },
           {
+            "group": "Configuracion",
+            "icon": "gear",
+            "pages": [
+              "api/upload-certificate"
+            ]
+          },
+          {
             "group": "Catalogos",
             "icon": "book",
             "pages": [
